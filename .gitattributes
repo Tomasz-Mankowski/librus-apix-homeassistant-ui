@@ -1,0 +1,7 @@
+# HA runs on Linux in the container; keep LF line endings in the repo.
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.png binary
+*.jpg binary
+# Built bundle is committed for HACS; hide it from diffs and language stats.
+dist/** linguist-generated=true -diff

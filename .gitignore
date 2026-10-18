@@ -1,0 +1,19 @@
+# Node
+node_modules/
+coverage/
+.vite/
+*.log
+*.tsbuildinfo
+
+# dist/ is NOT ignored: HACS installs the built bundle from the tagged repo.
+
+# Local / secrets
+.env
+secrets.yaml
+librus-credentials.txt
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
