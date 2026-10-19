@@ -1,4 +1,4 @@
-# Librus APIX Cards dla Home Assistant
+#  `librus-apix-homeassistant-ui` - Karty HA dla  `librus-apix-homeassistant`
 
 Karty do panelu Home Assistant (HACS, kategoria „Dashboard”) dla integracji [librus-apix-homeassistant](https://github.com/Tomasz-Mankowski/librus-apix-homeassistant). Pokazują terminarz, wiadomości i ogłoszenia z Librus Synergia.
 
