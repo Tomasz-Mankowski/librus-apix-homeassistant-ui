@@ -32,6 +32,10 @@ export interface ScheduleCardConfig extends BaseCardConfig {
   fields?: ScheduleField[];
   /** Event types to show: preset groups ("group:tests") and type names; empty = all. */
   types?: string[];
+  /** Highlight the nearest event (bar and tint); default: on. */
+  highlight_next?: boolean;
+  /** Show the "Next" label on the nearest event; default: on. */
+  show_next_label?: boolean;
 }
 
 function findCalendar(hass?: HomeAssistant): string | undefined {
@@ -223,7 +227,7 @@ export class ScheduleCard extends LibrusCard<ScheduleCardConfig> {
     ].filter(Boolean);
     const parts = dayParts(this.hass, event.date ?? event.start);
     return html`
-      <li class=${next ? "next" : ""}>
+      <li class=${next && this._config?.highlight_next !== false ? "next" : ""}>
         <button class="row" @click=${() => this._open(event)}>
           ${fields.has("date")
             ? html`<span class="badge" aria-label=${event.date ? formatDate(this.hass, event.date) : formatDateTime(this.hass, event.start.toISOString())}>
@@ -235,7 +239,9 @@ export class ScheduleCard extends LibrusCard<ScheduleCardConfig> {
             <div class="title">${event.summary}</div>
             ${meta.length ? html`<div class="meta">${meta.join(" · ")}</div>` : nothing}
           </span>
-          ${next ? html`<span class="next-label">${this.t("schedule.next")}</span>` : nothing}
+          ${next && this._config?.show_next_label !== false
+            ? html`<span class="next-label">${this.t("schedule.next")}</span>`
+            : nothing}
         </button>
       </li>
     `;
@@ -356,11 +362,25 @@ export class ScheduleCardEditor extends LibrusCardEditor<ScheduleCardConfig> {
         name: "types",
         selector: { select: { multiple: true, custom_value: true, options: this._typeOptions() } },
       },
+      {
+        name: "",
+        type: "grid",
+        schema: [
+          { name: "highlight_next", selector: { boolean: {} } },
+          { name: "show_next_label", selector: { boolean: {} } },
+        ],
+      },
     ];
   }
 
   override setConfig(config: ScheduleCardConfig): void {
     // Show the defaults in the form (the first change writes them into the config).
-    super.setConfig({ days: DEFAULT_DAYS, fields: [...DEFAULT_SCHEDULE_FIELDS], ...config });
+    super.setConfig({
+      days: DEFAULT_DAYS,
+      fields: [...DEFAULT_SCHEDULE_FIELDS],
+      highlight_next: true,
+      show_next_label: true,
+      ...config,
+    });
   }
 }

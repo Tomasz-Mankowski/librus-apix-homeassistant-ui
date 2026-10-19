@@ -509,8 +509,62 @@ F._$litElement$ = !0, F.finalized = !0, P.litElementHydrateSupport?.({ LitElemen
 var ke = P.litElementPolyfillSupport;
 ke?.({ LitElement: F }), (P.litElementVersions ??= []).push("4.2.2");
 //#endregion
-//#region src/common/localize.ts
+//#region ../opt/ui/node_modules/lit-html/directive.js
 var Ae = {
+	ATTRIBUTE: 1,
+	CHILD: 2,
+	PROPERTY: 3,
+	BOOLEAN_ATTRIBUTE: 4,
+	EVENT: 5,
+	ELEMENT: 6
+}, je = (e) => (...t) => ({
+	_$litDirective$: e,
+	values: t
+}), Me = class {
+	constructor(e) {}
+	get _$AU() {
+		return this._$AM._$AU;
+	}
+	_$AT(e, t, n) {
+		this._$Ct = e, this._$AM = t, this._$Ci = n;
+	}
+	_$AS(e, t) {
+		return this.update(e, t);
+	}
+	update(e, t) {
+		return this.render(...t);
+	}
+}, Ne = "important", Pe = " !" + Ne, Fe = je(class extends Me {
+	constructor(e) {
+		if (super(e), e.type !== Ae.ATTRIBUTE || e.name !== "style" || e.strings?.length > 2) throw Error("The `styleMap` directive must be used in the `style` attribute and must be the only part in the attribute.");
+	}
+	render(e) {
+		return Object.keys(e).reduce((t, n) => {
+			let r = e[n];
+			return r == null ? t : t + `${n = n.includes("-") ? n : n.replace(/(?:^(webkit|moz|ms|o)|)(?=[A-Z])/g, "-$&").toLowerCase()}:${r};`;
+		}, "");
+	}
+	update(e, [t]) {
+		let { style: n } = e.element;
+		if (this.ft === void 0) return this.ft = new Set(Object.keys(t)), this.render(t);
+		for (let e of this.ft) t[e] ?? (this.ft.delete(e), e.includes("-") ? n.removeProperty(e) : n[e] = null);
+		for (let e in t) {
+			let r = t[e];
+			if (r != null) {
+				this.ft.add(e);
+				let t = typeof r == "string" && r.endsWith(Pe);
+				e.includes("-") || t ? n.setProperty(e, t ? r.slice(0, -11) : r, t ? Ne : "") : n[e] = r;
+			}
+		}
+		return D;
+	}
+}), Ie = /* @__PURE__ */ new Set(/* @__PURE__ */ "primary.accent.disabled.red.pink.purple.deep-purple.indigo.blue.light-blue.cyan.teal.green.light-green.lime.yellow.amber.orange.deep-orange.brown.light-grey.grey.dark-grey.blue-grey.black.white".split("."));
+function Le(e) {
+	if (e && e !== "none" && e !== "state") return Ie.has(e) ? `var(--${e}-color)` : e;
+}
+//#endregion
+//#region src/common/localize.ts
+var Re = {
 	en: {
 		common: {
 			close: "Close",
@@ -528,7 +582,12 @@ var Ae = {
 			count: "Number of items",
 			fields: "Shown on the list",
 			days: "Days ahead",
-			types: "Event types (empty: all)"
+			types: "Event types (empty: all)",
+			icon_color: "Icon colour",
+			unread_color: "Colour of unread messages",
+			highlight_unread: "Highlight unread messages",
+			highlight_next: "Highlight the nearest event",
+			show_next_label: "Show the “Next” label"
 		},
 		messages: {
 			name: "Messages",
@@ -600,7 +659,12 @@ var Ae = {
 			count: "Liczba pozycji",
 			fields: "Pokazywane na liście",
 			days: "Liczba dni do przodu",
-			types: "Rodzaje wydarzeń (puste: wszystkie)"
+			types: "Rodzaje wydarzeń (puste: wszystkie)",
+			icon_color: "Kolor ikony",
+			unread_color: "Kolor nieprzeczytanych wiadomości",
+			highlight_unread: "Wyróżnij nieprzeczytane wiadomości",
+			highlight_next: "Wyróżnij najbliższe wydarzenie",
+			show_next_label: "Pokaż etykietę „Najbliższe”"
 		},
 		messages: {
 			name: "Wiadomości",
@@ -659,7 +723,7 @@ var Ae = {
 function I(e) {
 	return (e?.locale?.language ?? e?.language ?? "en").toLowerCase().startsWith("pl") ? "pl" : "en";
 }
-function je(e, t) {
+function ze(e, t) {
 	let n = e;
 	for (let e of t.split(".")) {
 		if (typeof n != "object") return;
@@ -668,7 +732,7 @@ function je(e, t) {
 	return typeof n == "string" ? n : void 0;
 }
 function L(e, t, n = {}) {
-	return (je(Ae[I(e)], t) ?? je(Ae.en, t) ?? t).replace(/\{(\w+)\}/g, (e, t) => t in n ? String(n[t]) : e);
+	return (ze(Re[I(e)], t) ?? ze(Re.en, t) ?? t).replace(/\{(\w+)\}/g, (e, t) => t in n ? String(n[t]) : e);
 }
 //#endregion
 //#region src/common/styles.ts
@@ -771,7 +835,7 @@ var R = o`
 		let t = this._config?.icon ?? this.defaultIcon;
 		return E`
       <h1 class="card-header">
-        ${t ? E`<ha-icon .icon=${t}></ha-icon>` : O}
+        ${t ? E`<ha-icon .icon=${t} style=${Fe({ color: Le(this._config?.icon_color) })}></ha-icon>` : O}
         <span class="name">${e}</span>
       </h1>
     `;
@@ -784,13 +848,13 @@ var R = o`
       </ha-card>
     `;
 	}
-}, B = "librus-apix-dialog", Me = "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z", V = "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex=\"-1\"])";
-function Ne() {
+}, B = "librus-apix-dialog", Be = "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z", V = "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex=\"-1\"])";
+function Ve() {
 	let e = document.activeElement;
 	for (; e?.shadowRoot?.activeElement;) e = e.shadowRoot.activeElement;
 	return e;
 }
-var Pe = class extends F {
+var He = class extends F {
 	static properties = {
 		heading: { type: String },
 		closeLabel: { attribute: !1 },
@@ -878,7 +942,7 @@ var Pe = class extends F {
     }
   `;
 	show() {
-		this._opener = Ne(), this.open = !0;
+		this._opener = Ve(), this.open = !0;
 	}
 	close() {
 		this.open &&= !1;
@@ -909,7 +973,7 @@ var Pe = class extends F {
 			e.preventDefault();
 			return;
 		}
-		let n = t[0], r = t[t.length - 1], i = Ne();
+		let n = t[0], r = t[t.length - 1], i = Ve();
 		e.shiftKey && (i === n || !t.includes(i)) ? (e.preventDefault(), r.focus()) : !e.shiftKey && (i === r || !t.includes(i)) && (e.preventDefault(), n.focus());
 	}
 	_onClick(e) {
@@ -931,7 +995,7 @@ var Pe = class extends F {
           <header>
             <h2 id="heading">${this.heading}</h2>
             <button class="close" aria-label=${this.closeLabel} title=${this.closeLabel} @click=${this.close}>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d=${Me}></path></svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d=${Be}></path></svg>
             </button>
           </header>
           <div class="content"><slot></slot></div>
@@ -981,13 +1045,20 @@ function U(e, t = "librus_apix") {
 	}, {
 		name: "",
 		type: "grid",
-		schema: [{
-			name: "title",
-			selector: { text: {} }
-		}, {
-			name: "icon",
-			selector: { icon: {} }
-		}]
+		schema: [
+			{
+				name: "title",
+				selector: { text: {} }
+			},
+			{
+				name: "icon",
+				selector: { icon: {} }
+			},
+			{
+				name: "icon_color",
+				selector: { ui_color: {} }
+			}
+		]
 	}];
 }
 //#endregion
@@ -995,20 +1066,20 @@ function U(e, t = "librus_apix") {
 function W(e) {
 	return e?.locale?.time_zone === "server" ? e.config?.time_zone : void 0;
 }
-function Fe(e) {
+function Ue(e) {
 	if (!e) return;
 	let t = new Date(e);
 	return Number.isNaN(t.getTime()) ? void 0 : t;
 }
 function G(e, t) {
-	let n = Fe(t);
+	let n = Ue(t);
 	return n ? new Intl.DateTimeFormat(I(e), {
 		dateStyle: "short",
 		timeStyle: "short",
 		timeZone: W(e)
 	}).format(n) : t;
 }
-function Ie(e, t) {
+function We(e, t) {
 	let n = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(t);
 	if (!n) return t;
 	let [, r, i, a, o, s] = n.map(Number);
@@ -1018,13 +1089,13 @@ function Ie(e, t) {
 		timeZone: "UTC"
 	}).format(new Date(Date.UTC(r, i - 1, a, o, s)));
 }
-function Le(e, t) {
+function Ge(e, t) {
 	return new Intl.DateTimeFormat(I(e), {
 		timeStyle: "short",
 		timeZone: W(e)
 	}).format(t);
 }
-function Re(e, t) {
+function Ke(e, t) {
 	let n = typeof t == "string", r = n ? /* @__PURE__ */ new Date(`${t}T12:00:00Z`) : t, i = n ? "UTC" : W(e), a = I(e);
 	return {
 		day: new Intl.DateTimeFormat(a, {
@@ -1038,17 +1109,17 @@ function Re(e, t) {
 	};
 }
 function K(e, t) {
-	let n = /^\d{4}-\d{2}-\d{2}$/.test(t), r = Fe(n ? `${t}T12:00:00Z` : t);
+	let n = /^\d{4}-\d{2}-\d{2}$/.test(t), r = Ue(n ? `${t}T12:00:00Z` : t);
 	return r ? new Intl.DateTimeFormat(I(e), {
 		dateStyle: "short",
 		timeZone: n ? "UTC" : W(e)
 	}).format(r) : t;
 }
-function ze(e) {
+function qe(e) {
 	let t = e ?? 5;
 	if (!Number.isInteger(t) || t < 1 || t > 100) throw Error("count must be a whole number from 1 to 100");
 }
-function Be() {
+function Je() {
 	return {
 		name: "count",
 		selector: { number: {
@@ -1138,33 +1209,33 @@ var J = o`
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
-`, Y = "librus-announcements-card", Ve = "librus-announcements-card-editor", He = [
+`, Y = "librus-announcements-card", Ye = "librus-announcements-card-editor", Xe = [
 	"author",
 	"date",
 	"preview"
-], Ue = ["author", "date"];
-function We(e) {
+], Ze = ["author", "date"];
+function Qe(e) {
 	let t = e?.announcements;
 	return Array.isArray(t) ? t : [];
 }
-function Ge(e) {
+function $e(e) {
 	return Object.values(e?.states ?? {}).find((e) => e.entity_id.startsWith("sensor.") && Array.isArray(e.attributes.announcements))?.entity_id;
 }
-var Ke = class extends z {
+var et = class extends z {
 	static properties = { _selected: { state: !0 } };
 	static styles = [R, J];
 	static getConfigElement() {
-		return document.createElement(Ve);
+		return document.createElement(Ye);
 	}
 	static getStubConfig(e) {
 		return {
 			type: `custom:${Y}`,
-			entity: Ge(e) ?? ""
+			entity: $e(e) ?? ""
 		};
 	}
 	setConfig(e) {
 		if (!e?.entity) throw Error("Entity required (the Librus announcements sensor)");
-		ze(e.count), super.setConfig(e);
+		qe(e.count), super.setConfig(e);
 	}
 	get defaultTitle() {
 		return this.t("announcements.name");
@@ -1173,10 +1244,10 @@ var Ke = class extends z {
 		return "mdi:bullhorn-outline";
 	}
 	get _fields() {
-		return new Set(this._config?.fields ?? Ue);
+		return new Set(this._config?.fields ?? Ze);
 	}
 	get _items() {
-		return We(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
+		return Qe(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
 	}
 	getCardSize() {
 		return 1 + Math.max(1, this._items.length);
@@ -1212,7 +1283,7 @@ var Ke = class extends z {
 	render() {
 		if (!this._config || !this.hass) return O;
 		if (!this.stateObj) return this.renderMissingEntity();
-		let e = this._items, t = this._selected ? We(this.stateObj.attributes).find((e) => e.id === this._selected?.id) ?? this._selected : void 0;
+		let e = this._items, t = this._selected ? Qe(this.stateObj.attributes).find((e) => e.id === this._selected?.id) ?? this._selected : void 0;
 		return E`
       <ha-card>
         ${this.renderHeader()}
@@ -1227,25 +1298,25 @@ var Ke = class extends z {
       </librus-apix-dialog>
     `;
 	}
-}, qe = class extends H {
+}, tt = class extends H {
 	get schema() {
 		return [
 			...U("sensor"),
-			Be(),
-			q(this.hass, "announcements", He)
+			Je(),
+			q(this.hass, "announcements", Xe)
 		];
 	}
 	setConfig(e) {
 		super.setConfig({
 			count: 5,
-			fields: [...Ue],
+			fields: [...Ze],
 			...e
 		});
 	}
 };
 //#endregion
 //#region src/common/api.ts
-async function Je(e, t, n) {
+async function nt(e, t, n) {
 	return (await e.callWS({
 		type: "call_service",
 		domain: "librus_apix",
@@ -1257,25 +1328,25 @@ async function Je(e, t, n) {
 		return_response: !0
 	})).response;
 }
-function Ye(e) {
+function rt(e) {
 	return e && typeof e == "object" && "message" in e ? String(e.message) : String(e);
 }
 //#endregion
 //#region src/cards/messages-card.ts
-var X = "librus-messages-card", Xe = "librus-messages-card-editor", Z = [
+var X = "librus-messages-card", it = "librus-messages-card-editor", Z = [
 	"author",
 	"date",
 	"attachment",
 	"status"
 ];
-function Ze(e) {
+function at(e) {
 	let t = e?.messages;
 	return Array.isArray(t) ? t : [];
 }
-function Qe(e) {
+function ot(e) {
 	return Object.values(e?.states ?? {}).find((e) => e.entity_id.startsWith("sensor.") && Array.isArray(e.attributes.messages))?.entity_id;
 }
-var $e = class extends z {
+var st = class extends z {
 	static properties = {
 		_selected: { state: !0 },
 		_loading: { state: !0 },
@@ -1291,7 +1362,11 @@ var $e = class extends z {
         color: var(--secondary-text-color);
       }
       .unread .status {
-        color: var(--primary-color);
+        color: var(--librus-unread-color);
+      }
+      li.unread.highlight {
+        box-shadow: inset 4px 0 0 var(--librus-unread-color);
+        background: color-mix(in srgb, var(--librus-unread-color) 10%, transparent);
       }
       .unread .title {
         font-weight: var(--ha-font-weight-bold, 700);
@@ -1324,17 +1399,17 @@ var $e = class extends z {
     `
 	];
 	static getConfigElement() {
-		return document.createElement(Xe);
+		return document.createElement(it);
 	}
 	static getStubConfig(e) {
 		return {
 			type: `custom:${X}`,
-			entity: Qe(e) ?? ""
+			entity: ot(e) ?? ""
 		};
 	}
 	setConfig(e) {
 		if (!e?.entity) throw Error("Entity required (the Librus messages sensor)");
-		ze(e.count), super.setConfig(e);
+		qe(e.count), super.setConfig(e);
 	}
 	get defaultTitle() {
 		return this.t("messages.name");
@@ -1346,7 +1421,7 @@ var $e = class extends z {
 		return new Set(this._config?.fields ?? Z);
 	}
 	get _messages() {
-		return Ze(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
+		return at(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
 	}
 	getCardSize() {
 		return 1 + Math.max(1, this._messages.length);
@@ -1358,12 +1433,12 @@ var $e = class extends z {
 		if (this.hass && this._config?.entity && this._loading !== e.id) {
 			this._loading = e.id, this._error = void 0;
 			try {
-				let t = await Je(this.hass, this._config.entity, e.id);
+				let t = await nt(this.hass, this._config.entity, e.id);
 				this._contents.set(e.id, t);
 			} catch (t) {
 				this._error = {
 					id: e.id,
-					text: Ye(t)
+					text: rt(t)
 				};
 			} finally {
 				this._loading = void 0;
@@ -1394,7 +1469,7 @@ var $e = class extends z {
 	_renderRow(e) {
 		let t = this._fields, n = [t.has("author") ? e.author : "", t.has("date") ? G(this.hass, e.date) : ""].filter(Boolean);
 		return E`
-      <li class=${e.unread ? "unread" : "read"}>
+      <li class=${e.unread ? this._config?.highlight_unread ? "unread highlight" : "unread" : "read"}>
         <button class="row" @click=${() => this._open(e)}>
           ${t.has("status") ? E`<ha-icon
                 class="status"
@@ -1428,9 +1503,9 @@ var $e = class extends z {
 	render() {
 		if (!this._config || !this.hass) return O;
 		if (!this.stateObj) return this.renderMissingEntity();
-		let e = this._messages, t = this._selected ? Ze(this.stateObj.attributes).find((e) => e.id === this._selected?.id) ?? this._selected : void 0;
+		let e = this._messages, t = this._selected ? at(this.stateObj.attributes).find((e) => e.id === this._selected?.id) ?? this._selected : void 0;
 		return E`
-      <ha-card>
+      <ha-card style=${Fe({ "--librus-unread-color": Le(this._config.unread_color) ?? "var(--primary-color)" })}>
         ${this.renderHeader()}
         ${e.length ? E`<ul class="items">${e.map((e) => this._renderRow(e))}</ul>` : E`<div class="empty">${this.t("messages.empty")}</div>`}
       </ha-card>
@@ -1443,22 +1518,35 @@ var $e = class extends z {
       </librus-apix-dialog>
     `;
 	}
-}, et = class extends H {
+}, ct = class extends H {
 	get schema() {
 		return [
 			...U("sensor"),
-			Be(),
-			q(this.hass, "messages", Z)
+			Je(),
+			q(this.hass, "messages", Z),
+			{
+				name: "",
+				type: "grid",
+				schema: [{
+					name: "unread_color",
+					selector: { ui_color: {} }
+				}, {
+					name: "highlight_unread",
+					selector: { boolean: {} }
+				}]
+			}
 		];
 	}
 	setConfig(e) {
 		super.setConfig({
 			count: 5,
 			fields: [...Z],
+			unread_color: "primary",
+			highlight_unread: !1,
 			...e
 		});
 	}
-}, tt = [
+}, lt = [
 	{
 		id: "tests",
 		types: [
@@ -1489,34 +1577,34 @@ var $e = class extends z {
 		id: "contests",
 		types: ["Konkurs", "Olimpiada"]
 	}
-], nt = "group:";
+], ut = "group:";
 function Q(e) {
 	return e.trim().toLocaleLowerCase("pl");
 }
-function rt(e) {
+function dt(e) {
 	return (e.fields?.type || e.summary.split(":")[0]).trim();
 }
-function it(e) {
+function ft(e) {
 	let t = /* @__PURE__ */ new Map();
 	for (let n of e) {
-		let e = rt(n);
+		let e = dt(n);
 		e && !t.has(Q(e)) && t.set(Q(e), e);
 	}
 	return [...t.values()].sort((e, t) => e.localeCompare(t, "pl"));
 }
-function at(e) {
+function pt(e) {
 	let t = /* @__PURE__ */ new Set();
-	for (let n of e) n.startsWith("group:") ? tt.find((e) => e.id === n.slice(6))?.types.forEach((e) => t.add(Q(e))) : t.add(Q(n));
+	for (let n of e) n.startsWith("group:") ? lt.find((e) => e.id === n.slice(6))?.types.forEach((e) => t.add(Q(e))) : t.add(Q(n));
 	return t;
 }
-function ot(e, t) {
+function mt(e, t) {
 	if (!t?.length) return e;
-	let n = at(t);
-	return e.filter((e) => n.has(Q(rt(e))));
+	let n = pt(t);
+	return e.filter((e) => n.has(Q(dt(e))));
 }
 //#endregion
 //#region src/common/schedule.ts
-function st(e) {
+function ht(e) {
 	let t = (e ?? "").split("\n");
 	for (let e = t.length - 1; e >= 0; e--) if (t[e].startsWith("{")) {
 		try {
@@ -1533,12 +1621,12 @@ function st(e) {
 	}
 	return { text: (e ?? "").trim() };
 }
-function ct(e) {
+function gt(e) {
 	let [t, n, r] = e.split("-").map(Number);
 	return new Date(t, n - 1, r);
 }
-function lt(e) {
-	let t = !e.start.dateTime, n = t ? ct(e.start.date ?? "") : new Date(e.start.dateTime), r = t ? ct(e.end.date ?? e.start.date ?? "") : new Date(e.end.dateTime ?? e.start.dateTime), { text: i, fields: a } = st(e.description);
+function _t(e) {
+	let t = !e.start.dateTime, n = t ? gt(e.start.date ?? "") : new Date(e.start.dateTime), r = t ? gt(e.end.date ?? e.start.date ?? "") : new Date(e.end.dateTime ?? e.start.dateTime), { text: i, fields: a } = ht(e.description);
 	return {
 		uid: e.uid ?? a?.id ?? `${e.summary}|${n.toISOString()}`,
 		summary: e.summary,
@@ -1550,30 +1638,30 @@ function lt(e) {
 		fields: a
 	};
 }
-function ut(e, t, n) {
+function vt(e, t, n) {
 	return e.filter((e) => e.end > t && e.start < n).sort((e, t) => e.start.getTime() - t.start.getTime() || e.summary.localeCompare(t.summary));
 }
-async function dt(e, t, n, r) {
+async function yt(e, t, n, r) {
 	let i = `start=${encodeURIComponent(n.toISOString())}&end=${encodeURIComponent(r.toISOString())}`;
-	return ut((await e.callApi("GET", `calendars/${t}?${i}`)).map(lt), n, r);
+	return vt((await e.callApi("GET", `calendars/${t}?${i}`)).map(_t), n, r);
 }
 //#endregion
 //#region src/cards/schedule-card.ts
-var $ = "librus-schedule-card", ft = "librus-schedule-card-editor", pt = [
+var $ = "librus-schedule-card", bt = "librus-schedule-card-editor", xt = [
 	"date",
 	"time",
 	"description",
 	"teacher"
-], mt = [
+], St = [
 	"date",
 	"time",
 	"description"
-], ht = 9e5, gt = 864e5;
-function _t(e) {
+], Ct = 9e5, wt = 864e5;
+function Tt(e) {
 	let t = Object.values(e?.states ?? {});
 	return (t.find((e) => e.entity_id.startsWith("calendar.") && String(e.attributes.description ?? "").includes("\"librus_apix\"")) ?? t.find((e) => e.entity_id.startsWith("calendar.")))?.entity_id;
 }
-var vt = class extends z {
+var Et = class extends z {
 	static properties = {
 		_events: { state: !0 },
 		_error: { state: !0 },
@@ -1624,12 +1712,12 @@ var vt = class extends z {
     `
 	];
 	static getConfigElement() {
-		return document.createElement(ft);
+		return document.createElement(bt);
 	}
 	static getStubConfig(e) {
 		return {
 			type: `custom:${$}`,
-			entity: _t(e) ?? ""
+			entity: Tt(e) ?? ""
 		};
 	}
 	setConfig(e) {
@@ -1646,10 +1734,10 @@ var vt = class extends z {
 		return "mdi:calendar-text";
 	}
 	get _fields() {
-		return new Set(this._config?.fields ?? mt);
+		return new Set(this._config?.fields ?? St);
 	}
 	connectedCallback() {
-		super.connectedCallback(), this._timer = setInterval(() => void this._refresh(), ht), this._refresh();
+		super.connectedCallback(), this._timer = setInterval(() => void this._refresh(), Ct), this._refresh();
 	}
 	disconnectedCallback() {
 		super.disconnectedCallback(), clearInterval(this._timer), this._timer = void 0;
@@ -1661,17 +1749,17 @@ var vt = class extends z {
 	}
 	async _refresh() {
 		if (!this.hass || !this._config?.entity || !this.isConnected || this._fetching) return this._fetching;
-		let e = /* @__PURE__ */ new Date(), t = new Date(e.getTime() + (this._config.days ?? 14) * gt);
-		return this._fetching = dt(this.hass, this._config.entity, e, t).then((e) => {
+		let e = /* @__PURE__ */ new Date(), t = new Date(e.getTime() + (this._config.days ?? 14) * wt);
+		return this._fetching = yt(this.hass, this._config.entity, e, t).then((e) => {
 			this._events = e, this._error = void 0;
 		}).catch((e) => {
-			this._error = Ye(e);
+			this._error = rt(e);
 		}).finally(() => {
 			this._fetching = void 0;
 		}), this._fetching;
 	}
 	get _shown() {
-		return this._events && ot(this._events, this._config?.types);
+		return this._events && mt(this._events, this._config?.types);
 	}
 	getCardSize() {
 		return 1 + Math.max(1, this._shown?.length ?? 1);
@@ -1680,7 +1768,7 @@ var vt = class extends z {
 		this._selected = e, this.updateComplete.then(() => this.renderRoot.querySelector(B)?.show());
 	}
 	_when(e) {
-		return e.allDay ? this.t("schedule.all_day") : `${Le(this.hass, e.start)}–${Le(this.hass, e.end)}`;
+		return e.allDay ? this.t("schedule.all_day") : `${Ge(this.hass, e.start)}–${Ge(this.hass, e.end)}`;
 	}
 	_renderRow(e, t) {
 		let n = this._fields, r = e.fields?.lesson, i = [
@@ -1688,9 +1776,9 @@ var vt = class extends z {
 			n.has("time") && r ? this.t("schedule.lesson_n", { n: r }) : "",
 			n.has("teacher") ? e.fields?.teacher ?? "" : "",
 			n.has("description") ? e.fields?.description ?? "" : ""
-		].filter(Boolean), a = Re(this.hass, e.date ?? e.start);
+		].filter(Boolean), a = Ke(this.hass, e.date ?? e.start);
 		return E`
-      <li class=${t ? "next" : ""}>
+      <li class=${t && this._config?.highlight_next !== !1 ? "next" : ""}>
         <button class="row" @click=${() => this._open(e)}>
           ${n.has("date") ? E`<span class="badge" aria-label=${e.date ? K(this.hass, e.date) : G(this.hass, e.start.toISOString())}>
                 <span class="day">${a.day}</span>
@@ -1700,7 +1788,7 @@ var vt = class extends z {
             <div class="title">${e.summary}</div>
             ${i.length ? E`<div class="meta">${i.join(" · ")}</div>` : O}
           </span>
-          ${t ? E`<span class="next-label">${this.t("schedule.next")}</span>` : O}
+          ${t && this._config?.show_next_label !== !1 ? E`<span class="next-label">${this.t("schedule.next")}</span>` : O}
         </button>
       </li>
     `;
@@ -1713,7 +1801,7 @@ var vt = class extends z {
 			[this.t("schedule.time"), this._when(e)],
 			[this.t("schedule.lesson"), t?.lesson ? String(t.lesson) : void 0],
 			[this.t("schedule.teacher"), t?.teacher],
-			[this.t("schedule.added"), t?.date_added ? Ie(this.hass, t.date_added) : void 0]
+			[this.t("schedule.added"), t?.date_added ? We(this.hass, t.date_added) : void 0]
 		], i = /* @__PURE__ */ new Set([
 			"Data",
 			"Nr lekcji",
@@ -1756,14 +1844,14 @@ var vt = class extends z {
       </librus-apix-dialog>
     `;
 	}
-}, yt = [
-	[B, Pe],
-	[X, $e],
-	[Xe, et],
-	[Y, Ke],
-	[Ve, qe],
-	[$, vt],
-	[ft, class extends H {
+}, Dt = [
+	[B, He],
+	[X, st],
+	[it, ct],
+	[Y, et],
+	[Ye, tt],
+	[$, Et],
+	[bt, class extends H {
 		static properties = { _found: { state: !0 } };
 		_foundFor;
 		updated(e) {
@@ -1772,14 +1860,14 @@ var vt = class extends z {
 			if (this.hass && t && t !== this._foundFor) {
 				this._foundFor = t;
 				let e = /* @__PURE__ */ new Date();
-				dt(this.hass, t, e, new Date(e.getTime() + 200 * gt)).then((e) => {
-					this._foundFor === t && (this._found = it(e));
+				yt(this.hass, t, e, new Date(e.getTime() + 200 * wt)).then((e) => {
+					this._foundFor === t && (this._found = ft(e));
 				}).catch(() => void 0);
 			}
 		}
 		_typeOptions() {
-			let e = tt.map((e) => ({
-				value: `${nt}${e.id}`,
+			let e = lt.map((e) => ({
+				value: `${ut}${e.id}`,
 				label: `${L(this.hass, `schedule.group_${e.id}`)} (${e.types.join(", ")})`
 			})), t = [...this._found ?? []];
 			for (let e of this._config?.types ?? []) !e.startsWith("group:") && !t.includes(e) && t.push(e);
@@ -1800,7 +1888,7 @@ var vt = class extends z {
 						unit_of_measurement: "d"
 					} }
 				},
-				q(this.hass, "schedule", pt),
+				q(this.hass, "schedule", xt),
 				{
 					name: "types",
 					selector: { select: {
@@ -1808,18 +1896,31 @@ var vt = class extends z {
 						custom_value: !0,
 						options: this._typeOptions()
 					} }
+				},
+				{
+					name: "",
+					type: "grid",
+					schema: [{
+						name: "highlight_next",
+						selector: { boolean: {} }
+					}, {
+						name: "show_next_label",
+						selector: { boolean: {} }
+					}]
 				}
 			];
 		}
 		setConfig(e) {
 			super.setConfig({
 				days: 14,
-				fields: [...mt],
+				fields: [...St],
+				highlight_next: !0,
+				show_next_label: !0,
 				...e
 			});
 		}
 	}]
-], bt = [
+], Ot = [
 	{
 		type: $,
 		name: "Librus schedule",
@@ -1839,7 +1940,7 @@ var vt = class extends z {
 		preview: !0
 	}
 ];
-for (let [e, t] of yt) customElements.get(e) || customElements.define(e, t);
+for (let [e, t] of Dt) customElements.get(e) || customElements.define(e, t);
 window.customCards = window.customCards ?? [];
-for (let e of bt) window.customCards.some((t) => t.type === e.type) || window.customCards.push(e);
+for (let e of Ot) window.customCards.some((t) => t.type === e.type) || window.customCards.push(e);
 //#endregion

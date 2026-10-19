@@ -7,7 +7,9 @@ import {
   type PropertyValues,
   type TemplateResult,
 } from "lit";
+import { styleMap } from "lit/directives/style-map.js";
 
+import { cssColor } from "./colors";
 import { localize } from "./localize";
 import { cardStyles } from "./styles";
 import type { HassEntity, HomeAssistant, LovelaceCardConfig } from "../types";
@@ -17,6 +19,8 @@ export interface BaseCardConfig extends LovelaceCardConfig {
   entity?: string;
   title?: string;
   icon?: string;
+  /** Colour of the header icon from the HA colour picker ("red", "#ff0000"); default: theme icon colour. */
+  icon_color?: string;
 }
 
 /**
@@ -89,7 +93,9 @@ export abstract class LibrusCard<C extends BaseCardConfig = BaseCardConfig> exte
     const icon = this._config?.icon ?? this.defaultIcon;
     return html`
       <h1 class="card-header">
-        ${icon ? html`<ha-icon .icon=${icon}></ha-icon>` : nothing}
+        ${icon
+          ? html`<ha-icon .icon=${icon} style=${styleMap({ color: cssColor(this._config?.icon_color) })}></ha-icon>`
+          : nothing}
         <span class="name">${title}</span>
       </h1>
     `;

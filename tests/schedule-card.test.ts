@@ -229,8 +229,49 @@ describe("schedule card editor", () => {
 
     expect(form.data).toMatchObject({ days: 14, fields: ["date", "time", "description"] });
     const names = form.schema.flatMap((f) => (f.schema ? f.schema.map((s) => s.name) : [f.name]));
-    expect(names).toEqual(["entity", "title", "icon", "days", "fields", "types"]);
+    expect(names).toEqual([
+      "entity",
+      "title",
+      "icon",
+      "icon_color",
+      "days",
+      "fields",
+      "types",
+      "highlight_next",
+      "show_next_label",
+    ]);
+    expect(form.data).toMatchObject({ highlight_next: true, show_next_label: true });
     expect(form.schema[0].selector).toEqual({ entity: { filter: [{ domain: "calendar", integration: "librus_apix" }] } });
     expect(form.computeLabel({ name: "days" })).toBe("Liczba dni do przodu");
+  });
+});
+
+describe("schedule card nearest-event marks", () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    vi.useRealTimers();
+  });
+
+  it("can hide the label and keep the highlight", async () => {
+    const [first] = rows(await card({ show_next_label: false }));
+
+    expect(first.className).toBe("next");
+    expect(first.querySelector(".next-label")).toBeNull();
+  });
+
+  it("can hide the highlight and keep the label", async () => {
+    const [first] = rows(await card({ highlight_next: false }));
+
+    expect(first.className).toBe("");
+    expect(first.querySelector(".next-label")!.textContent).toBe("Najbliższe");
+  });
+
+  it("colours the header icon", async () => {
+    const el = await card({ icon_color: "red" });
+    expect(el.shadowRoot!.querySelector<HTMLElement>(".card-header ha-icon")!.style.color).toBe("var(--red-color)");
   });
 });

@@ -15,7 +15,12 @@
     "count": "Number of items",
     "fields": "Shown on the list",
     "days": "Days ahead",
-    "types": "Event types (empty: all)"
+    "types": "Event types (empty: all)",
+    "icon_color": "Icon colour",
+    "unread_color": "Colour of unread messages",
+    "highlight_unread": "Highlight unread messages",
+    "highlight_next": "Highlight the nearest event",
+    "show_next_label": "Show the “Next” label"
   },
   "messages": {
     "name": "Messages",

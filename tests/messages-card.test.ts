@@ -188,7 +188,17 @@ describe("messages card editor", () => {
 
     expect(form.data).toMatchObject({ entity: ENTITY, count: 5, fields: ["author", "date", "attachment", "status"] });
     const names = form.schema.flatMap((f) => (f.schema ? f.schema.map((s) => s.name) : [f.name]));
-    expect(names).toEqual(["entity", "title", "icon", "count", "fields"]);
+    expect(names).toEqual([
+      "entity",
+      "title",
+      "icon",
+      "icon_color",
+      "count",
+      "fields",
+      "unread_color",
+      "highlight_unread",
+    ]);
+    expect(form.data).toMatchObject({ unread_color: "primary", highlight_unread: false });
     const fields = form.schema.find((f) => f.name === "fields")!.selector!.select as {
       options: { value: string; label: string }[];
     };
@@ -201,5 +211,38 @@ describe("messages card editor", () => {
     expect(form.schema.find((f) => f.name === "count")!.selector).toEqual({
       number: { min: 1, max: 100, mode: "box" },
     });
+  });
+});
+
+describe("messages card colours and highlight", () => {
+  function unreadColor(el: MessagesCard): string {
+    return el.shadowRoot!.querySelector<HTMLElement>("ha-card")!.style.getPropertyValue("--librus-unread-color");
+  }
+
+  it("marks unread messages in the primary colour by default, without highlight", async () => {
+    const el = await card();
+
+    expect(unreadColor(el)).toBe("var(--primary-color)");
+    expect(rows(el)[0].className).toBe("unread");
+  });
+
+  it("uses the chosen colour for the unread marks", async () => {
+    expect(unreadColor(await card({ unread_color: "red" }))).toBe("var(--red-color)");
+    expect(unreadColor(await card({ unread_color: "#ff8800" }))).toBe("#ff8800");
+  });
+
+  it("highlights unread rows only when asked", async () => {
+    const [unread, , read] = rows(await card({ highlight_unread: true, unread_color: "green" }));
+
+    expect(unread.className).toBe("unread highlight");
+    expect(read.className).toBe("read");
+  });
+
+  it("colours the header icon", async () => {
+    const icon = (el: MessagesCard) =>
+      el.shadowRoot!.querySelector<HTMLElement>(".card-header ha-icon")!.style.color;
+
+    expect(icon(await card({ icon_color: "amber" }))).toBe("var(--amber-color)");
+    expect(icon(await card())).toBe("");
   });
 });

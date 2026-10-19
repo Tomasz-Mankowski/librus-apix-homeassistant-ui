@@ -82,6 +82,7 @@ export function baseFields(entityDomain: string, entityIntegration = "librus_api
       schema: [
         { name: "title", selector: { text: {} } },
         { name: "icon", selector: { icon: {} } },
+        { name: "icon_color", selector: { ui_color: {} } },
       ],
     },
   ];

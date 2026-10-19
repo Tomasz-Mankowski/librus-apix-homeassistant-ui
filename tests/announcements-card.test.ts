@@ -141,7 +141,7 @@ describe("announcements card editor", () => {
 
     expect(form.data).toMatchObject({ count: 5, fields: ["author", "date"] });
     const names = form.schema.flatMap((f) => (f.schema ? f.schema.map((s) => s.name) : [f.name]));
-    expect(names).toEqual(["entity", "title", "icon", "count", "fields"]);
+    expect(names).toEqual(["entity", "title", "icon", "icon_color", "count", "fields"]);
     const options = (form.schema.find((f) => f.name === "fields")!.selector!.select as {
       options: { label: string }[];
     }).options;

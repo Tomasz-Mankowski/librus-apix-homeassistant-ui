@@ -15,7 +15,12 @@
     "count": "Liczba pozycji",
     "fields": "Pokazywane na liście",
     "days": "Liczba dni do przodu",
-    "types": "Rodzaje wydarzeń (puste: wszystkie)"
+    "types": "Rodzaje wydarzeń (puste: wszystkie)",
+    "icon_color": "Kolor ikony",
+    "unread_color": "Kolor nieprzeczytanych wiadomości",
+    "highlight_unread": "Wyróżnij nieprzeczytane wiadomości",
+    "highlight_next": "Wyróżnij najbliższe wydarzenie",
+    "show_next_label": "Pokaż etykietę „Najbliższe”"
   },
   "messages": {
     "name": "Wiadomości",

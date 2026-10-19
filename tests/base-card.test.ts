@@ -144,3 +144,18 @@ describe("card editor", () => {
     expect(editor.shadowRoot!.querySelector("ha-form")).toBeNull();
   });
 });
+
+describe("colours", () => {
+  it("turns picker names into theme variables and keeps other colours", async () => {
+    const { cssColor } = await import("../src/common/colors");
+
+    expect(cssColor("red")).toBe("var(--red-color)");
+    expect(cssColor("deep-orange")).toBe("var(--deep-orange-color)");
+    expect(cssColor("primary")).toBe("var(--primary-color)");
+    expect(cssColor("#123456")).toBe("#123456");
+    expect(cssColor(undefined)).toBeUndefined();
+    expect(cssColor("")).toBeUndefined();
+    expect(cssColor("none")).toBeUndefined();
+    expect(cssColor("state")).toBeUndefined();
+  });
+});

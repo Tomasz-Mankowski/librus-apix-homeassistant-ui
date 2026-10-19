@@ -1,7 +1,9 @@
 import { css, html, nothing, type TemplateResult } from "lit";
+import { styleMap } from "lit/directives/style-map.js";
 
 import { errorText, getMessageContent, type MessageContent } from "../common/api";
 import { LibrusCard, type BaseCardConfig } from "../common/base-card";
+import { cssColor } from "../common/colors";
 import { DIALOG, type LibrusDialog } from "../common/dialog";
 import { LibrusCardEditor, baseFields, type FormField } from "../common/editor";
 import { formatDateTime } from "../common/format";
@@ -19,6 +21,10 @@ export type MessageField = (typeof MESSAGE_FIELDS)[number];
 export interface MessagesCardConfig extends BaseCardConfig {
   count?: number;
   fields?: MessageField[];
+  /** Colour of the unread marks (HA colour picker); default: primary colour. */
+  unread_color?: string;
+  /** Highlight unread rows (bar and tint in the unread colour); default: off. */
+  highlight_unread?: boolean;
 }
 
 /** One message of the sensor's `messages` attribute (integration, D-065). */
@@ -74,7 +80,11 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
         color: var(--secondary-text-color);
       }
       .unread .status {
-        color: var(--primary-color);
+        color: var(--librus-unread-color);
+      }
+      li.unread.highlight {
+        box-shadow: inset 4px 0 0 var(--librus-unread-color);
+        background: color-mix(in srgb, var(--librus-unread-color) 10%, transparent);
       }
       .unread .title {
         font-weight: var(--ha-font-weight-bold, 700);
@@ -207,7 +217,7 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
       fields.has("date") ? formatDateTime(this.hass, message.date) : "",
     ].filter(Boolean);
     return html`
-      <li class=${message.unread ? "unread" : "read"}>
+      <li class=${message.unread ? (this._config?.highlight_unread ? "unread highlight" : "unread") : "read"}>
         <button class="row" @click=${() => this._open(message)}>
           ${fields.has("status")
             ? html`<ha-icon
@@ -257,8 +267,11 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
     const selected = this._selected
       ? (messagesOf(this.stateObj.attributes).find((m) => m.id === this._selected?.id) ?? this._selected)
       : undefined;
+    const colors = {
+      "--librus-unread-color": cssColor(this._config.unread_color) ?? "var(--primary-color)",
+    };
     return html`
-      <ha-card>
+      <ha-card style=${styleMap(colors)}>
         ${this.renderHeader()}
         ${messages.length
           ? html`<ul class="items">${messages.map((message) => this._renderRow(message))}</ul>`
@@ -281,11 +294,25 @@ export class MessagesCardEditor extends LibrusCardEditor<MessagesCardConfig> {
       ...baseFields("sensor"),
       countField(),
       fieldsField(this.hass, "messages", MESSAGE_FIELDS),
+      {
+        name: "",
+        type: "grid",
+        schema: [
+          { name: "unread_color", selector: { ui_color: {} } },
+          { name: "highlight_unread", selector: { boolean: {} } },
+        ],
+      },
     ];
   }
 
   override setConfig(config: MessagesCardConfig): void {
     // Show the defaults in the form (the first change writes them into the config).
-    super.setConfig({ count: DEFAULT_COUNT, fields: [...MESSAGE_FIELDS], ...config });
+    super.setConfig({
+      count: DEFAULT_COUNT,
+      fields: [...MESSAGE_FIELDS],
+      unread_color: "primary",
+      highlight_unread: false,
+      ...config,
+    });
   }
 }
