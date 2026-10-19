@@ -108,7 +108,7 @@ export class LibrusDialog extends LitElement {
       height: 24px;
       fill: currentColor;
     }
-    .content {
+    .dialog-content {
       padding: 0 24px 24px;
       overflow-y: auto;
     }
@@ -236,7 +236,7 @@ export class LibrusDialog extends LitElement {
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d=${CLOSE_ICON}></path></svg>
             </button>
           </header>
-          <div class="content"><slot></slot></div>
+          <div class="dialog-content"><slot></slot></div>
         </div>
       </dialog>
     `;

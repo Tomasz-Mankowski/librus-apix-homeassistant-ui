@@ -926,7 +926,7 @@ var He = class extends F {
       height: 24px;
       fill: currentColor;
     }
-    .content {
+    .dialog-content {
       padding: 0 24px 24px;
       overflow-y: auto;
     }
@@ -998,7 +998,7 @@ var He = class extends F {
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d=${Be}></path></svg>
             </button>
           </header>
-          <div class="content"><slot></slot></div>
+          <div class="dialog-content"><slot></slot></div>
         </div>
       </dialog>
     `;
