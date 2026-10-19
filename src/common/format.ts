@@ -28,6 +28,23 @@ export function formatDateTime(hass: HomeAssistant | undefined, value: string): 
   }).format(date);
 }
 
+/**
+ * A Librus wall-clock time ("2026-10-09 12:00:00", school time) as "9.10.2026, 12:00",
+ * without a time-zone shift; other texts are returned as they are.
+ */
+export function formatWallTime(hass: HomeAssistant | undefined, value: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(value);
+  if (!match) {
+    return value;
+  }
+  const [, year, month, day, hour, minute] = match.map(Number);
+  return new Intl.DateTimeFormat(language(hass), {
+    dateStyle: "short",
+    timeStyle: "short",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(year, month - 1, day, hour, minute)));
+}
+
 /** Time of day: "09:50" (pl) / "9:50 AM" (en). */
 export function formatTime(hass: HomeAssistant | undefined, date: Date): string {
   return new Intl.DateTimeFormat(language(hass), { timeStyle: "short", timeZone: timeZone(hass) }).format(date);

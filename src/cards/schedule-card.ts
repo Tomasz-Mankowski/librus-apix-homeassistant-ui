@@ -5,7 +5,7 @@ import { GROUP_PREFIX, TYPE_GROUPS, filterByType, typesIn } from "../common/even
 import { LibrusCard, type BaseCardConfig } from "../common/base-card";
 import { DIALOG, type LibrusDialog } from "../common/dialog";
 import { LibrusCardEditor, baseFields, type FormField } from "../common/editor";
-import { dayParts, formatDate, formatDateTime, formatTime } from "../common/format";
+import { dayParts, formatDate, formatDateTime, formatTime, formatWallTime } from "../common/format";
 import { localize } from "../common/localize";
 import { fieldsField, listStyles } from "../common/list";
 import { fetchEvents, type ScheduleEvent } from "../common/schedule";
@@ -252,7 +252,7 @@ export class ScheduleCard extends LibrusCard<ScheduleCardConfig> {
       [this.t("schedule.time"), this._when(event)],
       [this.t("schedule.lesson"), f?.lesson ? String(f.lesson) : undefined],
       [this.t("schedule.teacher"), f?.teacher],
-      [this.t("schedule.added"), f?.date_added],
+      [this.t("schedule.added"), f?.date_added ? formatWallTime(this.hass, f.date_added) : undefined],
     ];
     // Librus fields not shown above (school-specific labels), as Librus writes them.
     const shown = new Set(["Data", "Nr lekcji", "Rodzaj", "Przedmiot", "Nauczyciel", "Opis", "Data dodania", "Godzina"]);

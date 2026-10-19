@@ -140,7 +140,7 @@ describe("schedule card", () => {
       ["Godzina", "09:50–10:35"],
       ["Lekcja", "3"],
       ["Nauczyciel", "Adam Rachunek"],
-      ["Dodano", "2026-10-09 12:00:00"],
+      ["Dodano", "9.10.2026, 12:00"],
       ["Sala", "12"],
     ]);
     expect(dialog.querySelector(".content")!.textContent).toBe("Ułamki zwykłe");

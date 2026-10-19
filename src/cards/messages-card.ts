@@ -90,8 +90,16 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
         font-size: var(--ha-font-size-s, 12px);
       }
       .files {
+        list-style: none;
         margin: 12px 0 0;
-        padding-left: 20px;
+        padding: 0;
+      }
+      .files li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 2px 0;
+        --mdc-icon-size: 16px;
       }
       .error {
         color: var(--error-color, #db4437);
@@ -168,7 +176,9 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
         <div class="content">${content.content}</div>
         ${content.attachments.length
           ? html`<ul class="files" aria-label=${this.t("messages.attachments")}>
-              ${content.attachments.map((name) => html`<li>${name}</li>`)}
+              ${content.attachments.map(
+                (name) => html`<li><ha-icon .icon=${"mdi:paperclip"}></ha-icon><span>${name}</span></li>`,
+              )}
             </ul>`
           : nothing}
       `;

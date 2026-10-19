@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDate, formatDateTime } from "../src/common/format";
+import { formatDate, formatDateTime, formatWallTime } from "../src/common/format";
 import { mockHass } from "./helpers";
 
 describe("formatDateTime", () => {
@@ -33,5 +33,18 @@ describe("formatDate", () => {
 
   it("formats a date-time as a date", () => {
     expect(formatDate(mockHass({}, "pl"), "2026-10-19T08:00:00+02:00")).toBe("19.10.2026");
+  });
+});
+
+describe("formatWallTime", () => {
+  it("shows a Librus school time without a time-zone shift", () => {
+    const hass = mockHass({}, "pl");
+    hass.config = { time_zone: "America/New_York" };
+    expect(formatWallTime(hass, "2026-10-09 12:00:00")).toBe("9.10.2026, 12:00");
+    expect(formatWallTime(mockHass({}, "en"), "2026-10-09 12:00:00")).toBe("10/9/26, 12:00 PM");
+  });
+
+  it("keeps other texts", () => {
+    expect(formatWallTime(mockHass(), "wczoraj")).toBe("wczoraj");
   });
 });
