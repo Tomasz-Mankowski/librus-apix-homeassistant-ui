@@ -639,7 +639,8 @@ var Re = {
 			group_trips: "Trips",
 			group_meetings: "Meetings",
 			group_days_off: "Days off",
-			group_contests: "Contests"
+			group_contests: "Contests",
+			group_changes: "Timetable changes"
 		}
 	},
 	pl: {
@@ -716,7 +717,8 @@ var Re = {
 			group_trips: "Wycieczki",
 			group_meetings: "Zebrania",
 			group_days_off: "Dni wolne",
-			group_contests: "Konkursy"
+			group_contests: "Konkursy",
+			group_changes: "Zmiany w planie"
 		}
 	}
 };
@@ -1576,6 +1578,10 @@ var st = class extends z {
 	{
 		id: "contests",
 		types: ["Konkurs", "Olimpiada"]
+	},
+	{
+		id: "changes",
+		types: ["Zastępstwo", "Odwołane zajęcia"]
 	}
 ], ut = "group:";
 function Q(e) {

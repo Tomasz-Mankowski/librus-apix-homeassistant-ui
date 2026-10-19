@@ -72,6 +72,7 @@
     "group_trips": "Trips",
     "group_meetings": "Meetings",
     "group_days_off": "Days off",
-    "group_contests": "Contests"
+    "group_contests": "Contests",
+    "group_changes": "Timetable changes"
   }
 }

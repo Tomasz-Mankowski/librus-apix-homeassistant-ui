@@ -15,6 +15,8 @@ export const TYPE_GROUPS: TypeGroup[] = [
   { id: "meetings", types: ["Zebranie z rodzicami", "Wywiadówka", "Konsultacje"] },
   { id: "days_off", types: ["Dzień wolny"] },
   { id: "contests", types: ["Konkurs", "Olimpiada"] },
+  // Lesson changes: the integration names them after the Librus list text (D-105).
+  { id: "changes", types: ["Zastępstwo", "Odwołane zajęcia"] },
 ];
 
 export const GROUP_PREFIX = "group:";

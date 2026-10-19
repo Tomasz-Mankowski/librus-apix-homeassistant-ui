@@ -1,4 +1,4 @@
-#  `librus-apix-homeassistant-ui` - Karty HA dla  `librus-apix-homeassistant`
+# `librus-apix-homeassistant-ui` - Karty HA dla  `librus-apix-homeassistant`
 
 Karty do panelu Home Assistant (HACS, kategoria „Dashboard”) dla integracji [librus-apix-homeassistant](https://github.com/Tomasz-Mankowski/librus-apix-homeassistant). Pokazują terminarz, wiadomości i ogłoszenia z Librus Synergia.
 
@@ -70,6 +70,7 @@ Grupy rodzajów dla `types`:
 | `group:meetings` | Zebranie z rodzicami, Wywiadówka, Konsultacje |
 | `group:days_off` | Dzień wolny |
 | `group:contests` | Konkurs, Olimpiada |
+| `group:changes` | Zastępstwo, Odwołane zajęcia |
 
 Każda szkoła może mieć własne rodzaje. Edytor pokazuje grupy i rodzaje znalezione w terminarzu ucznia; inny rodzaj możesz wpisać ręcznie.
 
@@ -156,7 +157,7 @@ Home Assistant dashboard cards (HACS, "Dashboard" category) for the [librus-apix
 - **Install:** HACS → **⋮** → **Custom repositories** → `https://github.com/Tomasz-Mankowski/librus-apix-homeassistant-ui`, type **Dashboard** → **Download** (HACS adds the dashboard resource) → refresh the browser. Without HACS: copy `dist/librus-apix-homeassistant-ui.js` to `config/www/` and add the resource `/local/librus-apix-homeassistant-ui.js?v=0.1.0` (JavaScript module).
 - **Add a card:** edit a dashboard → **Add card** → search "Librus". Every option is in the visual editor.
 - **Common options:** `entity` (required), `title` (`""` hides the header), `icon`, `icon_color` (Home Assistant palette name such as `red` or `amber`, or a hex colour).
-- **`custom:librus-schedule-card`:** `entity` = the student's calendar; `days` (14, 1–200); `fields` from `date`, `time`, `description`, `teacher` (default date, time, description); `types` = event-type filter with groups `group:tests`, `group:trips`, `group:meetings`, `group:days_off`, `group:contests` and type names (default: all); `highlight_next` (true); `show_next_label` (true).
+- **`custom:librus-schedule-card`:** `entity` = the student's calendar; `days` (14, 1–200); `fields` from `date`, `time`, `description`, `teacher` (default date, time, description); `types` = event-type filter with groups `group:tests`, `group:trips`, `group:meetings`, `group:days_off`, `group:contests`, `group:changes` (substitutions, cancelled lessons) and type names (default: all); `highlight_next` (true); `show_next_label` (true).
 - **`custom:librus-messages-card`:** `entity` = the student's messages sensor; `count` (5, 1–100); `fields` from `author`, `date`, `attachment`, `status` (default all); `unread_color` (`primary`); `highlight_unread` (false). **Read content** in the pop-up reads the message from Librus, which marks it read; a content read before opens at once.
 - **`custom:librus-announcements-card`:** `entity` = the student's announcements sensor; `count` (5, 1–100); `fields` from `author`, `date`, `preview` (default author, date).
 - **Look:** theme colours and fonts (light and dark), English or Polish texts by the Home Assistant language; pop-ups close with Esc, ✕ or a click outside and fill the screen on phones.

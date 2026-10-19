@@ -71,6 +71,25 @@ describe("event types", () => {
       expect.arrayContaining(["Sprawdzian", "Kartkówka", "Klasówka", "Praca klasowa"]),
     );
     expect(TYPE_GROUPS.find((g) => g.id === "trips")!.types).toContain("Wycieczka");
+    expect(TYPE_GROUPS.find((g) => g.id === "changes")!.types).toEqual(["Zastępstwo", "Odwołane zajęcia"]);
+  });
+
+  it("selects lesson changes by their group", () => {
+    const changes = [
+      { type: "Zastępstwo", subject: "Informatyka", id: "a1" },
+      { type: "Odwołane zajęcia", subject: "Przyroda", id: "b2" },
+    ].map((fields) =>
+      toScheduleEvent({
+        ...TEST,
+        summary: `${fields.type}: ${fields.subject}`,
+        uid: fields.id,
+        description: description({ ...fields, teacher: "Piotr Lasowy", lesson: 5 }),
+      }),
+    );
+    expect(summaries(filterByType([...EVENTS, ...changes], ["group:changes"]))).toEqual([
+      "Zastępstwo: Informatyka",
+      "Odwołane zajęcia: Przyroda",
+    ]);
   });
 });
 
@@ -152,6 +171,7 @@ describe("schedule card type filter", () => {
       "group:meetings",
       "group:days_off",
       "group:contests",
+      "group:changes",
       "Apel",
       "kartkówka",
       "Sprawdzian",
@@ -178,6 +198,13 @@ describe("schedule card type filter", () => {
 
     const form = editor.shadowRoot!.querySelector("ha-form") as HTMLElement & { schema: FormField[] };
     const select = form.schema.find((f) => f.name === "types")!.selector!.select as { options: { label: string }[] };
-    expect(select.options.map((o) => o.label.split(" (")[0])).toEqual(["Tests", "Trips", "Meetings", "Days off", "Contests"]);
+    expect(select.options.map((o) => o.label.split(" (")[0])).toEqual([
+      "Tests",
+      "Trips",
+      "Meetings",
+      "Days off",
+      "Contests",
+      "Timetable changes",
+    ]);
   });
 });
