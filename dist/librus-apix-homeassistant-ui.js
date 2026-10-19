@@ -509,6 +509,23 @@ G._$litElement$ = !0, G.finalized = !0, W.litElementHydrateSupport?.({ LitElemen
 var ye = W.litElementPolyfillSupport;
 ye?.({ LitElement: G }), (W.litElementVersions ??= []).push("4.2.2");
 //#endregion
+//#region src/common/api.ts
+async function be(e, t, n) {
+	return (await e.callWS({
+		type: "call_service",
+		domain: "librus_apix",
+		service: "get_message_content",
+		service_data: {
+			entity_id: t,
+			message_id: n
+		},
+		return_response: !0
+	})).response;
+}
+function xe(e) {
+	return e && typeof e == "object" && "message" in e ? String(e.message) : String(e);
+}
+//#endregion
 //#region src/common/localize.ts
 var K = {
 	en: {
@@ -541,7 +558,11 @@ var K = {
 			field_author: "Author",
 			field_date: "Date",
 			field_attachment: "Attachment icon",
-			field_status: "Read / unread icon"
+			field_status: "Read / unread icon",
+			read_content: "Read content",
+			read_hint: "Reading the content marks the message as read in Librus.",
+			cannot_read: "Cannot read the content: {error}",
+			retry: "Try again"
 		}
 	},
 	pl: {
@@ -574,7 +595,11 @@ var K = {
 			field_author: "Autor",
 			field_date: "Data",
 			field_attachment: "Ikona załącznika",
-			field_status: "Ikona przeczytania"
+			field_status: "Ikona przeczytania",
+			read_content: "Wczytaj treść",
+			read_hint: "Wczytanie treści oznacza wiadomość w Librusie jako przeczytaną.",
+			cannot_read: "Nie udało się wczytać treści: {error}",
+			retry: "Spróbuj ponownie"
 		}
 	}
 };
@@ -594,7 +619,7 @@ function Y(e, t, n = {}) {
 }
 //#endregion
 //#region src/common/styles.ts
-var be = o`
+var Se = o`
   :host {
     display: block;
   }
@@ -653,12 +678,12 @@ var be = o`
     outline-offset: 2px;
     border-radius: 4px;
   }
-`, xe = class extends G {
+`, Ce = class extends G {
 	static properties = {
 		hass: { attribute: !1 },
 		_config: { state: !0 }
 	};
-	static styles = be;
+	static styles = Se;
 	setConfig(e) {
 		if (!e || typeof e != "object") throw Error("Invalid configuration");
 		this._config = e;
@@ -706,13 +731,13 @@ var be = o`
       </ha-card>
     `;
 	}
-}, Se = "librus-apix-dialog", Ce = "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z", X = "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex=\"-1\"])";
-function we() {
+}, we = "librus-apix-dialog", Te = "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z", X = "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex=\"-1\"])";
+function Z() {
 	let e = document.activeElement;
 	for (; e?.shadowRoot?.activeElement;) e = e.shadowRoot.activeElement;
 	return e;
 }
-var Te = class extends G {
+var Ee = class extends G {
 	static properties = {
 		heading: { type: String },
 		closeLabel: { attribute: !1 },
@@ -800,7 +825,7 @@ var Te = class extends G {
     }
   `;
 	show() {
-		this._opener = we(), this.open = !0;
+		this._opener = Z(), this.open = !0;
 	}
 	close() {
 		this.open &&= !1;
@@ -831,7 +856,7 @@ var Te = class extends G {
 			e.preventDefault();
 			return;
 		}
-		let n = t[0], r = t[t.length - 1], i = we();
+		let n = t[0], r = t[t.length - 1], i = Z();
 		e.shiftKey && (i === n || !t.includes(i)) ? (e.preventDefault(), r.focus()) : !e.shiftKey && (i === r || !t.includes(i)) && (e.preventDefault(), n.focus());
 	}
 	_onClick(e) {
@@ -853,7 +878,7 @@ var Te = class extends G {
           <header>
             <h2 id="heading">${this.heading}</h2>
             <button class="close" aria-label=${this.closeLabel} title=${this.closeLabel} @click=${this.close}>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d=${Ce}></path></svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d=${Te}></path></svg>
             </button>
           </header>
           <div class="content"><slot></slot></div>
@@ -861,7 +886,7 @@ var Te = class extends G {
       </dialog>
     `;
 	}
-}, Ee = class extends G {
+}, De = class extends G {
 	static properties = {
 		hass: { attribute: !1 },
 		_config: { state: !0 }
@@ -892,7 +917,7 @@ var Te = class extends G {
     `;
 	}
 };
-function De(e, t = "librus_apix") {
+function Oe(e, t = "librus_apix") {
 	return [{
 		name: "entity",
 		required: !0,
@@ -914,40 +939,45 @@ function De(e, t = "librus_apix") {
 }
 //#endregion
 //#region src/common/format.ts
-function Oe(e) {
+function ke(e) {
 	return e?.locale?.time_zone === "server" ? e.config?.time_zone : void 0;
 }
-function ke(e) {
+function Ae(e) {
 	if (!e) return;
 	let t = new Date(e);
 	return Number.isNaN(t.getTime()) ? void 0 : t;
 }
-function Z(e, t) {
-	let n = ke(t);
+function je(e, t) {
+	let n = Ae(t);
 	return n ? new Intl.DateTimeFormat(q(e), {
 		dateStyle: "short",
 		timeStyle: "short",
-		timeZone: Oe(e)
+		timeZone: ke(e)
 	}).format(n) : t;
 }
 //#endregion
 //#region src/cards/messages-card.ts
-var Q = "librus-messages-card", Ae = "librus-messages-card-editor", $ = [
+var Q = "librus-messages-card", Me = "librus-messages-card-editor", $ = [
 	"author",
 	"date",
 	"attachment",
 	"status"
 ];
-function je(e) {
+function Ne(e) {
 	let t = e?.messages;
 	return Array.isArray(t) ? t : [];
 }
-function Me(e) {
+function Pe(e) {
 	return Object.values(e?.states ?? {}).find((e) => e.entity_id.startsWith("sensor.") && Array.isArray(e.attributes.messages))?.entity_id;
 }
-var Ne = class extends xe {
-	static properties = { _selected: { state: !0 } };
-	static styles = [be, o`
+var Fe = class extends Ce {
+	static properties = {
+		_selected: { state: !0 },
+		_loading: { state: !0 },
+		_error: { state: !0 }
+	};
+	_contents = /* @__PURE__ */ new Map();
+	static styles = [Se, o`
       ul {
         list-style: none;
         margin: 0;
@@ -1020,14 +1050,35 @@ var Ne = class extends xe {
       dd {
         margin: 0;
       }
+      .body {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--divider-color);
+      }
+      .content {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      .hint,
+      .files {
+        color: var(--secondary-text-color);
+        font-size: var(--ha-font-size-s, 12px);
+      }
+      .files {
+        margin: 12px 0 0;
+        padding-left: 20px;
+      }
+      .error {
+        color: var(--error-color, #db4437);
+      }
     `];
 	static getConfigElement() {
-		return document.createElement(Ae);
+		return document.createElement(Me);
 	}
 	static getStubConfig(e) {
 		return {
 			type: `custom:${Q}`,
-			entity: Me(e) ?? ""
+			entity: Pe(e) ?? ""
 		};
 	}
 	setConfig(e) {
@@ -1046,19 +1097,53 @@ var Ne = class extends xe {
 		return new Set(this._config?.fields ?? $);
 	}
 	get _messages() {
-		return je(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
+		return Ne(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
 	}
 	getCardSize() {
 		return 1 + Math.max(1, this._messages.length);
 	}
 	_open(e) {
-		this._selected = e, this.updateComplete.then(() => this.renderRoot.querySelector(Se)?.show());
+		this._selected = e, this._error = void 0, this.updateComplete.then(() => this.renderRoot.querySelector(we)?.show()), e.content_cached && !this._contents.has(e.id) && this._readContent(e);
+	}
+	async _readContent(e) {
+		if (this.hass && this._config?.entity && this._loading !== e.id) {
+			this._loading = e.id, this._error = void 0;
+			try {
+				let t = await be(this.hass, this._config.entity, e.id);
+				this._contents.set(e.id, t);
+			} catch (t) {
+				this._error = {
+					id: e.id,
+					text: xe(t)
+				};
+			} finally {
+				this._loading = void 0;
+			}
+		}
+	}
+	_renderContent(e) {
+		let t = this._contents.get(e.id);
+		if (t) return P`
+        <div class="content">${t.content}</div>
+        ${t.attachments.length ? P`<ul class="files" aria-label=${this.t("messages.attachments")}>
+              ${t.attachments.map((e) => P`<li>${e}</li>`)}
+            </ul>` : I}
+      `;
+		if (this._loading === e.id) return P`<div class="hint">${this.t("common.loading")}</div>`;
+		let n = this._error?.id === e.id ? this._error.text : void 0;
+		return P`
+      ${n ? P`<div class="error">${this.t("messages.cannot_read", { error: n })}</div>` : I}
+      <button class="link" @click=${() => this._readContent(e)}>
+        ${this.t(n ? "messages.retry" : "messages.read_content")}
+      </button>
+      ${e.content_cached ? I : P`<div class="hint">${this.t("messages.read_hint")}</div>`}
+    `;
 	}
 	_statusText(e) {
 		return this.t(e.unread ? "messages.unread" : "messages.read");
 	}
 	_renderRow(e) {
-		let t = this._fields, n = [t.has("author") ? e.author : "", t.has("date") ? Z(this.hass, e.date) : ""].filter(Boolean);
+		let t = this._fields, n = [t.has("author") ? e.author : "", t.has("date") ? je(this.hass, e.date) : ""].filter(Boolean);
 		return P`
       <li class=${e.unread ? "unread" : "read"}>
         <button class="row" @click=${() => this._open(e)}>
@@ -1082,39 +1167,40 @@ var Ne = class extends xe {
         <dt>${this.t("messages.from")}</dt>
         <dd>${e.author}</dd>
         <dt>${this.t("messages.date")}</dt>
-        <dd>${Z(this.hass, e.date)}</dd>
+        <dd>${je(this.hass, e.date)}</dd>
         <dt>${this.t("messages.status")}</dt>
         <dd>${this._statusText(e)}</dd>
         <dt>${this.t("messages.attachments")}</dt>
         <dd>${this.t(e.has_attachment ? "common.yes" : "common.no")}</dd>
       </dl>
+      <div class="body">${this._renderContent(e)}</div>
     `;
 	}
 	render() {
 		if (!this._config || !this.hass) return I;
 		if (!this.stateObj) return this.renderMissingEntity();
-		let e = this._messages;
+		let e = this._messages, t = this._selected ? Ne(this.stateObj.attributes).find((e) => e.id === this._selected?.id) ?? this._selected : void 0;
 		return P`
       <ha-card>
         ${this.renderHeader()}
         ${e.length ? P`<ul>${e.map((e) => this._renderRow(e))}</ul>` : P`<div class="empty">${this.t("messages.empty")}</div>`}
       </ha-card>
       <librus-apix-dialog
-        .heading=${this._selected?.title ?? ""}
+        .heading=${t?.title ?? ""}
         .closeLabel=${this.t("common.close")}
         @closed=${() => this._selected = void 0}
       >
-        ${this._selected ? this.renderDetails(this._selected) : I}
+        ${t ? this.renderDetails(t) : I}
       </librus-apix-dialog>
     `;
 	}
-}, Pe = [
-	[Se, Te],
-	[Q, Ne],
-	[Ae, class extends Ee {
+}, Ie = [
+	[we, Ee],
+	[Q, Fe],
+	[Me, class extends De {
 		get schema() {
 			return [
-				...De("sensor"),
+				...Oe("sensor"),
 				{
 					name: "count",
 					selector: { number: {
@@ -1144,13 +1230,13 @@ var Ne = class extends xe {
 			});
 		}
 	}]
-], Fe = [{
+], Le = [{
 	type: Q,
 	name: "Librus messages",
 	description: "Last Librus messages of a student with read and attachment marks.",
 	preview: !0
 }];
-for (let [e, t] of Pe) customElements.get(e) || customElements.define(e, t);
+for (let [e, t] of Ie) customElements.get(e) || customElements.define(e, t);
 window.customCards = window.customCards ?? [];
-for (let e of Fe) window.customCards.some((t) => t.type === e.type) || window.customCards.push(e);
+for (let e of Le) window.customCards.some((t) => t.type === e.type) || window.customCards.push(e);
 //#endregion

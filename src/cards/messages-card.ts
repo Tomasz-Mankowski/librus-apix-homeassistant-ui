@@ -1,5 +1,6 @@
 import { css, html, nothing, type TemplateResult } from "lit";
 
+import { errorText, getMessageContent, type MessageContent } from "../common/api";
 import { LibrusCard, type BaseCardConfig } from "../common/base-card";
 import { DIALOG, type LibrusDialog } from "../common/dialog";
 import { LibrusCardEditor, baseFields, type FormField } from "../common/editor";
@@ -49,14 +50,23 @@ function findMessagesEntity(hass?: HomeAssistant): string | undefined {
 
 /**
  * Messages of one student (F8): the last N messages with clear read/unread and
- * attachment marks; a click opens a pop-up with all details.
+ * attachment marks; a click opens a pop-up with all details. The content is read
+ * only on request (reading marks the message read in Librus, F7); a content the
+ * integration already has opens directly.
  */
 export class MessagesCard extends LibrusCard<MessagesCardConfig> {
   static override properties = {
     _selected: { state: true },
+    _loading: { state: true },
+    _error: { state: true },
   };
 
   declare _selected?: Message;
+  declare _loading?: string;
+  declare _error?: { id: string; text: string };
+
+  // Contents read in this session, by message id: reopening needs no call.
+  private _contents = new Map<string, MessageContent>();
 
   static override styles = [
     cardStyles,
@@ -133,6 +143,27 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
       dd {
         margin: 0;
       }
+      .body {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--divider-color);
+      }
+      .content {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      .hint,
+      .files {
+        color: var(--secondary-text-color);
+        font-size: var(--ha-font-size-s, 12px);
+      }
+      .files {
+        margin: 12px 0 0;
+        padding-left: 20px;
+      }
+      .error {
+        color: var(--error-color, #db4437);
+      }
     `,
   ];
 
@@ -177,7 +208,53 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
 
   private _open(message: Message): void {
     this._selected = message;
+    this._error = undefined;
     void this.updateComplete.then(() => this.renderRoot.querySelector<LibrusDialog>(DIALOG)?.show());
+    // A content the integration already keeps costs no Librus request: show it at once.
+    if (message.content_cached && !this._contents.has(message.id)) {
+      void this._readContent(message);
+    }
+  }
+
+  private async _readContent(message: Message): Promise<void> {
+    if (!this.hass || !this._config?.entity || this._loading === message.id) {
+      return;
+    }
+    this._loading = message.id;
+    this._error = undefined;
+    try {
+      const content = await getMessageContent(this.hass, this._config.entity, message.id);
+      this._contents.set(message.id, content);
+    } catch (error) {
+      this._error = { id: message.id, text: errorText(error) };
+    } finally {
+      this._loading = undefined;
+    }
+  }
+
+  private _renderContent(message: Message): TemplateResult {
+    const content = this._contents.get(message.id);
+    if (content) {
+      return html`
+        <div class="content">${content.content}</div>
+        ${content.attachments.length
+          ? html`<ul class="files" aria-label=${this.t("messages.attachments")}>
+              ${content.attachments.map((name) => html`<li>${name}</li>`)}
+            </ul>`
+          : nothing}
+      `;
+    }
+    if (this._loading === message.id) {
+      return html`<div class="hint">${this.t("common.loading")}</div>`;
+    }
+    const error = this._error?.id === message.id ? this._error.text : undefined;
+    return html`
+      ${error ? html`<div class="error">${this.t("messages.cannot_read", { error })}</div>` : nothing}
+      <button class="link" @click=${() => this._readContent(message)}>
+        ${this.t(error ? "messages.retry" : "messages.read_content")}
+      </button>
+      ${message.content_cached ? nothing : html`<div class="hint">${this.t("messages.read_hint")}</div>`}
+    `;
   }
 
   private _statusText(message: Message): string {
@@ -212,7 +289,7 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
     `;
   }
 
-  /** Details of the selected message in the pop-up (T-028 adds the content). */
+  /** Details of the selected message in the pop-up, then its content. */
   protected renderDetails(message: Message): TemplateResult {
     return html`
       <dl>
@@ -225,6 +302,7 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
         <dt>${this.t("messages.attachments")}</dt>
         <dd>${this.t(message.has_attachment ? "common.yes" : "common.no")}</dd>
       </dl>
+      <div class="body">${this._renderContent(message)}</div>
     `;
   }
 
@@ -236,6 +314,10 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
       return this.renderMissingEntity();
     }
     const messages = this._messages;
+    // The pop-up follows the sensor (a read content turns the message read).
+    const selected = this._selected
+      ? (messagesOf(this.stateObj.attributes).find((m) => m.id === this._selected?.id) ?? this._selected)
+      : undefined;
     return html`
       <ha-card>
         ${this.renderHeader()}
@@ -244,11 +326,11 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
           : html`<div class="empty">${this.t("messages.empty")}</div>`}
       </ha-card>
       <librus-apix-dialog
-        .heading=${this._selected?.title ?? ""}
+        .heading=${selected?.title ?? ""}
         .closeLabel=${this.t("common.close")}
         @closed=${() => (this._selected = undefined)}
       >
-        ${this._selected ? this.renderDetails(this._selected) : nothing}
+        ${selected ? this.renderDetails(selected) : nothing}
       </librus-apix-dialog>
     `;
   }

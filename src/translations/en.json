@@ -28,6 +28,10 @@
     "field_author": "Author",
     "field_date": "Date",
     "field_attachment": "Attachment icon",
-    "field_status": "Read / unread icon"
+    "field_status": "Read / unread icon",
+    "read_content": "Read content",
+    "read_hint": "Reading the content marks the message as read in Librus.",
+    "cannot_read": "Cannot read the content: {error}",
+    "retry": "Try again"
   }
 }

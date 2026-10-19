@@ -26,6 +26,7 @@ export function mockHass(
     locale: { language, time_zone: "server" },
     config: { time_zone: "Europe/Warsaw" },
     themes: { darkMode: false },
+    callWS: async <T>() => undefined as T,
     callService: async () => undefined,
   };
 }

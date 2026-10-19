@@ -28,6 +28,10 @@
     "field_author": "Autor",
     "field_date": "Data",
     "field_attachment": "Ikona załącznika",
-    "field_status": "Ikona przeczytania"
+    "field_status": "Ikona przeczytania",
+    "read_content": "Wczytaj treść",
+    "read_hint": "Wczytanie treści oznacza wiadomość w Librusie jako przeczytaną.",
+    "cannot_read": "Nie udało się wczytać treści: {error}",
+    "retry": "Spróbuj ponownie"
   }
 }

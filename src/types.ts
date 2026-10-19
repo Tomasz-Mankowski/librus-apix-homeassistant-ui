@@ -15,6 +15,7 @@ export interface HomeAssistant {
   locale: { language: string; time_zone?: "local" | "server" };
   config?: { time_zone: string };
   themes: { darkMode: boolean };
+  callWS<T>(message: Record<string, unknown>): Promise<T>;
   callService(
     domain: string,
     service: string,
