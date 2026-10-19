@@ -10,7 +10,7 @@ Karty do panelu Home Assistant (HACS, kategoria „Dashboard”) dla integracji 
 | ![Karta terminarza](docs/schedule-card.png) | ![Karta wiadomości](docs/messages-card.png) | ![Karta ogłoszeń](docs/announcements-card.png) |
 
 > [!NOTE]
-> Wersja przedpremierowa 0.1.0, przetestowana z symulatorem Librusa. Błędy zgłaszaj w [Issues](https://github.com/Tomasz-Mankowski/librus-apix-homeassistant-ui/issues).
+> Wersja 1.0.0, przetestowana z symulatorem Librusa i z prawdziwym kontem Librus Synergia. Zmiany: [CHANGELOG](CHANGELOG.md). Błędy zgłaszaj w [Issues](https://github.com/Tomasz-Mankowski/librus-apix-homeassistant-ui/issues).
 
 ## Wymagania
 
@@ -29,7 +29,7 @@ Albo ręcznie:
 3. Znajdź **Librus APIX Cards** w HACS i kliknij **Pobierz**. HACS sam dodaje zasób panelu.
 4. Odśwież przeglądarkę.
 
-Bez HACS: skopiuj `dist/librus-apix-homeassistant-ui.js` do `config/www/`, a potem **Ustawienia** → **Panele** → **⋮** → **Zasoby** → **Dodaj zasób**: adres `/local/librus-apix-homeassistant-ui.js?v=0.1.0`, typ **Moduł JavaScript**. Po każdej aktualizacji pliku zmień numer po `?v=`.
+Bez HACS: skopiuj `dist/librus-apix-homeassistant-ui.js` do `config/www/`, a potem **Ustawienia** → **Panele** → **⋮** → **Zasoby** → **Dodaj zasób**: adres `/local/librus-apix-homeassistant-ui.js?v=1.0.0`, typ **Moduł JavaScript**. Po każdej aktualizacji pliku zmień numer po `?v=`.
 
 ## Dodanie karty
 
@@ -152,9 +152,9 @@ Home Assistant dashboard cards (HACS, "Dashboard" category) for the [librus-apix
 > [!IMPORTANT]
 > Unofficial project, not affiliated with or endorsed by Librus.
 
-- **Status:** pre-release 0.1.0, tested with a Librus simulator.
+- **Status:** 1.0.0, tested with a Librus simulator and a real Librus Synergia account; changes in [CHANGELOG](CHANGELOG.md).
 - **Requires:** Home Assistant 2026.3 or newer and the librus-apix-homeassistant integration.
-- **Install:** HACS → **⋮** → **Custom repositories** → `https://github.com/Tomasz-Mankowski/librus-apix-homeassistant-ui`, type **Dashboard** → **Download** (HACS adds the dashboard resource) → refresh the browser. Without HACS: copy `dist/librus-apix-homeassistant-ui.js` to `config/www/` and add the resource `/local/librus-apix-homeassistant-ui.js?v=0.1.0` (JavaScript module).
+- **Install:** HACS → **⋮** → **Custom repositories** → `https://github.com/Tomasz-Mankowski/librus-apix-homeassistant-ui`, type **Dashboard** → **Download** (HACS adds the dashboard resource) → refresh the browser. Without HACS: copy `dist/librus-apix-homeassistant-ui.js` to `config/www/` and add the resource `/local/librus-apix-homeassistant-ui.js?v=1.0.0` (JavaScript module).
 - **Add a card:** edit a dashboard → **Add card** → search "Librus". Every option is in the visual editor.
 - **Common options:** `entity` (required), `title` (`""` hides the header), `icon`, `icon_color` (Home Assistant palette name such as `red` or `amber`, or a hex colour).
 - **`custom:librus-schedule-card`:** `entity` = the student's calendar; `days` (14, 1–200); `fields` from `date`, `time`, `description`, `teacher` (default date, time, description); `types` = event-type filter with groups `group:tests`, `group:trips`, `group:meetings`, `group:days_off`, `group:contests`, `group:changes` (substitutions, cancelled lessons) and type names (default: all); `highlight_next` (true); `show_next_label` (true).
