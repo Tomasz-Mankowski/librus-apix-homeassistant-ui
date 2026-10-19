@@ -229,7 +229,7 @@ describe("schedule card editor", () => {
 
     expect(form.data).toMatchObject({ days: 14, fields: ["date", "time", "description"] });
     const names = form.schema.flatMap((f) => (f.schema ? f.schema.map((s) => s.name) : [f.name]));
-    expect(names).toEqual(["entity", "title", "icon", "days", "fields"]);
+    expect(names).toEqual(["entity", "title", "icon", "days", "fields", "types"]);
     expect(form.schema[0].selector).toEqual({ entity: { filter: [{ domain: "calendar", integration: "librus_apix" }] } });
     expect(form.computeLabel({ name: "days" })).toBe("Liczba dni do przodu");
   });

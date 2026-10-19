@@ -510,7 +510,7 @@ var ke = P.litElementPolyfillSupport;
 ke?.({ LitElement: F }), (P.litElementVersions ??= []).push("4.2.2");
 //#endregion
 //#region src/common/localize.ts
-var I = {
+var Ae = {
 	en: {
 		common: {
 			close: "Close",
@@ -527,7 +527,8 @@ var I = {
 			icon: "Icon",
 			count: "Number of items",
 			fields: "Shown on the list",
-			days: "Days ahead"
+			days: "Days ahead",
+			types: "Event types (empty: all)"
 		},
 		messages: {
 			name: "Messages",
@@ -573,7 +574,13 @@ var I = {
 			field_date: "Date",
 			field_time: "Time and lesson",
 			field_description: "Description",
-			field_teacher: "Teacher"
+			field_teacher: "Teacher",
+			empty_filtered: "No events of the selected types in the next {days} days",
+			group_tests: "Tests",
+			group_trips: "Trips",
+			group_meetings: "Meetings",
+			group_days_off: "Days off",
+			group_contests: "Contests"
 		}
 	},
 	pl: {
@@ -592,7 +599,8 @@ var I = {
 			icon: "Ikona",
 			count: "Liczba pozycji",
 			fields: "Pokazywane na liście",
-			days: "Liczba dni do przodu"
+			days: "Liczba dni do przodu",
+			types: "Rodzaje wydarzeń (puste: wszystkie)"
 		},
 		messages: {
 			name: "Wiadomości",
@@ -638,14 +646,20 @@ var I = {
 			field_date: "Data",
 			field_time: "Godzina i lekcja",
 			field_description: "Opis",
-			field_teacher: "Nauczyciel"
+			field_teacher: "Nauczyciel",
+			empty_filtered: "Brak wydarzeń wybranych rodzajów w ciągu najbliższych {days} dni",
+			group_tests: "Sprawdziany",
+			group_trips: "Wycieczki",
+			group_meetings: "Zebrania",
+			group_days_off: "Dni wolne",
+			group_contests: "Konkursy"
 		}
 	}
 };
-function L(e) {
+function I(e) {
 	return (e?.locale?.language ?? e?.language ?? "en").toLowerCase().startsWith("pl") ? "pl" : "en";
 }
-function Ae(e, t) {
+function je(e, t) {
 	let n = e;
 	for (let e of t.split(".")) {
 		if (typeof n != "object") return;
@@ -653,12 +667,12 @@ function Ae(e, t) {
 	}
 	return typeof n == "string" ? n : void 0;
 }
-function R(e, t, n = {}) {
-	return (Ae(I[L(e)], t) ?? Ae(I.en, t) ?? t).replace(/\{(\w+)\}/g, (e, t) => t in n ? String(n[t]) : e);
+function L(e, t, n = {}) {
+	return (je(Ae[I(e)], t) ?? je(Ae.en, t) ?? t).replace(/\{(\w+)\}/g, (e, t) => t in n ? String(n[t]) : e);
 }
 //#endregion
 //#region src/common/styles.ts
-var z = o`
+var R = o`
   :host {
     display: block;
   }
@@ -717,12 +731,12 @@ var z = o`
     outline-offset: 2px;
     border-radius: 4px;
   }
-`, B = class extends F {
+`, z = class extends F {
 	static properties = {
 		hass: { attribute: !1 },
 		_config: { state: !0 }
 	};
-	static styles = z;
+	static styles = R;
 	setConfig(e) {
 		if (!e || typeof e != "object") throw Error("Invalid configuration");
 		this._config = e;
@@ -738,7 +752,7 @@ var z = o`
 		};
 	}
 	t(e, t) {
-		return R(this.hass, e, t);
+		return L(this.hass, e, t);
 	}
 	get stateObj() {
 		let e = this._config?.entity;
@@ -770,13 +784,13 @@ var z = o`
       </ha-card>
     `;
 	}
-}, V = "librus-apix-dialog", je = "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z", H = "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex=\"-1\"])";
-function Me() {
+}, B = "librus-apix-dialog", Me = "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z", V = "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex=\"-1\"])";
+function Ne() {
 	let e = document.activeElement;
 	for (; e?.shadowRoot?.activeElement;) e = e.shadowRoot.activeElement;
 	return e;
 }
-var Ne = class extends F {
+var Pe = class extends F {
 	static properties = {
 		heading: { type: String },
 		closeLabel: { attribute: !1 },
@@ -864,7 +878,7 @@ var Ne = class extends F {
     }
   `;
 	show() {
-		this._opener = Me(), this.open = !0;
+		this._opener = Ne(), this.open = !0;
 	}
 	close() {
 		this.open &&= !1;
@@ -873,7 +887,7 @@ var Ne = class extends F {
 		return this.renderRoot?.querySelector("dialog") ?? null;
 	}
 	_focusables() {
-		let e = [...this.renderRoot.querySelectorAll(H) ?? []], t = (this.renderRoot.querySelector("slot")?.assignedElements({ flatten: !0 }) ?? []).flatMap((e) => [...e.matches(H) ? [e] : [], ...e.querySelectorAll(H)]);
+		let e = [...this.renderRoot.querySelectorAll(V) ?? []], t = (this.renderRoot.querySelector("slot")?.assignedElements({ flatten: !0 }) ?? []).flatMap((e) => [...e.matches(V) ? [e] : [], ...e.querySelectorAll(V)]);
 		return [...e, ...t];
 	}
 	updated(e) {
@@ -895,7 +909,7 @@ var Ne = class extends F {
 			e.preventDefault();
 			return;
 		}
-		let n = t[0], r = t[t.length - 1], i = Me();
+		let n = t[0], r = t[t.length - 1], i = Ne();
 		e.shiftKey && (i === n || !t.includes(i)) ? (e.preventDefault(), r.focus()) : !e.shiftKey && (i === r || !t.includes(i)) && (e.preventDefault(), n.focus());
 	}
 	_onClick(e) {
@@ -917,7 +931,7 @@ var Ne = class extends F {
           <header>
             <h2 id="heading">${this.heading}</h2>
             <button class="close" aria-label=${this.closeLabel} title=${this.closeLabel} @click=${this.close}>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d=${je}></path></svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d=${Me}></path></svg>
             </button>
           </header>
           <div class="content"><slot></slot></div>
@@ -925,7 +939,7 @@ var Ne = class extends F {
       </dialog>
     `;
 	}
-}, U = class extends F {
+}, H = class extends F {
 	static properties = {
 		hass: { attribute: !1 },
 		_config: { state: !0 }
@@ -933,7 +947,7 @@ var Ne = class extends F {
 	setConfig(e) {
 		this._config = e;
 	}
-	_label = (e) => e.name ? R(this.hass, `editor.${e.name}`) : "";
+	_label = (e) => e.name ? L(this.hass, `editor.${e.name}`) : "";
 	_valueChanged(e) {
 		e.stopPropagation();
 		let t = { ...e.detail.value };
@@ -956,7 +970,7 @@ var Ne = class extends F {
     `;
 	}
 };
-function W(e, t = "librus_apix") {
+function U(e, t = "librus_apix") {
 	return [{
 		name: "entity",
 		required: !0,
@@ -978,30 +992,30 @@ function W(e, t = "librus_apix") {
 }
 //#endregion
 //#region src/common/format.ts
-function G(e) {
+function W(e) {
 	return e?.locale?.time_zone === "server" ? e.config?.time_zone : void 0;
 }
-function Pe(e) {
+function Fe(e) {
 	if (!e) return;
 	let t = new Date(e);
 	return Number.isNaN(t.getTime()) ? void 0 : t;
 }
-function K(e, t) {
-	let n = Pe(t);
-	return n ? new Intl.DateTimeFormat(L(e), {
+function G(e, t) {
+	let n = Fe(t);
+	return n ? new Intl.DateTimeFormat(I(e), {
 		dateStyle: "short",
 		timeStyle: "short",
-		timeZone: G(e)
+		timeZone: W(e)
 	}).format(n) : t;
 }
-function Fe(e, t) {
-	return new Intl.DateTimeFormat(L(e), {
+function Ie(e, t) {
+	return new Intl.DateTimeFormat(I(e), {
 		timeStyle: "short",
-		timeZone: G(e)
+		timeZone: W(e)
 	}).format(t);
 }
-function Ie(e, t) {
-	let n = typeof t == "string", r = n ? /* @__PURE__ */ new Date(`${t}T12:00:00Z`) : t, i = n ? "UTC" : G(e), a = L(e);
+function Le(e, t) {
+	let n = typeof t == "string", r = n ? /* @__PURE__ */ new Date(`${t}T12:00:00Z`) : t, i = n ? "UTC" : W(e), a = I(e);
 	return {
 		day: new Intl.DateTimeFormat(a, {
 			day: "numeric",
@@ -1013,18 +1027,18 @@ function Ie(e, t) {
 		}).format(r)
 	};
 }
-function q(e, t) {
-	let n = /^\d{4}-\d{2}-\d{2}$/.test(t), r = Pe(n ? `${t}T12:00:00Z` : t);
-	return r ? new Intl.DateTimeFormat(L(e), {
+function K(e, t) {
+	let n = /^\d{4}-\d{2}-\d{2}$/.test(t), r = Fe(n ? `${t}T12:00:00Z` : t);
+	return r ? new Intl.DateTimeFormat(I(e), {
 		dateStyle: "short",
-		timeZone: n ? "UTC" : G(e)
+		timeZone: n ? "UTC" : W(e)
 	}).format(r) : t;
 }
-function Le(e) {
+function Re(e) {
 	let t = e ?? 5;
 	if (!Number.isInteger(t) || t < 1 || t > 100) throw Error("count must be a whole number from 1 to 100");
 }
-function Re() {
+function ze() {
 	return {
 		name: "count",
 		selector: { number: {
@@ -1034,7 +1048,7 @@ function Re() {
 		} }
 	};
 }
-function J(e, t, n) {
+function q(e, t, n) {
 	return {
 		name: "fields",
 		selector: { select: {
@@ -1042,12 +1056,12 @@ function J(e, t, n) {
 			mode: "list",
 			options: n.map((n) => ({
 				value: n,
-				label: R(e, `${t}.field_${n}`)
+				label: L(e, `${t}.field_${n}`)
 			}))
 		} }
 	};
 }
-var Y = o`
+var J = o`
   ul.items {
     list-style: none;
     margin: 0;
@@ -1114,33 +1128,33 @@ var Y = o`
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
-`, X = "librus-announcements-card", ze = "librus-announcements-card-editor", Be = [
+`, Y = "librus-announcements-card", Be = "librus-announcements-card-editor", Ve = [
 	"author",
 	"date",
 	"preview"
-], Ve = ["author", "date"];
-function He(e) {
+], He = ["author", "date"];
+function Ue(e) {
 	let t = e?.announcements;
 	return Array.isArray(t) ? t : [];
 }
-function Ue(e) {
+function We(e) {
 	return Object.values(e?.states ?? {}).find((e) => e.entity_id.startsWith("sensor.") && Array.isArray(e.attributes.announcements))?.entity_id;
 }
-var We = class extends B {
+var Ge = class extends z {
 	static properties = { _selected: { state: !0 } };
-	static styles = [z, Y];
+	static styles = [R, J];
 	static getConfigElement() {
-		return document.createElement(ze);
+		return document.createElement(Be);
 	}
 	static getStubConfig(e) {
 		return {
-			type: `custom:${X}`,
-			entity: Ue(e) ?? ""
+			type: `custom:${Y}`,
+			entity: We(e) ?? ""
 		};
 	}
 	setConfig(e) {
 		if (!e?.entity) throw Error("Entity required (the Librus announcements sensor)");
-		Le(e.count), super.setConfig(e);
+		Re(e.count), super.setConfig(e);
 	}
 	get defaultTitle() {
 		return this.t("announcements.name");
@@ -1149,19 +1163,19 @@ var We = class extends B {
 		return "mdi:bullhorn-outline";
 	}
 	get _fields() {
-		return new Set(this._config?.fields ?? Ve);
+		return new Set(this._config?.fields ?? He);
 	}
 	get _items() {
-		return He(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
+		return Ue(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
 	}
 	getCardSize() {
 		return 1 + Math.max(1, this._items.length);
 	}
 	_open(e) {
-		this._selected = e, this.updateComplete.then(() => this.renderRoot.querySelector(V)?.show());
+		this._selected = e, this.updateComplete.then(() => this.renderRoot.querySelector(B)?.show());
 	}
 	_renderRow(e) {
-		let t = this._fields, n = [t.has("author") ? e.author : "", t.has("date") ? q(this.hass, e.date) : ""].filter(Boolean);
+		let t = this._fields, n = [t.has("author") ? e.author : "", t.has("date") ? K(this.hass, e.date) : ""].filter(Boolean);
 		return E`
       <li>
         <button class="row" @click=${() => this._open(e)}>
@@ -1180,7 +1194,7 @@ var We = class extends B {
         <dt>${this.t("announcements.author")}</dt>
         <dd>${e.author}</dd>
         <dt>${this.t("announcements.date")}</dt>
-        <dd>${q(this.hass, e.date)}</dd>
+        <dd>${K(this.hass, e.date)}</dd>
       </dl>
       <div class="body"><div class="content">${e.content}</div></div>
     `;
@@ -1188,7 +1202,7 @@ var We = class extends B {
 	render() {
 		if (!this._config || !this.hass) return O;
 		if (!this.stateObj) return this.renderMissingEntity();
-		let e = this._items, t = this._selected ? He(this.stateObj.attributes).find((e) => e.id === this._selected?.id) ?? this._selected : void 0;
+		let e = this._items, t = this._selected ? Ue(this.stateObj.attributes).find((e) => e.id === this._selected?.id) ?? this._selected : void 0;
 		return E`
       <ha-card>
         ${this.renderHeader()}
@@ -1203,25 +1217,25 @@ var We = class extends B {
       </librus-apix-dialog>
     `;
 	}
-}, Ge = class extends U {
+}, Ke = class extends H {
 	get schema() {
 		return [
-			...W("sensor"),
-			Re(),
-			J(this.hass, "announcements", Be)
+			...U("sensor"),
+			ze(),
+			q(this.hass, "announcements", Ve)
 		];
 	}
 	setConfig(e) {
 		super.setConfig({
 			count: 5,
-			fields: [...Ve],
+			fields: [...He],
 			...e
 		});
 	}
 };
 //#endregion
 //#region src/common/api.ts
-async function Ke(e, t, n) {
+async function qe(e, t, n) {
 	return (await e.callWS({
 		type: "call_service",
 		domain: "librus_apix",
@@ -1233,25 +1247,25 @@ async function Ke(e, t, n) {
 		return_response: !0
 	})).response;
 }
-function qe(e) {
+function Je(e) {
 	return e && typeof e == "object" && "message" in e ? String(e.message) : String(e);
 }
 //#endregion
 //#region src/cards/messages-card.ts
-var Z = "librus-messages-card", Je = "librus-messages-card-editor", Q = [
+var X = "librus-messages-card", Ye = "librus-messages-card-editor", Z = [
 	"author",
 	"date",
 	"attachment",
 	"status"
 ];
-function Ye(e) {
+function Xe(e) {
 	let t = e?.messages;
 	return Array.isArray(t) ? t : [];
 }
-function Xe(e) {
+function Ze(e) {
 	return Object.values(e?.states ?? {}).find((e) => e.entity_id.startsWith("sensor.") && Array.isArray(e.attributes.messages))?.entity_id;
 }
-var Ze = class extends B {
+var Qe = class extends z {
 	static properties = {
 		_selected: { state: !0 },
 		_loading: { state: !0 },
@@ -1259,8 +1273,8 @@ var Ze = class extends B {
 	};
 	_contents = /* @__PURE__ */ new Map();
 	static styles = [
-		z,
-		Y,
+		R,
+		J,
 		o`
       .status {
         flex: none;
@@ -1292,17 +1306,17 @@ var Ze = class extends B {
     `
 	];
 	static getConfigElement() {
-		return document.createElement(Je);
+		return document.createElement(Ye);
 	}
 	static getStubConfig(e) {
 		return {
-			type: `custom:${Z}`,
-			entity: Xe(e) ?? ""
+			type: `custom:${X}`,
+			entity: Ze(e) ?? ""
 		};
 	}
 	setConfig(e) {
 		if (!e?.entity) throw Error("Entity required (the Librus messages sensor)");
-		Le(e.count), super.setConfig(e);
+		Re(e.count), super.setConfig(e);
 	}
 	get defaultTitle() {
 		return this.t("messages.name");
@@ -1311,27 +1325,27 @@ var Ze = class extends B {
 		return "mdi:email-outline";
 	}
 	get _fields() {
-		return new Set(this._config?.fields ?? Q);
+		return new Set(this._config?.fields ?? Z);
 	}
 	get _messages() {
-		return Ye(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
+		return Xe(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
 	}
 	getCardSize() {
 		return 1 + Math.max(1, this._messages.length);
 	}
 	_open(e) {
-		this._selected = e, this._error = void 0, this.updateComplete.then(() => this.renderRoot.querySelector(V)?.show()), e.content_cached && !this._contents.has(e.id) && this._readContent(e);
+		this._selected = e, this._error = void 0, this.updateComplete.then(() => this.renderRoot.querySelector(B)?.show()), e.content_cached && !this._contents.has(e.id) && this._readContent(e);
 	}
 	async _readContent(e) {
 		if (this.hass && this._config?.entity && this._loading !== e.id) {
 			this._loading = e.id, this._error = void 0;
 			try {
-				let t = await Ke(this.hass, this._config.entity, e.id);
+				let t = await qe(this.hass, this._config.entity, e.id);
 				this._contents.set(e.id, t);
 			} catch (t) {
 				this._error = {
 					id: e.id,
-					text: qe(t)
+					text: Je(t)
 				};
 			} finally {
 				this._loading = void 0;
@@ -1360,7 +1374,7 @@ var Ze = class extends B {
 		return this.t(e.unread ? "messages.unread" : "messages.read");
 	}
 	_renderRow(e) {
-		let t = this._fields, n = [t.has("author") ? e.author : "", t.has("date") ? K(this.hass, e.date) : ""].filter(Boolean);
+		let t = this._fields, n = [t.has("author") ? e.author : "", t.has("date") ? G(this.hass, e.date) : ""].filter(Boolean);
 		return E`
       <li class=${e.unread ? "unread" : "read"}>
         <button class="row" @click=${() => this._open(e)}>
@@ -1384,7 +1398,7 @@ var Ze = class extends B {
         <dt>${this.t("messages.from")}</dt>
         <dd>${e.author}</dd>
         <dt>${this.t("messages.date")}</dt>
-        <dd>${K(this.hass, e.date)}</dd>
+        <dd>${G(this.hass, e.date)}</dd>
         <dt>${this.t("messages.status")}</dt>
         <dd>${this._statusText(e)}</dd>
         <dt>${this.t("messages.attachments")}</dt>
@@ -1396,7 +1410,7 @@ var Ze = class extends B {
 	render() {
 		if (!this._config || !this.hass) return O;
 		if (!this.stateObj) return this.renderMissingEntity();
-		let e = this._messages, t = this._selected ? Ye(this.stateObj.attributes).find((e) => e.id === this._selected?.id) ?? this._selected : void 0;
+		let e = this._messages, t = this._selected ? Xe(this.stateObj.attributes).find((e) => e.id === this._selected?.id) ?? this._selected : void 0;
 		return E`
       <ha-card>
         ${this.renderHeader()}
@@ -1411,25 +1425,80 @@ var Ze = class extends B {
       </librus-apix-dialog>
     `;
 	}
-}, Qe = class extends U {
+}, $e = class extends H {
 	get schema() {
 		return [
-			...W("sensor"),
-			Re(),
-			J(this.hass, "messages", Q)
+			...U("sensor"),
+			ze(),
+			q(this.hass, "messages", Z)
 		];
 	}
 	setConfig(e) {
 		super.setConfig({
 			count: 5,
-			fields: [...Q],
+			fields: [...Z],
 			...e
 		});
 	}
-};
+}, et = [
+	{
+		id: "tests",
+		types: [
+			"Sprawdzian",
+			"Kartkówka",
+			"Klasówka",
+			"Praca klasowa",
+			"Test"
+		]
+	},
+	{
+		id: "trips",
+		types: ["Wycieczka", "Wyjście"]
+	},
+	{
+		id: "meetings",
+		types: [
+			"Zebranie z rodzicami",
+			"Wywiadówka",
+			"Konsultacje"
+		]
+	},
+	{
+		id: "days_off",
+		types: ["Dzień wolny"]
+	},
+	{
+		id: "contests",
+		types: ["Konkurs", "Olimpiada"]
+	}
+], tt = "group:";
+function Q(e) {
+	return e.trim().toLocaleLowerCase("pl");
+}
+function nt(e) {
+	return (e.fields?.type || e.summary.split(":")[0]).trim();
+}
+function rt(e) {
+	let t = /* @__PURE__ */ new Map();
+	for (let n of e) {
+		let e = nt(n);
+		e && !t.has(Q(e)) && t.set(Q(e), e);
+	}
+	return [...t.values()].sort((e, t) => e.localeCompare(t, "pl"));
+}
+function it(e) {
+	let t = /* @__PURE__ */ new Set();
+	for (let n of e) n.startsWith("group:") ? et.find((e) => e.id === n.slice(6))?.types.forEach((e) => t.add(Q(e))) : t.add(Q(n));
+	return t;
+}
+function at(e, t) {
+	if (!t?.length) return e;
+	let n = it(t);
+	return e.filter((e) => n.has(Q(nt(e))));
+}
 //#endregion
 //#region src/common/schedule.ts
-function $e(e) {
+function ot(e) {
 	let t = (e ?? "").split("\n");
 	for (let e = t.length - 1; e >= 0; e--) if (t[e].startsWith("{")) {
 		try {
@@ -1446,12 +1515,12 @@ function $e(e) {
 	}
 	return { text: (e ?? "").trim() };
 }
-function et(e) {
+function st(e) {
 	let [t, n, r] = e.split("-").map(Number);
 	return new Date(t, n - 1, r);
 }
-function tt(e) {
-	let t = !e.start.dateTime, n = t ? et(e.start.date ?? "") : new Date(e.start.dateTime), r = t ? et(e.end.date ?? e.start.date ?? "") : new Date(e.end.dateTime ?? e.start.dateTime), { text: i, fields: a } = $e(e.description);
+function ct(e) {
+	let t = !e.start.dateTime, n = t ? st(e.start.date ?? "") : new Date(e.start.dateTime), r = t ? st(e.end.date ?? e.start.date ?? "") : new Date(e.end.dateTime ?? e.start.dateTime), { text: i, fields: a } = ot(e.description);
 	return {
 		uid: e.uid ?? a?.id ?? `${e.summary}|${n.toISOString()}`,
 		summary: e.summary,
@@ -1463,30 +1532,30 @@ function tt(e) {
 		fields: a
 	};
 }
-function nt(e, t, n) {
+function lt(e, t, n) {
 	return e.filter((e) => e.end > t && e.start < n).sort((e, t) => e.start.getTime() - t.start.getTime() || e.summary.localeCompare(t.summary));
 }
-async function rt(e, t, n, r) {
+async function ut(e, t, n, r) {
 	let i = `start=${encodeURIComponent(n.toISOString())}&end=${encodeURIComponent(r.toISOString())}`;
-	return nt((await e.callApi("GET", `calendars/${t}?${i}`)).map(tt), n, r);
+	return lt((await e.callApi("GET", `calendars/${t}?${i}`)).map(ct), n, r);
 }
 //#endregion
 //#region src/cards/schedule-card.ts
-var $ = "librus-schedule-card", it = "librus-schedule-card-editor", at = [
+var $ = "librus-schedule-card", dt = "librus-schedule-card-editor", ft = [
 	"date",
 	"time",
 	"description",
 	"teacher"
-], ot = [
+], pt = [
 	"date",
 	"time",
 	"description"
-], st = 9e5, ct = 864e5;
-function lt(e) {
+], mt = 9e5, ht = 864e5;
+function gt(e) {
 	let t = Object.values(e?.states ?? {});
 	return (t.find((e) => e.entity_id.startsWith("calendar.") && String(e.attributes.description ?? "").includes("\"librus_apix\"")) ?? t.find((e) => e.entity_id.startsWith("calendar.")))?.entity_id;
 }
-var ut = class extends B {
+var _t = class extends z {
 	static properties = {
 		_events: { state: !0 },
 		_error: { state: !0 },
@@ -1495,8 +1564,8 @@ var ut = class extends B {
 	_timer;
 	_fetching;
 	static styles = [
-		z,
-		Y,
+		R,
+		J,
 		o`
       .badge {
         flex: none;
@@ -1537,12 +1606,12 @@ var ut = class extends B {
     `
 	];
 	static getConfigElement() {
-		return document.createElement(it);
+		return document.createElement(dt);
 	}
 	static getStubConfig(e) {
 		return {
 			type: `custom:${$}`,
-			entity: lt(e) ?? ""
+			entity: gt(e) ?? ""
 		};
 	}
 	setConfig(e) {
@@ -1559,10 +1628,10 @@ var ut = class extends B {
 		return "mdi:calendar-text";
 	}
 	get _fields() {
-		return new Set(this._config?.fields ?? ot);
+		return new Set(this._config?.fields ?? pt);
 	}
 	connectedCallback() {
-		super.connectedCallback(), this._timer = setInterval(() => void this._refresh(), st), this._refresh();
+		super.connectedCallback(), this._timer = setInterval(() => void this._refresh(), mt), this._refresh();
 	}
 	disconnectedCallback() {
 		super.disconnectedCallback(), clearInterval(this._timer), this._timer = void 0;
@@ -1574,23 +1643,26 @@ var ut = class extends B {
 	}
 	async _refresh() {
 		if (!this.hass || !this._config?.entity || !this.isConnected || this._fetching) return this._fetching;
-		let e = /* @__PURE__ */ new Date(), t = new Date(e.getTime() + (this._config.days ?? 14) * ct);
-		return this._fetching = rt(this.hass, this._config.entity, e, t).then((e) => {
+		let e = /* @__PURE__ */ new Date(), t = new Date(e.getTime() + (this._config.days ?? 14) * ht);
+		return this._fetching = ut(this.hass, this._config.entity, e, t).then((e) => {
 			this._events = e, this._error = void 0;
 		}).catch((e) => {
-			this._error = qe(e);
+			this._error = Je(e);
 		}).finally(() => {
 			this._fetching = void 0;
 		}), this._fetching;
 	}
+	get _shown() {
+		return this._events && at(this._events, this._config?.types);
+	}
 	getCardSize() {
-		return 1 + Math.max(1, this._events?.length ?? 1);
+		return 1 + Math.max(1, this._shown?.length ?? 1);
 	}
 	_open(e) {
-		this._selected = e, this.updateComplete.then(() => this.renderRoot.querySelector(V)?.show());
+		this._selected = e, this.updateComplete.then(() => this.renderRoot.querySelector(B)?.show());
 	}
 	_when(e) {
-		return e.allDay ? this.t("schedule.all_day") : `${Fe(this.hass, e.start)}–${Fe(this.hass, e.end)}`;
+		return e.allDay ? this.t("schedule.all_day") : `${Ie(this.hass, e.start)}–${Ie(this.hass, e.end)}`;
 	}
 	_renderRow(e, t) {
 		let n = this._fields, r = e.fields?.lesson, i = [
@@ -1598,11 +1670,11 @@ var ut = class extends B {
 			n.has("time") && r ? this.t("schedule.lesson_n", { n: r }) : "",
 			n.has("teacher") ? e.fields?.teacher ?? "" : "",
 			n.has("description") ? e.fields?.description ?? "" : ""
-		].filter(Boolean), a = Ie(this.hass, e.date ?? e.start);
+		].filter(Boolean), a = Le(this.hass, e.date ?? e.start);
 		return E`
       <li class=${t ? "next" : ""}>
         <button class="row" @click=${() => this._open(e)}>
-          ${n.has("date") ? E`<span class="badge" aria-label=${e.date ? q(this.hass, e.date) : K(this.hass, e.start.toISOString())}>
+          ${n.has("date") ? E`<span class="badge" aria-label=${e.date ? K(this.hass, e.date) : G(this.hass, e.start.toISOString())}>
                 <span class="day">${a.day}</span>
                 <span class="weekday">${a.weekday}</span>
               </span>` : O}
@@ -1616,7 +1688,7 @@ var ut = class extends B {
     `;
 	}
 	_renderDetails(e) {
-		let t = e.fields, n = e.date ? q(this.hass, e.date) : q(this.hass, e.start.toISOString()), r = [
+		let t = e.fields, n = e.date ? K(this.hass, e.date) : K(this.hass, e.start.toISOString()), r = [
 			[this.t("schedule.type"), t?.type],
 			[this.t("schedule.subject"), t?.subject],
 			[this.t("schedule.date"), n],
@@ -1645,8 +1717,15 @@ var ut = class extends B {
 	render() {
 		if (!this._config || !this.hass) return O;
 		if (!this.stateObj) return this.renderMissingEntity();
-		let e = this._events, t = Date.now(), n = e?.find((e) => e.end.getTime() > t), r;
-		return r = this._error && !e ? E`<div class="error">${this.t("common.error", { error: this._error })}</div>` : e ? e.length ? E`<ul class="items">${e.map((e) => this._renderRow(e, e === n))}</ul>` : E`<div class="empty">${this.t("schedule.empty", { days: this._config.days ?? 14 })}</div>` : E`<div class="empty">${this.t("common.loading")}</div>`, E`
+		let e = this._shown, t = Date.now(), n = e?.find((e) => e.end.getTime() > t), r;
+		if (this._error && !e) r = E`<div class="error">${this.t("common.error", { error: this._error })}</div>`;
+		else if (!e) r = E`<div class="empty">${this.t("common.loading")}</div>`;
+		else if (e.length) r = E`<ul class="items">${e.map((e) => this._renderRow(e, e === n))}</ul>`;
+		else {
+			let e = this._events?.length ? "schedule.empty_filtered" : "schedule.empty";
+			r = E`<div class="empty">${this.t(e, { days: this._config.days ?? 14 })}</div>`;
+		}
+		return E`
       <ha-card>
         ${this.renderHeader()} ${r}
       </ha-card>
@@ -1659,17 +1738,41 @@ var ut = class extends B {
       </librus-apix-dialog>
     `;
 	}
-}, dt = [
-	[V, Ne],
-	[Z, Ze],
-	[Je, Qe],
-	[X, We],
-	[ze, Ge],
-	[$, ut],
-	[it, class extends U {
+}, vt = [
+	[B, Pe],
+	[X, Qe],
+	[Ye, $e],
+	[Y, Ge],
+	[Be, Ke],
+	[$, _t],
+	[dt, class extends H {
+		static properties = { _found: { state: !0 } };
+		_foundFor;
+		updated(e) {
+			super.updated(e);
+			let t = this._config?.entity;
+			if (this.hass && t && t !== this._foundFor) {
+				this._foundFor = t;
+				let e = /* @__PURE__ */ new Date();
+				ut(this.hass, t, e, new Date(e.getTime() + 200 * ht)).then((e) => {
+					this._foundFor === t && (this._found = rt(e));
+				}).catch(() => void 0);
+			}
+		}
+		_typeOptions() {
+			let e = et.map((e) => ({
+				value: `${tt}${e.id}`,
+				label: `${L(this.hass, `schedule.group_${e.id}`)} (${e.types.join(", ")})`
+			})), t = [...this._found ?? []];
+			for (let e of this._config?.types ?? []) !e.startsWith("group:") && !t.includes(e) && t.push(e);
+			return [...e, ...t.map((e) => ({
+				value: e,
+				label: e
+			}))];
+		}
 		get schema() {
 			return [
-				...W("calendar"),
+				...U("calendar"),
 				{
 					name: "days",
 					selector: { number: {
@@ -1679,18 +1782,26 @@ var ut = class extends B {
 						unit_of_measurement: "d"
 					} }
 				},
-				J(this.hass, "schedule", at)
+				q(this.hass, "schedule", ft),
+				{
+					name: "types",
+					selector: { select: {
+						multiple: !0,
+						custom_value: !0,
+						options: this._typeOptions()
+					} }
+				}
 			];
 		}
 		setConfig(e) {
 			super.setConfig({
 				days: 14,
-				fields: [...ot],
+				fields: [...pt],
 				...e
 			});
 		}
 	}]
-], ft = [
+], yt = [
 	{
 		type: $,
 		name: "Librus schedule",
@@ -1698,19 +1809,19 @@ var ut = class extends B {
 		preview: !0
 	},
 	{
-		type: Z,
+		type: X,
 		name: "Librus messages",
 		description: "Last Librus messages of a student with read and attachment marks.",
 		preview: !0
 	},
 	{
-		type: X,
+		type: Y,
 		name: "Librus announcements",
 		description: "Last Librus announcements of a student's school with the full text in a pop-up.",
 		preview: !0
 	}
 ];
-for (let [e, t] of dt) customElements.get(e) || customElements.define(e, t);
+for (let [e, t] of vt) customElements.get(e) || customElements.define(e, t);
 window.customCards = window.customCards ?? [];
-for (let e of ft) window.customCards.some((t) => t.type === e.type) || window.customCards.push(e);
+for (let e of yt) window.customCards.some((t) => t.type === e.type) || window.customCards.push(e);
 //#endregion

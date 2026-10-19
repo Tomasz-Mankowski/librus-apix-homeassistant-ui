@@ -14,7 +14,8 @@
     "icon": "Icon",
     "count": "Number of items",
     "fields": "Shown on the list",
-    "days": "Days ahead"
+    "days": "Days ahead",
+    "types": "Event types (empty: all)"
   },
   "messages": {
     "name": "Messages",
@@ -60,6 +61,12 @@
     "field_date": "Date",
     "field_time": "Time and lesson",
     "field_description": "Description",
-    "field_teacher": "Teacher"
+    "field_teacher": "Teacher",
+    "empty_filtered": "No events of the selected types in the next {days} days",
+    "group_tests": "Tests",
+    "group_trips": "Trips",
+    "group_meetings": "Meetings",
+    "group_days_off": "Days off",
+    "group_contests": "Contests"
   }
 }

@@ -1,10 +1,12 @@
 import { css, html, nothing, type PropertyValues, type TemplateResult } from "lit";
 
 import { errorText } from "../common/api";
+import { GROUP_PREFIX, TYPE_GROUPS, filterByType, typesIn } from "../common/event-types";
 import { LibrusCard, type BaseCardConfig } from "../common/base-card";
 import { DIALOG, type LibrusDialog } from "../common/dialog";
 import { LibrusCardEditor, baseFields, type FormField } from "../common/editor";
 import { dayParts, formatDate, formatDateTime, formatTime } from "../common/format";
+import { localize } from "../common/localize";
 import { fieldsField, listStyles } from "../common/list";
 import { fetchEvents, type ScheduleEvent } from "../common/schedule";
 import { cardStyles } from "../common/styles";
@@ -28,6 +30,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 export interface ScheduleCardConfig extends BaseCardConfig {
   days?: number;
   fields?: ScheduleField[];
+  /** Event types to show: preset groups ("group:tests") and type names; empty = all. */
+  types?: string[];
 }
 
 function findCalendar(hass?: HomeAssistant): string | undefined {
@@ -186,8 +190,13 @@ export class ScheduleCard extends LibrusCard<ScheduleCardConfig> {
     return this._fetching;
   }
 
+  /** Events of the timeframe that the type filter selects (undefined while loading). */
+  private get _shown(): ScheduleEvent[] | undefined {
+    return this._events && filterByType(this._events, this._config?.types);
+  }
+
   override getCardSize(): number {
-    return 1 + Math.max(1, this._events?.length ?? 1);
+    return 1 + Math.max(1, this._shown?.length ?? 1);
   }
 
   private _open(event: ScheduleEvent): void {
@@ -267,7 +276,7 @@ export class ScheduleCard extends LibrusCard<ScheduleCardConfig> {
     if (!this.stateObj) {
       return this.renderMissingEntity();
     }
-    const events = this._events;
+    const events = this._shown;
     const now = Date.now();
     const next = events?.find((event) => event.end.getTime() > now);
     let content: TemplateResult;
@@ -276,7 +285,8 @@ export class ScheduleCard extends LibrusCard<ScheduleCardConfig> {
     } else if (!events) {
       content = html`<div class="empty">${this.t("common.loading")}</div>`;
     } else if (!events.length) {
-      content = html`<div class="empty">${this.t("schedule.empty", { days: this._config.days ?? DEFAULT_DAYS })}</div>`;
+      const key = this._events?.length ? "schedule.empty_filtered" : "schedule.empty";
+      content = html`<div class="empty">${this.t(key, { days: this._config.days ?? DEFAULT_DAYS })}</div>`;
     } else {
       content = html`<ul class="items">${events.map((event) => this._renderRow(event, event === next))}</ul>`;
     }
@@ -296,11 +306,56 @@ export class ScheduleCard extends LibrusCard<ScheduleCardConfig> {
 }
 
 export class ScheduleCardEditor extends LibrusCardEditor<ScheduleCardConfig> {
+  static override properties = {
+    _found: { state: true },
+  };
+
+  /** Event types found in the calendar for the next MAX_DAYS days. */
+  declare _found?: string[];
+
+  private _foundFor?: string;
+
+  protected override updated(changed: PropertyValues<this>): void {
+    super.updated(changed);
+    const entity = this._config?.entity;
+    if (this.hass && entity && entity !== this._foundFor) {
+      this._foundFor = entity;
+      const now = new Date();
+      fetchEvents(this.hass, entity, now, new Date(now.getTime() + MAX_DAYS * DAY_MS))
+        .then((events) => {
+          if (this._foundFor === entity) {
+            this._found = typesIn(events);
+          }
+        })
+        // Without data the filter still offers the groups and the configured types.
+        .catch(() => undefined);
+    }
+  }
+
+  /** Options of the type filter: groups first, then the types in the data and the config. */
+  private _typeOptions(): { value: string; label: string }[] {
+    const groups = TYPE_GROUPS.map((group) => ({
+      value: `${GROUP_PREFIX}${group.id}`,
+      label: `${localize(this.hass, `schedule.group_${group.id}`)} (${group.types.join(", ")})`,
+    }));
+    const types = [...(this._found ?? [])];
+    for (const item of this._config?.types ?? []) {
+      if (!item.startsWith(GROUP_PREFIX) && !types.includes(item)) {
+        types.push(item);
+      }
+    }
+    return [...groups, ...types.map((type) => ({ value: type, label: type }))];
+  }
+
   protected get schema(): FormField[] {
     return [
       ...baseFields("calendar"),
       { name: "days", selector: { number: { min: 1, max: MAX_DAYS, mode: "box", unit_of_measurement: "d" } } },
       fieldsField(this.hass, "schedule", SCHEDULE_FIELDS),
+      {
+        name: "types",
+        selector: { select: { multiple: true, custom_value: true, options: this._typeOptions() } },
+      },
     ];
   }
 

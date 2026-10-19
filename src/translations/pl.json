@@ -14,7 +14,8 @@
     "icon": "Ikona",
     "count": "Liczba pozycji",
     "fields": "Pokazywane na liście",
-    "days": "Liczba dni do przodu"
+    "days": "Liczba dni do przodu",
+    "types": "Rodzaje wydarzeń (puste: wszystkie)"
   },
   "messages": {
     "name": "Wiadomości",
@@ -60,6 +61,12 @@
     "field_date": "Data",
     "field_time": "Godzina i lekcja",
     "field_description": "Opis",
-    "field_teacher": "Nauczyciel"
+    "field_teacher": "Nauczyciel",
+    "empty_filtered": "Brak wydarzeń wybranych rodzajów w ciągu najbliższych {days} dni",
+    "group_tests": "Sprawdziany",
+    "group_trips": "Wycieczki",
+    "group_meetings": "Zebrania",
+    "group_days_off": "Dni wolne",
+    "group_contests": "Konkursy"
   }
 }
