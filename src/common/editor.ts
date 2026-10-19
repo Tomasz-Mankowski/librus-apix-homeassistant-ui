@@ -1,4 +1,4 @@
-import { LitElement, html, nothing } from "lit";
+import { LitElement, html, nothing, type PropertyDeclarations } from "lit";
 
 import { localize } from "./localize";
 import type { HomeAssistant, LovelaceCardConfig } from "../types";
@@ -20,7 +20,7 @@ export interface FormField {
  * "config-changed" with the whole new config, as Lovelace expects.
  */
 export abstract class LibrusCardEditor<C extends LovelaceCardConfig = LovelaceCardConfig> extends LitElement {
-  static override properties = {
+  static override properties: PropertyDeclarations = {
     hass: { attribute: false },
     _config: { state: true },
   };

@@ -1,6 +1,9 @@
 import type { HassEntity, HomeAssistant } from "../src/types";
 
-/** A minimal `hass` object for card tests. */
+/**
+ * A minimal `hass` object for card tests. Times are shown in the server time zone
+ * Europe/Warsaw, so results do not depend on the time zone of the test machine.
+ */
 export function mockHass(
   states: Record<string, Partial<HassEntity>> = {},
   language = "en",
@@ -20,7 +23,8 @@ export function mockHass(
       ]),
     ),
     language,
-    locale: { language },
+    locale: { language, time_zone: "server" },
+    config: { time_zone: "Europe/Warsaw" },
     themes: { darkMode: false },
     callService: async () => undefined,
   };

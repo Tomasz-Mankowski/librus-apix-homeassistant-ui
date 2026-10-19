@@ -9,7 +9,7 @@ class TestCard extends LibrusCard<BaseCardConfig> {
   renders = 0;
 
   protected get defaultTitle(): string {
-    return this.t("placeholder.name");
+    return this.t("messages.name");
   }
 
   protected get defaultIcon(): string {
@@ -48,7 +48,7 @@ describe("base card", () => {
     });
 
     const header = card.shadowRoot!.querySelector(".card-header")!;
-    expect(header.textContent?.trim()).toBe("Karty Librus APIX");
+    expect(header.textContent?.trim()).toBe("Wiadomości");
     expect((header.querySelector("ha-icon") as HTMLElement & { icon: string }).icon).toBe("mdi:school");
   });
 

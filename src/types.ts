@@ -11,7 +11,9 @@ export interface HassEntity {
 export interface HomeAssistant {
   states: Record<string, HassEntity>;
   language: string;
-  locale: { language: string };
+  // time_zone "server" = show times in the HA time zone (config.time_zone).
+  locale: { language: string; time_zone?: "local" | "server" };
+  config?: { time_zone: string };
   themes: { darkMode: boolean };
   callService(
     domain: string,

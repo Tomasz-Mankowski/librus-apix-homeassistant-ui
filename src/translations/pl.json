@@ -4,17 +4,30 @@
     "entity_not_found": "Nie znaleziono encji: {entity}",
     "no_items": "Brak pozycji",
     "loading": "Wczytywanie…",
-    "error": "Coś poszło nie tak: {error}"
+    "error": "Coś poszło nie tak: {error}",
+    "yes": "Tak",
+    "no": "Nie"
   },
   "editor": {
     "entity": "Encja",
     "title": "Tytuł",
-    "icon": "Ikona"
+    "icon": "Ikona",
+    "count": "Liczba pozycji",
+    "fields": "Pokazywane na liście"
   },
-  "placeholder": {
-    "name": "Karty Librus APIX",
-    "open_dialog": "Otwórz okno",
-    "dialog_title": "Podgląd okna",
-    "dialog_text": "Tak otwierają się szczegóły w kartach Librus APIX."
+  "messages": {
+    "name": "Wiadomości",
+    "empty": "Brak wiadomości",
+    "unread": "Nieprzeczytana",
+    "read": "Przeczytana",
+    "attachment": "Załącznik",
+    "from": "Od",
+    "date": "Data",
+    "status": "Status",
+    "attachments": "Załączniki",
+    "field_author": "Autor",
+    "field_date": "Data",
+    "field_attachment": "Ikona załącznika",
+    "field_status": "Ikona przeczytania"
   }
 }

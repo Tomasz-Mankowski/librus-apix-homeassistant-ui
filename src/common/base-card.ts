@@ -3,6 +3,7 @@ import {
   html,
   nothing,
   type CSSResultGroup,
+  type PropertyDeclarations,
   type PropertyValues,
   type TemplateResult,
 } from "lit";
@@ -25,7 +26,7 @@ export interface BaseCardConfig extends LovelaceCardConfig {
  * (N1: Home Assistant sets `hass` on every state change of every entity).
  */
 export abstract class LibrusCard<C extends BaseCardConfig = BaseCardConfig> extends LitElement {
-  static override properties = {
+  static override properties: PropertyDeclarations = {
     hass: { attribute: false },
     _config: { state: true },
   };

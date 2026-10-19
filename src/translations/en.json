@@ -4,17 +4,30 @@
     "entity_not_found": "Entity not found: {entity}",
     "no_items": "Nothing to show",
     "loading": "Loading…",
-    "error": "Something went wrong: {error}"
+    "error": "Something went wrong: {error}",
+    "yes": "Yes",
+    "no": "No"
   },
   "editor": {
     "entity": "Entity",
     "title": "Title",
-    "icon": "Icon"
+    "icon": "Icon",
+    "count": "Number of items",
+    "fields": "Shown on the list"
   },
-  "placeholder": {
-    "name": "Librus APIX Cards",
-    "open_dialog": "Open pop-up",
-    "dialog_title": "Pop-up preview",
-    "dialog_text": "This is how details open in the Librus APIX cards."
+  "messages": {
+    "name": "Messages",
+    "empty": "No messages",
+    "unread": "Unread",
+    "read": "Read",
+    "attachment": "Attachment",
+    "from": "From",
+    "date": "Date",
+    "status": "Status",
+    "attachments": "Attachments",
+    "field_author": "Author",
+    "field_date": "Date",
+    "field_attachment": "Attachment icon",
+    "field_status": "Read / unread icon"
   }
 }

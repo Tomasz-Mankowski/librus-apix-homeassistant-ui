@@ -1,25 +1,26 @@
 // Entry point: defines the custom elements and lists the cards in the card picker.
 
 import {
-  PLACEHOLDER_CARD,
-  PLACEHOLDER_EDITOR,
-  PlaceholderCard,
-  PlaceholderCardEditor,
-} from "./cards/placeholder-card";
+  MESSAGES_CARD,
+  MESSAGES_EDITOR,
+  MessagesCard,
+  MessagesCardEditor,
+} from "./cards/messages-card";
 import { DIALOG, LibrusDialog } from "./common/dialog";
 import type { CustomCardEntry } from "./types";
 
 const ELEMENTS: [string, CustomElementConstructor][] = [
   [DIALOG, LibrusDialog],
-  [PLACEHOLDER_CARD, PlaceholderCard],
-  [PLACEHOLDER_EDITOR, PlaceholderCardEditor],
+  [MESSAGES_CARD, MessagesCard],
+  [MESSAGES_EDITOR, MessagesCardEditor],
 ];
 
 const CARDS: CustomCardEntry[] = [
   {
-    type: PLACEHOLDER_CARD,
-    name: "Librus APIX placeholder",
-    description: "Shows the version of the Librus APIX Cards bundle.",
+    type: MESSAGES_CARD,
+    name: "Librus messages",
+    description: "Last Librus messages of a student with read and attachment marks.",
+    preview: true,
   },
 ];
 
