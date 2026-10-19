@@ -13,7 +13,8 @@
     "title": "Title",
     "icon": "Icon",
     "count": "Number of items",
-    "fields": "Shown on the list"
+    "fields": "Shown on the list",
+    "days": "Days ahead"
   },
   "messages": {
     "name": "Messages",
@@ -42,5 +43,23 @@
     "field_author": "Author",
     "field_date": "Date",
     "field_preview": "First line of the text"
+  },
+  "schedule": {
+    "name": "Schedule",
+    "empty": "No events in the next {days} days",
+    "next": "Next",
+    "all_day": "All day",
+    "lesson_n": "lesson {n}",
+    "type": "Type",
+    "subject": "Subject",
+    "date": "Date",
+    "time": "Time",
+    "lesson": "Lesson",
+    "teacher": "Teacher",
+    "added": "Added",
+    "field_date": "Date",
+    "field_time": "Time and lesson",
+    "field_description": "Description",
+    "field_teacher": "Teacher"
   }
 }

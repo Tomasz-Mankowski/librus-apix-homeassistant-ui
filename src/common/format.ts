@@ -28,6 +28,23 @@ export function formatDateTime(hass: HomeAssistant | undefined, value: string): 
   }).format(date);
 }
 
+/** Time of day: "09:50" (pl) / "9:50 AM" (en). */
+export function formatTime(hass: HomeAssistant | undefined, date: Date): string {
+  return new Intl.DateTimeFormat(language(hass), { timeStyle: "short", timeZone: timeZone(hass) }).format(date);
+}
+
+/** Day of the month and short weekday of a date-time or a "YYYY-MM-DD" date: { day: "21", weekday: "śr." }. */
+export function dayParts(hass: HomeAssistant | undefined, value: Date | string): { day: string; weekday: string } {
+  const dateOnly = typeof value === "string";
+  const date = dateOnly ? new Date(`${value}T12:00:00Z`) : value;
+  const zone = dateOnly ? "UTC" : timeZone(hass);
+  const lang = language(hass);
+  return {
+    day: new Intl.DateTimeFormat(lang, { day: "numeric", timeZone: zone }).format(date),
+    weekday: new Intl.DateTimeFormat(lang, { weekday: "short", timeZone: zone }).format(date),
+  };
+}
+
 /** Date only: "19.10.2026" (pl); "YYYY-MM-DD" texts are dates without a time zone. */
 export function formatDate(hass: HomeAssistant | undefined, value: string): string {
   const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);

@@ -29,11 +29,11 @@ var e = globalThis, t = e.ShadowRoot && (e.ShadyCSS === void 0 || e.ShadyCSS.nat
 	let t = "";
 	for (let n of e.cssRules) t += n.cssText;
 	return a(t);
-})(e) : e, { is: l, defineProperty: u, getOwnPropertyDescriptor: d, getOwnPropertyNames: ee, getOwnPropertySymbols: te, getPrototypeOf: ne } = Object, f = globalThis, p = f.trustedTypes, re = p ? p.emptyScript : "", ie = f.reactiveElementPolyfillSupport, m = (e, t) => e, h = {
+})(e) : e, { is: l, defineProperty: u, getOwnPropertyDescriptor: d, getOwnPropertyNames: ee, getOwnPropertySymbols: te, getPrototypeOf: ne } = Object, f = globalThis, re = f.trustedTypes, ie = re ? re.emptyScript : "", ae = f.reactiveElementPolyfillSupport, p = (e, t) => e, m = {
 	toAttribute(e, t) {
 		switch (t) {
 			case Boolean:
-				e = e ? re : null;
+				e = e ? ie : null;
 				break;
 			case Object:
 			case Array: e = e == null ? e : JSON.stringify(e);
@@ -58,23 +58,23 @@ var e = globalThis, t = e.ShadowRoot && (e.ShadyCSS === void 0 || e.ShadyCSS.nat
 		}
 		return n;
 	}
-}, g = (e, t) => !l(e, t), ae = {
+}, oe = (e, t) => !l(e, t), se = {
 	attribute: !0,
 	type: String,
-	converter: h,
+	converter: m,
 	reflect: !1,
 	useDefault: !1,
-	hasChanged: g
+	hasChanged: oe
 };
 Symbol.metadata ??= Symbol("metadata"), f.litPropertyMetadata ??= /* @__PURE__ */ new WeakMap();
-var _ = class extends HTMLElement {
+var h = class extends HTMLElement {
 	static addInitializer(e) {
 		this._$Ei(), (this.l ??= []).push(e);
 	}
 	static get observedAttributes() {
 		return this.finalize(), this._$Eh && [...this._$Eh.keys()];
 	}
-	static createProperty(e, t = ae) {
+	static createProperty(e, t = se) {
 		if (t.state && (t.attribute = !1), this._$Ei(), this.prototype.hasOwnProperty(e) && ((t = Object.create(t)).wrapped = !0), this.elementProperties.set(e, t), !t.noAccessor) {
 			let n = Symbol(), r = this.getPropertyDescriptor(e, n, t);
 			r !== void 0 && u(this.prototype, e, r);
@@ -100,16 +100,16 @@ var _ = class extends HTMLElement {
 		};
 	}
 	static getPropertyOptions(e) {
-		return this.elementProperties.get(e) ?? ae;
+		return this.elementProperties.get(e) ?? se;
 	}
 	static _$Ei() {
-		if (this.hasOwnProperty(m("elementProperties"))) return;
+		if (this.hasOwnProperty(p("elementProperties"))) return;
 		let e = ne(this);
 		e.finalize(), e.l !== void 0 && (this.l = [...e.l]), this.elementProperties = new Map(e.elementProperties);
 	}
 	static finalize() {
-		if (this.hasOwnProperty(m("finalized"))) return;
-		if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(m("properties"))) {
+		if (this.hasOwnProperty(p("finalized"))) return;
+		if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(p("properties"))) {
 			let e = this.properties, t = [...ee(e), ...te(e)];
 			for (let n of t) this.createProperty(n, e[n]);
 		}
@@ -171,14 +171,14 @@ var _ = class extends HTMLElement {
 	_$ET(e, t) {
 		let n = this.constructor.elementProperties.get(e), r = this.constructor._$Eu(e, n);
 		if (r !== void 0 && !0 === n.reflect) {
-			let i = (n.converter?.toAttribute === void 0 ? h : n.converter).toAttribute(t, n.type);
+			let i = (n.converter?.toAttribute === void 0 ? m : n.converter).toAttribute(t, n.type);
 			this._$Em = e, i == null ? this.removeAttribute(r) : this.setAttribute(r, i), this._$Em = null;
 		}
 	}
 	_$AK(e, t) {
 		let n = this.constructor, r = n._$Eh.get(e);
 		if (r !== void 0 && this._$Em !== r) {
-			let e = n.getPropertyOptions(r), i = typeof e.converter == "function" ? { fromAttribute: e.converter } : e.converter?.fromAttribute === void 0 ? h : e.converter;
+			let e = n.getPropertyOptions(r), i = typeof e.converter == "function" ? { fromAttribute: e.converter } : e.converter?.fromAttribute === void 0 ? m : e.converter;
 			this._$Em = r;
 			let a = i.fromAttribute(t, e.type);
 			this[r] = a ?? this._$Ej?.get(r) ?? a, this._$Em = null;
@@ -187,7 +187,7 @@ var _ = class extends HTMLElement {
 	requestUpdate(e, t, n, r = !1, i) {
 		if (e !== void 0) {
 			let a = this.constructor;
-			if (!1 === r && (i = this[e]), n ??= a.getPropertyOptions(e), !((n.hasChanged ?? g)(i, t) || n.useDefault && n.reflect && i === this._$Ej?.get(e) && !this.hasAttribute(a._$Eu(e, n)))) return;
+			if (!1 === r && (i = this[e]), n ??= a.getPropertyOptions(e), !((n.hasChanged ?? oe)(i, t) || n.useDefault && n.reflect && i === this._$Ej?.get(e) && !this.hasAttribute(a._$Eu(e, n)))) return;
 			this.C(e, t, n);
 		}
 		!1 === this.isUpdatePending && (this._$ES = this._$EP());
@@ -251,89 +251,89 @@ var _ = class extends HTMLElement {
 	updated(e) {}
 	firstUpdated(e) {}
 };
-_.elementStyles = [], _.shadowRootOptions = { mode: "open" }, _[m("elementProperties")] = /* @__PURE__ */ new Map(), _[m("finalized")] = /* @__PURE__ */ new Map(), ie?.({ ReactiveElement: _ }), (f.reactiveElementVersions ??= []).push("2.1.2");
+h.elementStyles = [], h.shadowRootOptions = { mode: "open" }, h[p("elementProperties")] = /* @__PURE__ */ new Map(), h[p("finalized")] = /* @__PURE__ */ new Map(), ae?.({ ReactiveElement: h }), (f.reactiveElementVersions ??= []).push("2.1.2");
 //#endregion
 //#region ../opt/ui/node_modules/lit-html/lit-html.js
-var v = globalThis, oe = (e) => e, y = v.trustedTypes, b = y ? y.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, x = "$lit$", S = `lit$${Math.random().toFixed(9).slice(2)}$`, se = "?" + S, ce = `<${se}>`, C = document, w = () => C.createComment(""), T = (e) => e === null || typeof e != "object" && typeof e != "function", E = Array.isArray, le = (e) => E(e) || typeof e?.[Symbol.iterator] == "function", D = "[ 	\n\f\r]", O = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, ue = /-->/g, de = />/g, k = RegExp(`>|${D}(?:([^\\s"'>=/]+)(${D}*=${D}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), A = /'/g, j = /"/g, M = /^(?:script|style|textarea|title)$/i, N = ((e) => (t, ...n) => ({
+var g = globalThis, ce = (e) => e, _ = g.trustedTypes, le = _ ? _.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, ue = "$lit$", v = `lit$${Math.random().toFixed(9).slice(2)}$`, de = "?" + v, fe = `<${de}>`, y = document, b = () => y.createComment(""), x = (e) => e === null || typeof e != "object" && typeof e != "function", S = Array.isArray, pe = (e) => S(e) || typeof e?.[Symbol.iterator] == "function", C = "[ 	\n\f\r]", w = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, me = /-->/g, he = />/g, T = RegExp(`>|${C}(?:([^\\s"'>=/]+)(${C}*=${C}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`, "g"), ge = /'/g, _e = /"/g, ve = /^(?:script|style|textarea|title)$/i, E = ((e) => (t, ...n) => ({
 	_$litType$: e,
 	strings: t,
 	values: n
-}))(1), P = Symbol.for("lit-noChange"), F = Symbol.for("lit-nothing"), fe = /* @__PURE__ */ new WeakMap(), I = C.createTreeWalker(C, 129);
-function pe(e, t) {
-	if (!E(e) || !e.hasOwnProperty("raw")) throw Error("invalid template strings array");
-	return b === void 0 ? t : b.createHTML(t);
+}))(1), D = Symbol.for("lit-noChange"), O = Symbol.for("lit-nothing"), ye = /* @__PURE__ */ new WeakMap(), k = y.createTreeWalker(y, 129);
+function be(e, t) {
+	if (!S(e) || !e.hasOwnProperty("raw")) throw Error("invalid template strings array");
+	return le === void 0 ? t : le.createHTML(t);
 }
-var me = (e, t) => {
-	let n = e.length - 1, r = [], i, a = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", o = O;
+var xe = (e, t) => {
+	let n = e.length - 1, r = [], i, a = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", o = w;
 	for (let t = 0; t < n; t++) {
 		let n = e[t], s, c, l = -1, u = 0;
-		for (; u < n.length && (o.lastIndex = u, c = o.exec(n), c !== null);) u = o.lastIndex, o === O ? c[1] === "!--" ? o = ue : c[1] === void 0 ? c[2] === void 0 ? c[3] !== void 0 && (o = k) : (M.test(c[2]) && (i = RegExp("</" + c[2], "g")), o = k) : o = de : o === k ? c[0] === ">" ? (o = i ?? O, l = -1) : c[1] === void 0 ? l = -2 : (l = o.lastIndex - c[2].length, s = c[1], o = c[3] === void 0 ? k : c[3] === "\"" ? j : A) : o === j || o === A ? o = k : o === ue || o === de ? o = O : (o = k, i = void 0);
-		let d = o === k && e[t + 1].startsWith("/>") ? " " : "";
-		a += o === O ? n + ce : l >= 0 ? (r.push(s), n.slice(0, l) + x + n.slice(l) + S + d) : n + S + (l === -2 ? t : d);
+		for (; u < n.length && (o.lastIndex = u, c = o.exec(n), c !== null);) u = o.lastIndex, o === w ? c[1] === "!--" ? o = me : c[1] === void 0 ? c[2] === void 0 ? c[3] !== void 0 && (o = T) : (ve.test(c[2]) && (i = RegExp("</" + c[2], "g")), o = T) : o = he : o === T ? c[0] === ">" ? (o = i ?? w, l = -1) : c[1] === void 0 ? l = -2 : (l = o.lastIndex - c[2].length, s = c[1], o = c[3] === void 0 ? T : c[3] === "\"" ? _e : ge) : o === _e || o === ge ? o = T : o === me || o === he ? o = w : (o = T, i = void 0);
+		let d = o === T && e[t + 1].startsWith("/>") ? " " : "";
+		a += o === w ? n + fe : l >= 0 ? (r.push(s), n.slice(0, l) + ue + n.slice(l) + v + d) : n + v + (l === -2 ? t : d);
 	}
-	return [pe(e, a + (e[n] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), r];
-}, L = class e {
+	return [be(e, a + (e[n] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), r];
+}, A = class e {
 	constructor({ strings: t, _$litType$: n }, r) {
 		let i;
 		this.parts = [];
-		let a = 0, o = 0, s = t.length - 1, c = this.parts, [l, u] = me(t, n);
-		if (this.el = e.createElement(l, r), I.currentNode = this.el.content, n === 2 || n === 3) {
+		let a = 0, o = 0, s = t.length - 1, c = this.parts, [l, u] = xe(t, n);
+		if (this.el = e.createElement(l, r), k.currentNode = this.el.content, n === 2 || n === 3) {
 			let e = this.el.content.firstChild;
 			e.replaceWith(...e.childNodes);
 		}
-		for (; (i = I.nextNode()) !== null && c.length < s;) {
+		for (; (i = k.nextNode()) !== null && c.length < s;) {
 			if (i.nodeType === 1) {
-				if (i.hasAttributes()) for (let e of i.getAttributeNames()) if (e.endsWith(x)) {
-					let t = u[o++], n = i.getAttribute(e).split(S), r = /([.?@])?(.*)/.exec(t);
+				if (i.hasAttributes()) for (let e of i.getAttributeNames()) if (e.endsWith(ue)) {
+					let t = u[o++], n = i.getAttribute(e).split(v), r = /([.?@])?(.*)/.exec(t);
 					c.push({
 						type: 1,
 						index: a,
 						name: r[2],
 						strings: n,
-						ctor: r[1] === "." ? ge : r[1] === "?" ? _e : r[1] === "@" ? ve : B
+						ctor: r[1] === "." ? Ce : r[1] === "?" ? we : r[1] === "@" ? Te : N
 					}), i.removeAttribute(e);
-				} else e.startsWith(S) && (c.push({
+				} else e.startsWith(v) && (c.push({
 					type: 6,
 					index: a
 				}), i.removeAttribute(e));
-				if (M.test(i.tagName)) {
-					let e = i.textContent.split(S), t = e.length - 1;
+				if (ve.test(i.tagName)) {
+					let e = i.textContent.split(v), t = e.length - 1;
 					if (t > 0) {
-						i.textContent = y ? y.emptyScript : "";
-						for (let n = 0; n < t; n++) i.append(e[n], w()), I.nextNode(), c.push({
+						i.textContent = _ ? _.emptyScript : "";
+						for (let n = 0; n < t; n++) i.append(e[n], b()), k.nextNode(), c.push({
 							type: 2,
 							index: ++a
 						});
-						i.append(e[t], w());
+						i.append(e[t], b());
 					}
 				}
 			} else if (i.nodeType === 8) {
-				if (i.data === se) c.push({
+				if (i.data === de) c.push({
 					type: 2,
 					index: a
 				});
 				else {
 					let e = -1;
-					for (; (e = i.data.indexOf(S, e + 1)) !== -1;) c.push({
+					for (; (e = i.data.indexOf(v, e + 1)) !== -1;) c.push({
 						type: 7,
 						index: a
-					}), e += S.length - 1;
+					}), e += v.length - 1;
 				}
 			}
 			a++;
 		}
 	}
 	static createElement(e, t) {
-		let n = C.createElement("template");
+		let n = y.createElement("template");
 		return n.innerHTML = e, n;
 	}
 };
-function R(e, t, n = e, r) {
-	if (t === P) return t;
-	let i = r === void 0 ? n._$Cl : n._$Co?.[r], a = T(t) ? void 0 : t._$litDirective$;
-	return i?.constructor !== a && (i?._$AO?.(!1), a === void 0 ? i = void 0 : (i = new a(e), i._$AT(e, n, r)), r === void 0 ? n._$Cl = i : (n._$Co ??= [])[r] = i), i !== void 0 && (t = R(e, i._$AS(e, t.values), i, r)), t;
+function j(e, t, n = e, r) {
+	if (t === D) return t;
+	let i = r === void 0 ? n._$Cl : n._$Co?.[r], a = x(t) ? void 0 : t._$litDirective$;
+	return i?.constructor !== a && (i?._$AO?.(!1), a === void 0 ? i = void 0 : (i = new a(e), i._$AT(e, n, r)), r === void 0 ? n._$Cl = i : (n._$Co ??= [])[r] = i), i !== void 0 && (t = j(e, i._$AS(e, t.values), i, r)), t;
 }
-var he = class {
+var Se = class {
 	constructor(e, t) {
 		this._$AV = [], this._$AN = void 0, this._$AD = e, this._$AM = t;
 	}
@@ -344,28 +344,28 @@ var he = class {
 		return this._$AM._$AU;
 	}
 	u(e) {
-		let { el: { content: t }, parts: n } = this._$AD, r = (e?.creationScope ?? C).importNode(t, !0);
-		I.currentNode = r;
-		let i = I.nextNode(), a = 0, o = 0, s = n[0];
+		let { el: { content: t }, parts: n } = this._$AD, r = (e?.creationScope ?? y).importNode(t, !0);
+		k.currentNode = r;
+		let i = k.nextNode(), a = 0, o = 0, s = n[0];
 		for (; s !== void 0;) {
 			if (a === s.index) {
 				let t;
-				s.type === 2 ? t = new z(i, i.nextSibling, this, e) : s.type === 1 ? t = new s.ctor(i, s.name, s.strings, this, e) : s.type === 6 && (t = new ye(i, this, e)), this._$AV.push(t), s = n[++o];
+				s.type === 2 ? t = new M(i, i.nextSibling, this, e) : s.type === 1 ? t = new s.ctor(i, s.name, s.strings, this, e) : s.type === 6 && (t = new Ee(i, this, e)), this._$AV.push(t), s = n[++o];
 			}
-			a !== s?.index && (i = I.nextNode(), a++);
+			a !== s?.index && (i = k.nextNode(), a++);
 		}
-		return I.currentNode = C, r;
+		return k.currentNode = y, r;
 	}
 	p(e) {
 		let t = 0;
 		for (let n of this._$AV) n !== void 0 && (n.strings === void 0 ? n._$AI(e[t]) : (n._$AI(e, n, t), t += n.strings.length - 2)), t++;
 	}
-}, z = class e {
+}, M = class e {
 	get _$AU() {
 		return this._$AM?._$AU ?? this._$Cv;
 	}
 	constructor(e, t, n, r) {
-		this.type = 2, this._$AH = F, this._$AN = void 0, this._$AA = e, this._$AB = t, this._$AM = n, this.options = r, this._$Cv = r?.isConnected ?? !0;
+		this.type = 2, this._$AH = O, this._$AN = void 0, this._$AA = e, this._$AB = t, this._$AM = n, this.options = r, this._$Cv = r?.isConnected ?? !0;
 	}
 	get parentNode() {
 		let e = this._$AA.parentNode, t = this._$AM;
@@ -378,7 +378,7 @@ var he = class {
 		return this._$AB;
 	}
 	_$AI(e, t = this) {
-		e = R(this, e, t), T(e) ? e === F || e == null || e === "" ? (this._$AH !== F && this._$AR(), this._$AH = F) : e !== this._$AH && e !== P && this._(e) : e._$litType$ === void 0 ? e.nodeType === void 0 ? le(e) ? this.k(e) : this._(e) : this.T(e) : this.$(e);
+		e = j(this, e, t), x(e) ? e === O || e == null || e === "" ? (this._$AH !== O && this._$AR(), this._$AH = O) : e !== this._$AH && e !== D && this._(e) : e._$litType$ === void 0 ? e.nodeType === void 0 ? pe(e) ? this.k(e) : this._(e) : this.T(e) : this.$(e);
 	}
 	O(e) {
 		return this._$AA.parentNode.insertBefore(e, this._$AB);
@@ -387,36 +387,36 @@ var he = class {
 		this._$AH !== e && (this._$AR(), this._$AH = this.O(e));
 	}
 	_(e) {
-		this._$AH !== F && T(this._$AH) ? this._$AA.nextSibling.data = e : this.T(C.createTextNode(e)), this._$AH = e;
+		this._$AH !== O && x(this._$AH) ? this._$AA.nextSibling.data = e : this.T(y.createTextNode(e)), this._$AH = e;
 	}
 	$(e) {
-		let { values: t, _$litType$: n } = e, r = typeof n == "number" ? this._$AC(e) : (n.el === void 0 && (n.el = L.createElement(pe(n.h, n.h[0]), this.options)), n);
+		let { values: t, _$litType$: n } = e, r = typeof n == "number" ? this._$AC(e) : (n.el === void 0 && (n.el = A.createElement(be(n.h, n.h[0]), this.options)), n);
 		if (this._$AH?._$AD === r) this._$AH.p(t);
 		else {
-			let e = new he(r, this), n = e.u(this.options);
+			let e = new Se(r, this), n = e.u(this.options);
 			e.p(t), this.T(n), this._$AH = e;
 		}
 	}
 	_$AC(e) {
-		let t = fe.get(e.strings);
-		return t === void 0 && fe.set(e.strings, t = new L(e)), t;
+		let t = ye.get(e.strings);
+		return t === void 0 && ye.set(e.strings, t = new A(e)), t;
 	}
 	k(t) {
-		E(this._$AH) || (this._$AH = [], this._$AR());
+		S(this._$AH) || (this._$AH = [], this._$AR());
 		let n = this._$AH, r, i = 0;
-		for (let a of t) i === n.length ? n.push(r = new e(this.O(w()), this.O(w()), this, this.options)) : r = n[i], r._$AI(a), i++;
+		for (let a of t) i === n.length ? n.push(r = new e(this.O(b()), this.O(b()), this, this.options)) : r = n[i], r._$AI(a), i++;
 		i < n.length && (this._$AR(r && r._$AB.nextSibling, i), n.length = i);
 	}
 	_$AR(e = this._$AA.nextSibling, t) {
 		for (this._$AP?.(!1, !0, t); e !== this._$AB;) {
-			let t = oe(e).nextSibling;
-			oe(e).remove(), e = t;
+			let t = ce(e).nextSibling;
+			ce(e).remove(), e = t;
 		}
 	}
 	setConnected(e) {
 		this._$AM === void 0 && (this._$Cv = e, this._$AP?.(e));
 	}
-}, B = class {
+}, N = class {
 	get tagName() {
 		return this.element.tagName;
 	}
@@ -424,47 +424,47 @@ var he = class {
 		return this._$AM._$AU;
 	}
 	constructor(e, t, n, r, i) {
-		this.type = 1, this._$AH = F, this._$AN = void 0, this.element = e, this.name = t, this._$AM = r, this.options = i, n.length > 2 || n[0] !== "" || n[1] !== "" ? (this._$AH = Array(n.length - 1).fill(/* @__PURE__ */ new String()), this.strings = n) : this._$AH = F;
+		this.type = 1, this._$AH = O, this._$AN = void 0, this.element = e, this.name = t, this._$AM = r, this.options = i, n.length > 2 || n[0] !== "" || n[1] !== "" ? (this._$AH = Array(n.length - 1).fill(/* @__PURE__ */ new String()), this.strings = n) : this._$AH = O;
 	}
 	_$AI(e, t = this, n, r) {
 		let i = this.strings, a = !1;
-		if (i === void 0) e = R(this, e, t, 0), a = !T(e) || e !== this._$AH && e !== P, a && (this._$AH = e);
+		if (i === void 0) e = j(this, e, t, 0), a = !x(e) || e !== this._$AH && e !== D, a && (this._$AH = e);
 		else {
 			let r = e, o, s;
-			for (e = i[0], o = 0; o < i.length - 1; o++) s = R(this, r[n + o], t, o), s === P && (s = this._$AH[o]), a ||= !T(s) || s !== this._$AH[o], s === F ? e = F : e !== F && (e += (s ?? "") + i[o + 1]), this._$AH[o] = s;
+			for (e = i[0], o = 0; o < i.length - 1; o++) s = j(this, r[n + o], t, o), s === D && (s = this._$AH[o]), a ||= !x(s) || s !== this._$AH[o], s === O ? e = O : e !== O && (e += (s ?? "") + i[o + 1]), this._$AH[o] = s;
 		}
 		a && !r && this.j(e);
 	}
 	j(e) {
-		e === F ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
+		e === O ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
 	}
-}, ge = class extends B {
+}, Ce = class extends N {
 	constructor() {
 		super(...arguments), this.type = 3;
 	}
 	j(e) {
-		this.element[this.name] = e === F ? void 0 : e;
+		this.element[this.name] = e === O ? void 0 : e;
 	}
-}, _e = class extends B {
+}, we = class extends N {
 	constructor() {
 		super(...arguments), this.type = 4;
 	}
 	j(e) {
-		this.element.toggleAttribute(this.name, !!e && e !== F);
+		this.element.toggleAttribute(this.name, !!e && e !== O);
 	}
-}, ve = class extends B {
+}, Te = class extends N {
 	constructor(e, t, n, r, i) {
 		super(e, t, n, r, i), this.type = 5;
 	}
 	_$AI(e, t = this) {
-		if ((e = R(this, e, t, 0) ?? F) === P) return;
-		let n = this._$AH, r = e === F && n !== F || e.capture !== n.capture || e.once !== n.once || e.passive !== n.passive, i = e !== F && (n === F || r);
+		if ((e = j(this, e, t, 0) ?? O) === D) return;
+		let n = this._$AH, r = e === O && n !== O || e.capture !== n.capture || e.once !== n.once || e.passive !== n.passive, i = e !== O && (n === O || r);
 		r && this.element.removeEventListener(this.name, this, n), i && this.element.addEventListener(this.name, this, e), this._$AH = e;
 	}
 	handleEvent(e) {
 		typeof this._$AH == "function" ? this._$AH.call(this.options?.host ?? this.element, e) : this._$AH.handleEvent(e);
 	}
-}, ye = class {
+}, Ee = class {
 	constructor(e, t, n) {
 		this.element = e, this.type = 6, this._$AN = void 0, this._$AM = t, this.options = n;
 	}
@@ -472,18 +472,18 @@ var he = class {
 		return this._$AM._$AU;
 	}
 	_$AI(e) {
-		R(this, e);
+		j(this, e);
 	}
-}, be = v.litHtmlPolyfillSupport;
-be?.(L, z), (v.litHtmlVersions ??= []).push("3.3.3");
-var xe = (e, t, n) => {
+}, De = g.litHtmlPolyfillSupport;
+De?.(A, M), (g.litHtmlVersions ??= []).push("3.3.3");
+var Oe = (e, t, n) => {
 	let r = n?.renderBefore ?? t, i = r._$litPart$;
 	if (i === void 0) {
 		let e = n?.renderBefore ?? null;
-		r._$litPart$ = i = new z(t.insertBefore(w(), e), e, void 0, n ?? {});
+		r._$litPart$ = i = new M(t.insertBefore(b(), e), e, void 0, n ?? {});
 	}
 	return i._$AI(e), i;
-}, V = globalThis, H = class extends _ {
+}, P = globalThis, F = class extends h {
 	constructor() {
 		super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
 	}
@@ -493,7 +493,7 @@ var xe = (e, t, n) => {
 	}
 	update(e) {
 		let t = this.render();
-		this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = xe(t, this.renderRoot, this.renderOptions);
+		this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = Oe(t, this.renderRoot, this.renderOptions);
 	}
 	connectedCallback() {
 		super.connectedCallback(), this._$Do?.setConnected(!0);
@@ -502,15 +502,15 @@ var xe = (e, t, n) => {
 		super.disconnectedCallback(), this._$Do?.setConnected(!1);
 	}
 	render() {
-		return P;
+		return D;
 	}
 };
-H._$litElement$ = !0, H.finalized = !0, V.litElementHydrateSupport?.({ LitElement: H });
-var Se = V.litElementPolyfillSupport;
-Se?.({ LitElement: H }), (V.litElementVersions ??= []).push("4.2.2");
+F._$litElement$ = !0, F.finalized = !0, P.litElementHydrateSupport?.({ LitElement: F });
+var ke = P.litElementPolyfillSupport;
+ke?.({ LitElement: F }), (P.litElementVersions ??= []).push("4.2.2");
 //#endregion
 //#region src/common/localize.ts
-var U = {
+var I = {
 	en: {
 		common: {
 			close: "Close",
@@ -526,7 +526,8 @@ var U = {
 			title: "Title",
 			icon: "Icon",
 			count: "Number of items",
-			fields: "Shown on the list"
+			fields: "Shown on the list",
+			days: "Days ahead"
 		},
 		messages: {
 			name: "Messages",
@@ -555,6 +556,24 @@ var U = {
 			field_author: "Author",
 			field_date: "Date",
 			field_preview: "First line of the text"
+		},
+		schedule: {
+			name: "Schedule",
+			empty: "No events in the next {days} days",
+			next: "Next",
+			all_day: "All day",
+			lesson_n: "lesson {n}",
+			type: "Type",
+			subject: "Subject",
+			date: "Date",
+			time: "Time",
+			lesson: "Lesson",
+			teacher: "Teacher",
+			added: "Added",
+			field_date: "Date",
+			field_time: "Time and lesson",
+			field_description: "Description",
+			field_teacher: "Teacher"
 		}
 	},
 	pl: {
@@ -572,7 +591,8 @@ var U = {
 			title: "Tytuł",
 			icon: "Ikona",
 			count: "Liczba pozycji",
-			fields: "Pokazywane na liście"
+			fields: "Pokazywane na liście",
+			days: "Liczba dni do przodu"
 		},
 		messages: {
 			name: "Wiadomości",
@@ -601,13 +621,31 @@ var U = {
 			field_author: "Autor",
 			field_date: "Data",
 			field_preview: "Pierwsza linia treści"
+		},
+		schedule: {
+			name: "Terminarz",
+			empty: "Brak wydarzeń w ciągu najbliższych {days} dni",
+			next: "Najbliższe",
+			all_day: "Cały dzień",
+			lesson_n: "lekcja {n}",
+			type: "Rodzaj",
+			subject: "Przedmiot",
+			date: "Data",
+			time: "Godzina",
+			lesson: "Lekcja",
+			teacher: "Nauczyciel",
+			added: "Dodano",
+			field_date: "Data",
+			field_time: "Godzina i lekcja",
+			field_description: "Opis",
+			field_teacher: "Nauczyciel"
 		}
 	}
 };
-function W(e) {
+function L(e) {
 	return (e?.locale?.language ?? e?.language ?? "en").toLowerCase().startsWith("pl") ? "pl" : "en";
 }
-function G(e, t) {
+function Ae(e, t) {
 	let n = e;
 	for (let e of t.split(".")) {
 		if (typeof n != "object") return;
@@ -615,12 +653,12 @@ function G(e, t) {
 	}
 	return typeof n == "string" ? n : void 0;
 }
-function K(e, t, n = {}) {
-	return (G(U[W(e)], t) ?? G(U.en, t) ?? t).replace(/\{(\w+)\}/g, (e, t) => t in n ? String(n[t]) : e);
+function R(e, t, n = {}) {
+	return (Ae(I[L(e)], t) ?? Ae(I.en, t) ?? t).replace(/\{(\w+)\}/g, (e, t) => t in n ? String(n[t]) : e);
 }
 //#endregion
 //#region src/common/styles.ts
-var q = o`
+var z = o`
   :host {
     display: block;
   }
@@ -679,12 +717,12 @@ var q = o`
     outline-offset: 2px;
     border-radius: 4px;
   }
-`, Ce = class extends H {
+`, B = class extends F {
 	static properties = {
 		hass: { attribute: !1 },
 		_config: { state: !0 }
 	};
-	static styles = q;
+	static styles = z;
 	setConfig(e) {
 		if (!e || typeof e != "object") throw Error("Invalid configuration");
 		this._config = e;
@@ -700,7 +738,7 @@ var q = o`
 		};
 	}
 	t(e, t) {
-		return K(this.hass, e, t);
+		return R(this.hass, e, t);
 	}
 	get stateObj() {
 		let e = this._config?.entity;
@@ -715,30 +753,30 @@ var q = o`
 	}
 	renderHeader() {
 		let e = this._config?.title ?? this.defaultTitle;
-		if (!e) return F;
+		if (!e) return O;
 		let t = this._config?.icon ?? this.defaultIcon;
-		return N`
+		return E`
       <h1 class="card-header">
-        ${t ? N`<ha-icon .icon=${t}></ha-icon>` : F}
+        ${t ? E`<ha-icon .icon=${t}></ha-icon>` : O}
         <span class="name">${e}</span>
       </h1>
     `;
 	}
 	renderMissingEntity() {
-		return N`
+		return E`
       <ha-card>
         ${this.renderHeader()}
         <div class="warning">${this.t("common.entity_not_found", { entity: this._config?.entity ?? "" })}</div>
       </ha-card>
     `;
 	}
-}, J = "librus-apix-dialog", we = "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z", Y = "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex=\"-1\"])";
-function Te() {
+}, V = "librus-apix-dialog", je = "M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z", H = "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex=\"-1\"])";
+function Me() {
 	let e = document.activeElement;
 	for (; e?.shadowRoot?.activeElement;) e = e.shadowRoot.activeElement;
 	return e;
 }
-var Ee = class extends H {
+var Ne = class extends F {
 	static properties = {
 		heading: { type: String },
 		closeLabel: { attribute: !1 },
@@ -826,7 +864,7 @@ var Ee = class extends H {
     }
   `;
 	show() {
-		this._opener = Te(), this.open = !0;
+		this._opener = Me(), this.open = !0;
 	}
 	close() {
 		this.open &&= !1;
@@ -835,7 +873,7 @@ var Ee = class extends H {
 		return this.renderRoot?.querySelector("dialog") ?? null;
 	}
 	_focusables() {
-		let e = [...this.renderRoot.querySelectorAll(Y) ?? []], t = (this.renderRoot.querySelector("slot")?.assignedElements({ flatten: !0 }) ?? []).flatMap((e) => [...e.matches(Y) ? [e] : [], ...e.querySelectorAll(Y)]);
+		let e = [...this.renderRoot.querySelectorAll(H) ?? []], t = (this.renderRoot.querySelector("slot")?.assignedElements({ flatten: !0 }) ?? []).flatMap((e) => [...e.matches(H) ? [e] : [], ...e.querySelectorAll(H)]);
 		return [...e, ...t];
 	}
 	updated(e) {
@@ -857,7 +895,7 @@ var Ee = class extends H {
 			e.preventDefault();
 			return;
 		}
-		let n = t[0], r = t[t.length - 1], i = Te();
+		let n = t[0], r = t[t.length - 1], i = Me();
 		e.shiftKey && (i === n || !t.includes(i)) ? (e.preventDefault(), r.focus()) : !e.shiftKey && (i === r || !t.includes(i)) && (e.preventDefault(), n.focus());
 	}
 	_onClick(e) {
@@ -867,7 +905,7 @@ var Ee = class extends H {
 		e.preventDefault(), this.close();
 	}
 	render() {
-		return N`
+		return E`
       <dialog
         aria-labelledby="heading"
         @keydown=${this._onKeyDown}
@@ -879,7 +917,7 @@ var Ee = class extends H {
           <header>
             <h2 id="heading">${this.heading}</h2>
             <button class="close" aria-label=${this.closeLabel} title=${this.closeLabel} @click=${this.close}>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d=${we}></path></svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d=${je}></path></svg>
             </button>
           </header>
           <div class="content"><slot></slot></div>
@@ -887,7 +925,7 @@ var Ee = class extends H {
       </dialog>
     `;
 	}
-}, De = class extends H {
+}, U = class extends F {
 	static properties = {
 		hass: { attribute: !1 },
 		_config: { state: !0 }
@@ -895,7 +933,7 @@ var Ee = class extends H {
 	setConfig(e) {
 		this._config = e;
 	}
-	_label = (e) => e.name ? K(this.hass, `editor.${e.name}`) : "";
+	_label = (e) => e.name ? R(this.hass, `editor.${e.name}`) : "";
 	_valueChanged(e) {
 		e.stopPropagation();
 		let t = { ...e.detail.value };
@@ -907,7 +945,7 @@ var Ee = class extends H {
 		}));
 	}
 	render() {
-		return !this.hass || !this._config ? F : N`
+		return !this.hass || !this._config ? O : E`
       <ha-form
         .hass=${this.hass}
         .data=${this._config}
@@ -918,7 +956,7 @@ var Ee = class extends H {
     `;
 	}
 };
-function Oe(e, t = "librus_apix") {
+function W(e, t = "librus_apix") {
 	return [{
 		name: "entity",
 		required: !0,
@@ -940,34 +978,53 @@ function Oe(e, t = "librus_apix") {
 }
 //#endregion
 //#region src/common/format.ts
-function ke(e) {
+function G(e) {
 	return e?.locale?.time_zone === "server" ? e.config?.time_zone : void 0;
 }
-function Ae(e) {
+function Pe(e) {
 	if (!e) return;
 	let t = new Date(e);
 	return Number.isNaN(t.getTime()) ? void 0 : t;
 }
-function je(e, t) {
-	let n = Ae(t);
-	return n ? new Intl.DateTimeFormat(W(e), {
+function K(e, t) {
+	let n = Pe(t);
+	return n ? new Intl.DateTimeFormat(L(e), {
 		dateStyle: "short",
 		timeStyle: "short",
-		timeZone: ke(e)
+		timeZone: G(e)
 	}).format(n) : t;
 }
-function Me(e, t) {
-	let n = /^\d{4}-\d{2}-\d{2}$/.test(t), r = Ae(n ? `${t}T12:00:00Z` : t);
-	return r ? new Intl.DateTimeFormat(W(e), {
+function Fe(e, t) {
+	return new Intl.DateTimeFormat(L(e), {
+		timeStyle: "short",
+		timeZone: G(e)
+	}).format(t);
+}
+function Ie(e, t) {
+	let n = typeof t == "string", r = n ? /* @__PURE__ */ new Date(`${t}T12:00:00Z`) : t, i = n ? "UTC" : G(e), a = L(e);
+	return {
+		day: new Intl.DateTimeFormat(a, {
+			day: "numeric",
+			timeZone: i
+		}).format(r),
+		weekday: new Intl.DateTimeFormat(a, {
+			weekday: "short",
+			timeZone: i
+		}).format(r)
+	};
+}
+function q(e, t) {
+	let n = /^\d{4}-\d{2}-\d{2}$/.test(t), r = Pe(n ? `${t}T12:00:00Z` : t);
+	return r ? new Intl.DateTimeFormat(L(e), {
 		dateStyle: "short",
-		timeZone: n ? "UTC" : ke(e)
+		timeZone: n ? "UTC" : G(e)
 	}).format(r) : t;
 }
-function Ne(e) {
+function Le(e) {
 	let t = e ?? 5;
 	if (!Number.isInteger(t) || t < 1 || t > 100) throw Error("count must be a whole number from 1 to 100");
 }
-function Pe() {
+function Re() {
 	return {
 		name: "count",
 		selector: { number: {
@@ -977,7 +1034,7 @@ function Pe() {
 		} }
 	};
 }
-function Fe(e, t, n) {
+function J(e, t, n) {
 	return {
 		name: "fields",
 		selector: { select: {
@@ -985,12 +1042,12 @@ function Fe(e, t, n) {
 			mode: "list",
 			options: n.map((n) => ({
 				value: n,
-				label: K(e, `${t}.field_${n}`)
+				label: R(e, `${t}.field_${n}`)
 			}))
 		} }
 	};
 }
-var Ie = o`
+var Y = o`
   ul.items {
     list-style: none;
     margin: 0;
@@ -1057,33 +1114,33 @@ var Ie = o`
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
-`, X = "librus-announcements-card", Le = "librus-announcements-card-editor", Re = [
+`, X = "librus-announcements-card", ze = "librus-announcements-card-editor", Be = [
 	"author",
 	"date",
 	"preview"
-], ze = ["author", "date"];
-function Z(e) {
+], Ve = ["author", "date"];
+function He(e) {
 	let t = e?.announcements;
 	return Array.isArray(t) ? t : [];
 }
-function Be(e) {
+function Ue(e) {
 	return Object.values(e?.states ?? {}).find((e) => e.entity_id.startsWith("sensor.") && Array.isArray(e.attributes.announcements))?.entity_id;
 }
-var Ve = class extends Ce {
+var We = class extends B {
 	static properties = { _selected: { state: !0 } };
-	static styles = [q, Ie];
+	static styles = [z, Y];
 	static getConfigElement() {
-		return document.createElement(Le);
+		return document.createElement(ze);
 	}
 	static getStubConfig(e) {
 		return {
 			type: `custom:${X}`,
-			entity: Be(e) ?? ""
+			entity: Ue(e) ?? ""
 		};
 	}
 	setConfig(e) {
 		if (!e?.entity) throw Error("Entity required (the Librus announcements sensor)");
-		Ne(e.count), super.setConfig(e);
+		Le(e.count), super.setConfig(e);
 	}
 	get defaultTitle() {
 		return this.t("announcements.name");
@@ -1092,79 +1149,79 @@ var Ve = class extends Ce {
 		return "mdi:bullhorn-outline";
 	}
 	get _fields() {
-		return new Set(this._config?.fields ?? ze);
+		return new Set(this._config?.fields ?? Ve);
 	}
 	get _items() {
-		return Z(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
+		return He(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
 	}
 	getCardSize() {
 		return 1 + Math.max(1, this._items.length);
 	}
 	_open(e) {
-		this._selected = e, this.updateComplete.then(() => this.renderRoot.querySelector(J)?.show());
+		this._selected = e, this.updateComplete.then(() => this.renderRoot.querySelector(V)?.show());
 	}
 	_renderRow(e) {
-		let t = this._fields, n = [t.has("author") ? e.author : "", t.has("date") ? Me(this.hass, e.date) : ""].filter(Boolean);
-		return N`
+		let t = this._fields, n = [t.has("author") ? e.author : "", t.has("date") ? q(this.hass, e.date) : ""].filter(Boolean);
+		return E`
       <li>
         <button class="row" @click=${() => this._open(e)}>
           <span class="text">
             <div class="title">${e.title}</div>
-            ${n.length ? N`<div class="meta">${n.join(" · ")}</div>` : F}
-            ${t.has("preview") && e.content ? N`<div class="meta preview">${e.content.split("\n")[0]}</div>` : F}
+            ${n.length ? E`<div class="meta">${n.join(" · ")}</div>` : O}
+            ${t.has("preview") && e.content ? E`<div class="meta preview">${e.content.split("\n")[0]}</div>` : O}
           </span>
         </button>
       </li>
     `;
 	}
 	_renderDetails(e) {
-		return N`
+		return E`
       <dl>
         <dt>${this.t("announcements.author")}</dt>
         <dd>${e.author}</dd>
         <dt>${this.t("announcements.date")}</dt>
-        <dd>${Me(this.hass, e.date)}</dd>
+        <dd>${q(this.hass, e.date)}</dd>
       </dl>
       <div class="body"><div class="content">${e.content}</div></div>
     `;
 	}
 	render() {
-		if (!this._config || !this.hass) return F;
+		if (!this._config || !this.hass) return O;
 		if (!this.stateObj) return this.renderMissingEntity();
-		let e = this._items, t = this._selected ? Z(this.stateObj.attributes).find((e) => e.id === this._selected?.id) ?? this._selected : void 0;
-		return N`
+		let e = this._items, t = this._selected ? He(this.stateObj.attributes).find((e) => e.id === this._selected?.id) ?? this._selected : void 0;
+		return E`
       <ha-card>
         ${this.renderHeader()}
-        ${e.length ? N`<ul class="items">${e.map((e) => this._renderRow(e))}</ul>` : N`<div class="empty">${this.t("announcements.empty")}</div>`}
+        ${e.length ? E`<ul class="items">${e.map((e) => this._renderRow(e))}</ul>` : E`<div class="empty">${this.t("announcements.empty")}</div>`}
       </ha-card>
       <librus-apix-dialog
         .heading=${t?.title ?? ""}
         .closeLabel=${this.t("common.close")}
         @closed=${() => this._selected = void 0}
       >
-        ${t ? this._renderDetails(t) : F}
+        ${t ? this._renderDetails(t) : O}
       </librus-apix-dialog>
     `;
 	}
-}, He = class extends De {
+}, Ge = class extends U {
 	get schema() {
 		return [
-			...Oe("sensor"),
-			Pe(),
-			Fe(this.hass, "announcements", Re)
+			...W("sensor"),
+			Re(),
+			J(this.hass, "announcements", Be)
 		];
 	}
 	setConfig(e) {
 		super.setConfig({
 			count: 5,
-			fields: [...ze],
+			fields: [...Ve],
 			...e
 		});
 	}
 };
 //#endregion
 //#region src/common/api.ts
-async function Ue(e, t, n) {
+async function Ke(e, t, n) {
 	return (await e.callWS({
 		type: "call_service",
 		domain: "librus_apix",
@@ -1176,25 +1233,25 @@ async function Ue(e, t, n) {
 		return_response: !0
 	})).response;
 }
-function We(e) {
+function qe(e) {
 	return e && typeof e == "object" && "message" in e ? String(e.message) : String(e);
 }
 //#endregion
 //#region src/cards/messages-card.ts
-var Q = "librus-messages-card", Ge = "librus-messages-card-editor", $ = [
+var Z = "librus-messages-card", Je = "librus-messages-card-editor", Q = [
 	"author",
 	"date",
 	"attachment",
 	"status"
 ];
-function Ke(e) {
+function Ye(e) {
 	let t = e?.messages;
 	return Array.isArray(t) ? t : [];
 }
-function qe(e) {
+function Xe(e) {
 	return Object.values(e?.states ?? {}).find((e) => e.entity_id.startsWith("sensor.") && Array.isArray(e.attributes.messages))?.entity_id;
 }
-var Je = class extends Ce {
+var Ze = class extends B {
 	static properties = {
 		_selected: { state: !0 },
 		_loading: { state: !0 },
@@ -1202,8 +1259,8 @@ var Je = class extends Ce {
 	};
 	_contents = /* @__PURE__ */ new Map();
 	static styles = [
-		q,
-		Ie,
+		z,
+		Y,
 		o`
       .status {
         flex: none;
@@ -1235,17 +1292,17 @@ var Je = class extends Ce {
     `
 	];
 	static getConfigElement() {
-		return document.createElement(Ge);
+		return document.createElement(Je);
 	}
 	static getStubConfig(e) {
 		return {
-			type: `custom:${Q}`,
-			entity: qe(e) ?? ""
+			type: `custom:${Z}`,
+			entity: Xe(e) ?? ""
 		};
 	}
 	setConfig(e) {
 		if (!e?.entity) throw Error("Entity required (the Librus messages sensor)");
-		Ne(e.count), super.setConfig(e);
+		Le(e.count), super.setConfig(e);
 	}
 	get defaultTitle() {
 		return this.t("messages.name");
@@ -1254,27 +1311,27 @@ var Je = class extends Ce {
 		return "mdi:email-outline";
 	}
 	get _fields() {
-		return new Set(this._config?.fields ?? $);
+		return new Set(this._config?.fields ?? Q);
 	}
 	get _messages() {
-		return Ke(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
+		return Ye(this.stateObj?.attributes).slice(0, this._config?.count ?? 5);
 	}
 	getCardSize() {
 		return 1 + Math.max(1, this._messages.length);
 	}
 	_open(e) {
-		this._selected = e, this._error = void 0, this.updateComplete.then(() => this.renderRoot.querySelector(J)?.show()), e.content_cached && !this._contents.has(e.id) && this._readContent(e);
+		this._selected = e, this._error = void 0, this.updateComplete.then(() => this.renderRoot.querySelector(V)?.show()), e.content_cached && !this._contents.has(e.id) && this._readContent(e);
 	}
 	async _readContent(e) {
 		if (this.hass && this._config?.entity && this._loading !== e.id) {
 			this._loading = e.id, this._error = void 0;
 			try {
-				let t = await Ue(this.hass, this._config.entity, e.id);
+				let t = await Ke(this.hass, this._config.entity, e.id);
 				this._contents.set(e.id, t);
 			} catch (t) {
 				this._error = {
 					id: e.id,
-					text: We(t)
+					text: qe(t)
 				};
 			} finally {
 				this._loading = void 0;
@@ -1283,51 +1340,51 @@ var Je = class extends Ce {
 	}
 	_renderContent(e) {
 		let t = this._contents.get(e.id);
-		if (t) return N`
+		if (t) return E`
         <div class="content">${t.content}</div>
-        ${t.attachments.length ? N`<ul class="files" aria-label=${this.t("messages.attachments")}>
-              ${t.attachments.map((e) => N`<li>${e}</li>`)}
-            </ul>` : F}
+        ${t.attachments.length ? E`<ul class="files" aria-label=${this.t("messages.attachments")}>
+              ${t.attachments.map((e) => E`<li>${e}</li>`)}
+            </ul>` : O}
       `;
-		if (this._loading === e.id) return N`<div class="hint">${this.t("common.loading")}</div>`;
+		if (this._loading === e.id) return E`<div class="hint">${this.t("common.loading")}</div>`;
 		let n = this._error?.id === e.id ? this._error.text : void 0;
-		return N`
-      ${n ? N`<div class="error">${this.t("messages.cannot_read", { error: n })}</div>` : F}
+		return E`
+      ${n ? E`<div class="error">${this.t("messages.cannot_read", { error: n })}</div>` : O}
       <button class="link" @click=${() => this._readContent(e)}>
         ${this.t(n ? "messages.retry" : "messages.read_content")}
       </button>
-      ${e.content_cached ? F : N`<div class="hint">${this.t("messages.read_hint")}</div>`}
+      ${e.content_cached ? O : E`<div class="hint">${this.t("messages.read_hint")}</div>`}
     `;
 	}
 	_statusText(e) {
 		return this.t(e.unread ? "messages.unread" : "messages.read");
 	}
 	_renderRow(e) {
-		let t = this._fields, n = [t.has("author") ? e.author : "", t.has("date") ? je(this.hass, e.date) : ""].filter(Boolean);
-		return N`
+		let t = this._fields, n = [t.has("author") ? e.author : "", t.has("date") ? K(this.hass, e.date) : ""].filter(Boolean);
+		return E`
       <li class=${e.unread ? "unread" : "read"}>
         <button class="row" @click=${() => this._open(e)}>
-          ${t.has("status") ? N`<ha-icon
+          ${t.has("status") ? E`<ha-icon
                 class="status"
                 .icon=${e.unread ? "mdi:email" : "mdi:email-open-outline"}
                 title=${this._statusText(e)}
-              ></ha-icon>` : F}
+              ></ha-icon>` : O}
           <span class="text">
             <div class="title">${e.title}</div>
-            ${n.length ? N`<div class="meta">${n.join(" · ")}</div>` : F}
+            ${n.length ? E`<div class="meta">${n.join(" · ")}</div>` : O}
           </span>
-          ${t.has("attachment") && e.has_attachment ? N`<ha-icon class="attachment" .icon=${"mdi:paperclip"} title=${this.t("messages.attachment")}></ha-icon>` : F}
+          ${t.has("attachment") && e.has_attachment ? E`<ha-icon class="attachment" .icon=${"mdi:paperclip"} title=${this.t("messages.attachment")}></ha-icon>` : O}
         </button>
       </li>
     `;
 	}
 	renderDetails(e) {
-		return N`
+		return E`
       <dl>
         <dt>${this.t("messages.from")}</dt>
         <dd>${e.author}</dd>
         <dt>${this.t("messages.date")}</dt>
-        <dd>${je(this.hass, e.date)}</dd>
+        <dd>${K(this.hass, e.date)}</dd>
         <dt>${this.t("messages.status")}</dt>
         <dd>${this._statusText(e)}</dd>
         <dt>${this.t("messages.attachments")}</dt>
@@ -1337,56 +1394,323 @@ var Je = class extends Ce {
     `;
 	}
 	render() {
-		if (!this._config || !this.hass) return F;
+		if (!this._config || !this.hass) return O;
 		if (!this.stateObj) return this.renderMissingEntity();
-		let e = this._messages, t = this._selected ? Ke(this.stateObj.attributes).find((e) => e.id === this._selected?.id) ?? this._selected : void 0;
-		return N`
+		let e = this._messages, t = this._selected ? Ye(this.stateObj.attributes).find((e) => e.id === this._selected?.id) ?? this._selected : void 0;
+		return E`
       <ha-card>
         ${this.renderHeader()}
-        ${e.length ? N`<ul class="items">${e.map((e) => this._renderRow(e))}</ul>` : N`<div class="empty">${this.t("messages.empty")}</div>`}
+        ${e.length ? E`<ul class="items">${e.map((e) => this._renderRow(e))}</ul>` : E`<div class="empty">${this.t("messages.empty")}</div>`}
       </ha-card>
       <librus-apix-dialog
         .heading=${t?.title ?? ""}
         .closeLabel=${this.t("common.close")}
         @closed=${() => this._selected = void 0}
       >
-        ${t ? this.renderDetails(t) : F}
+        ${t ? this.renderDetails(t) : O}
       </librus-apix-dialog>
     `;
 	}
-}, Ye = [
-	[J, Ee],
-	[Q, Je],
-	[Ge, class extends De {
+}, Qe = class extends U {
+	get schema() {
+		return [
+			...W("sensor"),
+			Re(),
+			J(this.hass, "messages", Q)
+		];
+	}
+	setConfig(e) {
+		super.setConfig({
+			count: 5,
+			fields: [...Q],
+			...e
+		});
+	}
+};
+//#endregion
+//#region src/common/schedule.ts
+function $e(e) {
+	let t = (e ?? "").split("\n");
+	for (let e = t.length - 1; e >= 0; e--) if (t[e].startsWith("{")) {
+		try {
+			let n = JSON.parse(t[e]);
+			if (n && typeof n == "object" && "librus_apix" in n) {
+				let { librus_apix: r, ...i } = n;
+				return {
+					text: t.slice(0, e).join("\n").trim(),
+					fields: i
+				};
+			}
+		} catch {}
+		break;
+	}
+	return { text: (e ?? "").trim() };
+}
+function et(e) {
+	let [t, n, r] = e.split("-").map(Number);
+	return new Date(t, n - 1, r);
+}
+function tt(e) {
+	let t = !e.start.dateTime, n = t ? et(e.start.date ?? "") : new Date(e.start.dateTime), r = t ? et(e.end.date ?? e.start.date ?? "") : new Date(e.end.dateTime ?? e.start.dateTime), { text: i, fields: a } = $e(e.description);
+	return {
+		uid: e.uid ?? a?.id ?? `${e.summary}|${n.toISOString()}`,
+		summary: e.summary,
+		start: n,
+		end: r,
+		allDay: t,
+		date: t ? e.start.date : void 0,
+		text: i,
+		fields: a
+	};
+}
+function nt(e, t, n) {
+	return e.filter((e) => e.end > t && e.start < n).sort((e, t) => e.start.getTime() - t.start.getTime() || e.summary.localeCompare(t.summary));
+}
+async function rt(e, t, n, r) {
+	let i = `start=${encodeURIComponent(n.toISOString())}&end=${encodeURIComponent(r.toISOString())}`;
+	return nt((await e.callApi("GET", `calendars/${t}?${i}`)).map(tt), n, r);
+}
+//#endregion
+//#region src/cards/schedule-card.ts
+var $ = "librus-schedule-card", it = "librus-schedule-card-editor", at = [
+	"date",
+	"time",
+	"description",
+	"teacher"
+], ot = [
+	"date",
+	"time",
+	"description"
+], st = 9e5, ct = 864e5;
+function lt(e) {
+	let t = Object.values(e?.states ?? {});
+	return (t.find((e) => e.entity_id.startsWith("calendar.") && String(e.attributes.description ?? "").includes("\"librus_apix\"")) ?? t.find((e) => e.entity_id.startsWith("calendar.")))?.entity_id;
+}
+var ut = class extends B {
+	static properties = {
+		_events: { state: !0 },
+		_error: { state: !0 },
+		_selected: { state: !0 }
+	};
+	_timer;
+	_fetching;
+	static styles = [
+		z,
+		Y,
+		o`
+      .badge {
+        flex: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 40px;
+        line-height: 1.1;
+      }
+      .badge .day {
+        font-size: var(--ha-font-size-l, 18px);
+        font-weight: var(--ha-font-weight-medium, 500);
+      }
+      .badge .weekday {
+        color: var(--secondary-text-color);
+        font-size: var(--ha-font-size-s, 12px);
+        text-transform: uppercase;
+      }
+      li.next {
+        box-shadow: inset 4px 0 0 var(--primary-color);
+        background: rgba(var(--rgb-primary-color, 3, 169, 244), 0.08);
+      }
+      li.next .title {
+        font-weight: var(--ha-font-weight-medium, 500);
+      }
+      .next-label {
+        flex: none;
+        padding: 2px 8px;
+        border-radius: 10px;
+        background: var(--primary-color);
+        color: var(--text-primary-color, #fff);
+        font-size: var(--ha-font-size-xs, 11px);
+      }
+      .error {
+        padding: 0 16px 16px;
+        color: var(--error-color, #db4437);
+      }
+    `
+	];
+	static getConfigElement() {
+		return document.createElement(it);
+	}
+	static getStubConfig(e) {
+		return {
+			type: `custom:${$}`,
+			entity: lt(e) ?? ""
+		};
+	}
+	setConfig(e) {
+		if (!e?.entity) throw Error("Entity required (the Librus schedule calendar)");
+		let t = e.days ?? 14;
+		if (!Number.isInteger(t) || t < 1 || t > 200) throw Error("days must be a whole number from 1 to 200");
+		let n = this._config?.entity !== e.entity || this._config?.days !== e.days;
+		super.setConfig(e), n && (this._events = void 0, this._refresh());
+	}
+	get defaultTitle() {
+		return this.t("schedule.name");
+	}
+	get defaultIcon() {
+		return "mdi:calendar-text";
+	}
+	get _fields() {
+		return new Set(this._config?.fields ?? ot);
+	}
+	connectedCallback() {
+		super.connectedCallback(), this._timer = setInterval(() => void this._refresh(), st), this._refresh();
+	}
+	disconnectedCallback() {
+		super.disconnectedCallback(), clearInterval(this._timer), this._timer = void 0;
+	}
+	updated(e) {
+		super.updated(e);
+		let t = e.get("hass"), n = this._config?.entity;
+		n && t && t.states[n] !== this.hass?.states[n] && this._refresh(), !t && e.has("hass") && this._events === void 0 && this._refresh();
+	}
+	async _refresh() {
+		if (!this.hass || !this._config?.entity || !this.isConnected || this._fetching) return this._fetching;
+		let e = /* @__PURE__ */ new Date(), t = new Date(e.getTime() + (this._config.days ?? 14) * ct);
+		return this._fetching = rt(this.hass, this._config.entity, e, t).then((e) => {
+			this._events = e, this._error = void 0;
+		}).catch((e) => {
+			this._error = qe(e);
+		}).finally(() => {
+			this._fetching = void 0;
+		}), this._fetching;
+	}
+	getCardSize() {
+		return 1 + Math.max(1, this._events?.length ?? 1);
+	}
+	_open(e) {
+		this._selected = e, this.updateComplete.then(() => this.renderRoot.querySelector(V)?.show());
+	}
+	_when(e) {
+		return e.allDay ? this.t("schedule.all_day") : `${Fe(this.hass, e.start)}–${Fe(this.hass, e.end)}`;
+	}
+	_renderRow(e, t) {
+		let n = this._fields, r = e.fields?.lesson, i = [
+			n.has("time") ? this._when(e) : "",
+			n.has("time") && r ? this.t("schedule.lesson_n", { n: r }) : "",
+			n.has("teacher") ? e.fields?.teacher ?? "" : "",
+			n.has("description") ? e.fields?.description ?? "" : ""
+		].filter(Boolean), a = Ie(this.hass, e.date ?? e.start);
+		return E`
+      <li class=${t ? "next" : ""}>
+        <button class="row" @click=${() => this._open(e)}>
+          ${n.has("date") ? E`<span class="badge" aria-label=${e.date ? q(this.hass, e.date) : K(this.hass, e.start.toISOString())}>
+                <span class="day">${a.day}</span>
+                <span class="weekday">${a.weekday}</span>
+              </span>` : O}
+          <span class="text">
+            <div class="title">${e.summary}</div>
+            ${i.length ? E`<div class="meta">${i.join(" · ")}</div>` : O}
+          </span>
+          ${t ? E`<span class="next-label">${this.t("schedule.next")}</span>` : O}
+        </button>
+      </li>
+    `;
+	}
+	_renderDetails(e) {
+		let t = e.fields, n = e.date ? q(this.hass, e.date) : q(this.hass, e.start.toISOString()), r = [
+			[this.t("schedule.type"), t?.type],
+			[this.t("schedule.subject"), t?.subject],
+			[this.t("schedule.date"), n],
+			[this.t("schedule.time"), this._when(e)],
+			[this.t("schedule.lesson"), t?.lesson ? String(t.lesson) : void 0],
+			[this.t("schedule.teacher"), t?.teacher],
+			[this.t("schedule.added"), t?.date_added]
+		], i = /* @__PURE__ */ new Set([
+			"Data",
+			"Nr lekcji",
+			"Rodzaj",
+			"Przedmiot",
+			"Nauczyciel",
+			"Opis",
+			"Data dodania",
+			"Godzina"
+		]), a = Object.entries(t?.details ?? {}).filter(([e, t]) => t && !i.has(e)), o = t ? t.description : e.text;
+		return E`
+      <dl>
+        ${r.filter(([, e]) => e).map(([e, t]) => E`<dt>${e}</dt><dd>${t}</dd>`)}
+        ${a.map(([e, t]) => E`<dt>${e}</dt><dd>${t}</dd>`)}
+      </dl>
+      ${o ? E`<div class="body"><div class="content">${o}</div></div>` : O}
+    `;
+	}
+	render() {
+		if (!this._config || !this.hass) return O;
+		if (!this.stateObj) return this.renderMissingEntity();
+		let e = this._events, t = Date.now(), n = e?.find((e) => e.end.getTime() > t), r;
+		return r = this._error && !e ? E`<div class="error">${this.t("common.error", { error: this._error })}</div>` : e ? e.length ? E`<ul class="items">${e.map((e) => this._renderRow(e, e === n))}</ul>` : E`<div class="empty">${this.t("schedule.empty", { days: this._config.days ?? 14 })}</div>` : E`<div class="empty">${this.t("common.loading")}</div>`, E`
+      <ha-card>
+        ${this.renderHeader()} ${r}
+      </ha-card>
+      <librus-apix-dialog
+        .heading=${this._selected?.summary ?? ""}
+        .closeLabel=${this.t("common.close")}
+        @closed=${() => this._selected = void 0}
+      >
+        ${this._selected ? this._renderDetails(this._selected) : O}
+      </librus-apix-dialog>
+    `;
+	}
+}, dt = [
+	[V, Ne],
+	[Z, Ze],
+	[Je, Qe],
+	[X, We],
+	[ze, Ge],
+	[$, ut],
+	[it, class extends U {
 		get schema() {
 			return [
-				...Oe("sensor"),
-				Pe(),
-				Fe(this.hass, "messages", $)
+				...W("calendar"),
+				{
+					name: "days",
+					selector: { number: {
+						min: 1,
+						max: 200,
+						mode: "box",
+						unit_of_measurement: "d"
+					} }
+				},
+				J(this.hass, "schedule", at)
 			];
 		}
 		setConfig(e) {
 			super.setConfig({
-				count: 5,
-				fields: [...$],
+				days: 14,
+				fields: [...ot],
 				...e
 			});
 		}
-	}],
-	[X, Ve],
-	[Le, He]
-], Xe = [{
-	type: Q,
-	name: "Librus messages",
-	description: "Last Librus messages of a student with read and attachment marks.",
-	preview: !0
-}, {
-	type: X,
-	name: "Librus announcements",
-	description: "Last Librus announcements of a student's school with the full text in a pop-up.",
-	preview: !0
-}];
-for (let [e, t] of Ye) customElements.get(e) || customElements.define(e, t);
+	}]
+], ft = [
+	{
+		type: $,
+		name: "Librus schedule",
+		description: "Upcoming Librus schedule events (tests, trips, meetings) of a student.",
+		preview: !0
+	},
+	{
+		type: Z,
+		name: "Librus messages",
+		description: "Last Librus messages of a student with read and attachment marks.",
+		preview: !0
+	},
+	{
+		type: X,
+		name: "Librus announcements",
+		description: "Last Librus announcements of a student's school with the full text in a pop-up.",
+		preview: !0
+	}
+];
+for (let [e, t] of dt) customElements.get(e) || customElements.define(e, t);
 window.customCards = window.customCards ?? [];
-for (let e of Xe) window.customCards.some((t) => t.type === e.type) || window.customCards.push(e);
+for (let e of ft) window.customCards.some((t) => t.type === e.type) || window.customCards.push(e);
 //#endregion

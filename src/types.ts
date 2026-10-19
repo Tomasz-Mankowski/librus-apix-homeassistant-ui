@@ -16,6 +16,8 @@ export interface HomeAssistant {
   config?: { time_zone: string };
   themes: { darkMode: boolean };
   callWS<T>(message: Record<string, unknown>): Promise<T>;
+  // REST API under /api/ (path without the prefix).
+  callApi<T>(method: "GET" | "POST", path: string, parameters?: Record<string, unknown>): Promise<T>;
   callService(
     domain: string,
     service: string,

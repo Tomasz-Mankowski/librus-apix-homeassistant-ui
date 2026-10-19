@@ -12,6 +12,12 @@ import {
   MessagesCard,
   MessagesCardEditor,
 } from "./cards/messages-card";
+import {
+  SCHEDULE_CARD,
+  SCHEDULE_EDITOR,
+  ScheduleCard,
+  ScheduleCardEditor,
+} from "./cards/schedule-card";
 import { DIALOG, LibrusDialog } from "./common/dialog";
 import type { CustomCardEntry } from "./types";
 
@@ -21,9 +27,17 @@ const ELEMENTS: [string, CustomElementConstructor][] = [
   [MESSAGES_EDITOR, MessagesCardEditor],
   [ANNOUNCEMENTS_CARD, AnnouncementsCard],
   [ANNOUNCEMENTS_EDITOR, AnnouncementsCardEditor],
+  [SCHEDULE_CARD, ScheduleCard],
+  [SCHEDULE_EDITOR, ScheduleCardEditor],
 ];
 
 const CARDS: CustomCardEntry[] = [
+  {
+    type: SCHEDULE_CARD,
+    name: "Librus schedule",
+    description: "Upcoming Librus schedule events (tests, trips, meetings) of a student.",
+    preview: true,
+  },
   {
     type: MESSAGES_CARD,
     name: "Librus messages",

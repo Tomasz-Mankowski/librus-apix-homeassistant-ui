@@ -13,7 +13,8 @@
     "title": "Tytuł",
     "icon": "Ikona",
     "count": "Liczba pozycji",
-    "fields": "Pokazywane na liście"
+    "fields": "Pokazywane na liście",
+    "days": "Liczba dni do przodu"
   },
   "messages": {
     "name": "Wiadomości",
@@ -42,5 +43,23 @@
     "field_author": "Autor",
     "field_date": "Data",
     "field_preview": "Pierwsza linia treści"
+  },
+  "schedule": {
+    "name": "Terminarz",
+    "empty": "Brak wydarzeń w ciągu najbliższych {days} dni",
+    "next": "Najbliższe",
+    "all_day": "Cały dzień",
+    "lesson_n": "lekcja {n}",
+    "type": "Rodzaj",
+    "subject": "Przedmiot",
+    "date": "Data",
+    "time": "Godzina",
+    "lesson": "Lekcja",
+    "teacher": "Nauczyciel",
+    "added": "Dodano",
+    "field_date": "Data",
+    "field_time": "Godzina i lekcja",
+    "field_description": "Opis",
+    "field_teacher": "Nauczyciel"
   }
 }
