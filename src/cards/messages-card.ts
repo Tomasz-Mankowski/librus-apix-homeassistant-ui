@@ -5,7 +5,7 @@ import { LibrusCard, type BaseCardConfig } from "../common/base-card";
 import { DIALOG, type LibrusDialog } from "../common/dialog";
 import { LibrusCardEditor, baseFields, type FormField } from "../common/editor";
 import { formatDateTime } from "../common/format";
-import { localize } from "../common/localize";
+import { DEFAULT_COUNT, checkCount, countField, fieldsField, listStyles } from "../common/list";
 import { cardStyles } from "../common/styles";
 import type { HomeAssistant } from "../types";
 
@@ -15,9 +15,6 @@ export const MESSAGES_EDITOR = "librus-messages-card-editor";
 /** Elements of a list row that can be switched off (the title is always shown). */
 export const MESSAGE_FIELDS = ["author", "date", "attachment", "status"] as const;
 export type MessageField = (typeof MESSAGE_FIELDS)[number];
-
-export const DEFAULT_COUNT = 5;
-export const MAX_COUNT = 100;
 
 export interface MessagesCardConfig extends BaseCardConfig {
   count?: number;
@@ -70,35 +67,8 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
 
   static override styles = [
     cardStyles,
+    listStyles,
     css`
-      ul {
-        list-style: none;
-        margin: 0;
-        padding: 0 0 8px;
-      }
-      li + li {
-        border-top: 1px solid var(--divider-color);
-      }
-      button.row {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        width: 100%;
-        padding: 8px 16px;
-        border: none;
-        background: none;
-        color: var(--primary-text-color);
-        font: inherit;
-        text-align: start;
-        cursor: pointer;
-      }
-      button.row:hover {
-        background: rgba(var(--rgb-primary-text-color, 0, 0, 0), 0.04);
-      }
-      button.row:focus-visible {
-        outline: 2px solid var(--primary-color);
-        outline-offset: -2px;
-      }
       .status {
         flex: none;
         color: var(--secondary-text-color);
@@ -106,51 +76,13 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
       .unread .status {
         color: var(--primary-color);
       }
-      .text {
-        flex: 1;
-        min-width: 0;
-      }
-      .title,
-      .meta {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
       .unread .title {
         font-weight: var(--ha-font-weight-bold, 700);
-      }
-      .meta {
-        color: var(--secondary-text-color);
-        font-size: var(--ha-font-size-s, 12px);
       }
       .attachment {
         flex: none;
         color: var(--secondary-text-color);
         --mdc-icon-size: 20px;
-      }
-      .empty {
-        padding: 0 16px 16px;
-      }
-      dl {
-        display: grid;
-        grid-template-columns: max-content 1fr;
-        gap: 8px 16px;
-        margin: 0;
-      }
-      dt {
-        color: var(--secondary-text-color);
-      }
-      dd {
-        margin: 0;
-      }
-      .body {
-        margin-top: 16px;
-        padding-top: 16px;
-        border-top: 1px solid var(--divider-color);
-      }
-      .content {
-        white-space: pre-wrap;
-        overflow-wrap: anywhere;
       }
       .hint,
       .files {
@@ -179,10 +111,7 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
     if (!config?.entity) {
       throw new Error("Entity required (the Librus messages sensor)");
     }
-    const count = config.count ?? DEFAULT_COUNT;
-    if (!Number.isInteger(count) || count < 1 || count > MAX_COUNT) {
-      throw new Error(`count must be a whole number from 1 to ${MAX_COUNT}`);
-    }
+    checkCount(config.count);
     super.setConfig(config);
   }
 
@@ -322,7 +251,7 @@ export class MessagesCard extends LibrusCard<MessagesCardConfig> {
       <ha-card>
         ${this.renderHeader()}
         ${messages.length
-          ? html`<ul>${messages.map((message) => this._renderRow(message))}</ul>`
+          ? html`<ul class="items">${messages.map((message) => this._renderRow(message))}</ul>`
           : html`<div class="empty">${this.t("messages.empty")}</div>`}
       </ha-card>
       <librus-apix-dialog
@@ -340,20 +269,8 @@ export class MessagesCardEditor extends LibrusCardEditor<MessagesCardConfig> {
   protected get schema(): FormField[] {
     return [
       ...baseFields("sensor"),
-      { name: "count", selector: { number: { min: 1, max: MAX_COUNT, mode: "box" } } },
-      {
-        name: "fields",
-        selector: {
-          select: {
-            multiple: true,
-            mode: "list",
-            options: MESSAGE_FIELDS.map((field) => ({
-              value: field,
-              label: localize(this.hass, `messages.field_${field}`),
-            })),
-          },
-        },
-      },
+      countField(),
+      fieldsField(this.hass, "messages", MESSAGE_FIELDS),
     ];
   }
 

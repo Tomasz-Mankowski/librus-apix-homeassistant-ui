@@ -33,5 +33,14 @@
     "read_hint": "Wczytanie treści oznacza wiadomość w Librusie jako przeczytaną.",
     "cannot_read": "Nie udało się wczytać treści: {error}",
     "retry": "Spróbuj ponownie"
+  },
+  "announcements": {
+    "name": "Ogłoszenia",
+    "empty": "Brak ogłoszeń",
+    "author": "Autor",
+    "date": "Data",
+    "field_author": "Autor",
+    "field_date": "Data",
+    "field_preview": "Pierwsza linia treści"
   }
 }

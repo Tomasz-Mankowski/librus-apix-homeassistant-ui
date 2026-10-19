@@ -33,5 +33,14 @@
     "read_hint": "Reading the content marks the message as read in Librus.",
     "cannot_read": "Cannot read the content: {error}",
     "retry": "Try again"
+  },
+  "announcements": {
+    "name": "Announcements",
+    "empty": "No announcements",
+    "author": "Author",
+    "date": "Date",
+    "field_author": "Author",
+    "field_date": "Date",
+    "field_preview": "First line of the text"
   }
 }

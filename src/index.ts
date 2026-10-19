@@ -1,6 +1,12 @@
 // Entry point: defines the custom elements and lists the cards in the card picker.
 
 import {
+  ANNOUNCEMENTS_CARD,
+  ANNOUNCEMENTS_EDITOR,
+  AnnouncementsCard,
+  AnnouncementsCardEditor,
+} from "./cards/announcements-card";
+import {
   MESSAGES_CARD,
   MESSAGES_EDITOR,
   MessagesCard,
@@ -13,6 +19,8 @@ const ELEMENTS: [string, CustomElementConstructor][] = [
   [DIALOG, LibrusDialog],
   [MESSAGES_CARD, MessagesCard],
   [MESSAGES_EDITOR, MessagesCardEditor],
+  [ANNOUNCEMENTS_CARD, AnnouncementsCard],
+  [ANNOUNCEMENTS_EDITOR, AnnouncementsCardEditor],
 ];
 
 const CARDS: CustomCardEntry[] = [
@@ -20,6 +28,12 @@ const CARDS: CustomCardEntry[] = [
     type: MESSAGES_CARD,
     name: "Librus messages",
     description: "Last Librus messages of a student with read and attachment marks.",
+    preview: true,
+  },
+  {
+    type: ANNOUNCEMENTS_CARD,
+    name: "Librus announcements",
+    description: "Last Librus announcements of a student's school with the full text in a pop-up.",
     preview: true,
   },
 ];
