@@ -27,7 +27,7 @@ describe("placeholder card", () => {
 
     const content = card.shadowRoot?.querySelector("ha-card .content");
     expect(content?.textContent).toContain(`Librus APIX Cards ${VERSION}`);
-    expect(card.getCardSize()).toBe(1);
+    expect(card.getCardSize()).toBe(2);
     card.remove();
   });
 

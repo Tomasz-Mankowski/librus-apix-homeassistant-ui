@@ -1,0 +1,20 @@
+{
+  "common": {
+    "close": "Zamknij",
+    "entity_not_found": "Nie znaleziono encji: {entity}",
+    "no_items": "Brak pozycji",
+    "loading": "Wczytywanie…",
+    "error": "Coś poszło nie tak: {error}"
+  },
+  "editor": {
+    "entity": "Encja",
+    "title": "Tytuł",
+    "icon": "Ikona"
+  },
+  "placeholder": {
+    "name": "Karty Librus APIX",
+    "open_dialog": "Otwórz okno",
+    "dialog_title": "Podgląd okna",
+    "dialog_text": "Tak otwierają się szczegóły w kartach Librus APIX."
+  }
+}
