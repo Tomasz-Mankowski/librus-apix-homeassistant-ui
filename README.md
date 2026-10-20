@@ -1,6 +1,6 @@
-# `librus-apix-homeassistant-ui` - Karty HA dla  `librus-apix-homeassistant`
+# HALibrus Cards - Karty HA dla HALibrus
 
-Karty do panelu Home Assistant (HACS, kategoria „Dashboard”) dla integracji [librus-apix-homeassistant](https://github.com/Tomasz-Mankowski/librus-apix-homeassistant). Pokazują terminarz, wiadomości i ogłoszenia z Librus Synergia.
+Karty do panelu Home Assistant (HACS, kategoria „Dashboard”) dla integracji **HALibrus** ([librus-apix-homeassistant](https://github.com/Tomasz-Mankowski/librus-apix-homeassistant)). Pokazują terminarz, wiadomości, ogłoszenia, oceny i oceny opisowe z Librus Synergia.
 
 > [!IMPORTANT]
 > Projekt nieoficjalny. **Nie jest powiązany z firmą Librus** ani przez nią wspierany.
@@ -8,6 +8,10 @@ Karty do panelu Home Assistant (HACS, kategoria „Dashboard”) dla integracji 
 | Terminarz | Wiadomości | Ogłoszenia |
 |---|---|---|
 | ![Karta terminarza](docs/schedule-card.png) | ![Karta wiadomości](docs/messages-card.png) | ![Karta ogłoszeń](docs/announcements-card.png) |
+
+| Oceny | Oceny opisowe |
+|---|---|
+| ![Karta ocen](docs/grades-card.png) | ![Karta ocen opisowych](docs/descriptive-grades-card.png) |
 
 ## Instalacja
 
@@ -17,25 +21,25 @@ Lub ręcznie:
 
 1. HACS → menu **⋮** → **Własne repozytoria**.
 2. Repozytorium: `https://github.com/Tomasz-Mankowski/librus-apix-homeassistant-ui`, typ: **Dashboard**.
-3. Znajdź **Librus APIX Cards** w HACS i kliknij **Pobierz**. HACS sam dodaje zasób panelu.
+3. Znajdź **HALibrus Cards** w HACS i kliknij **Pobierz**. HACS sam dodaje zasób panelu.
 4. Odśwież przeglądarkę.
 
 ## Wymagania
 
 - Home Assistant 2026.3 lub nowszy.
-- Zainstalowana i skonfigurowana integracja [librus-apix-homeassistant](https://github.com/Tomasz-Mankowski/librus-apix-homeassistant).
+- Zainstalowana i skonfigurowana integracja [HALibrus](https://github.com/Tomasz-Mankowski/librus-apix-homeassistant) (karty ocen: wersja 1.1.0 lub nowsza).
 - [HACS](https://hacs.xyz/).
 
 ## Opcje wspólne
 
 | Opcja | Opis | Domyślnie |
 |---|---|---|
-| `entity` | encja ucznia (wymagana, patrz każda karta) | — |
+| `entity` | encja ucznia (wymagana, patrz każda karta); karty ocen mają zamiast niej `device` | — |
 | `title` | tytuł karty; pusty tekst `""` ukrywa nagłówek | nazwa karty |
 | `icon` | ikona w nagłówku, np. `mdi:school` | ikona karty |
 | `icon_color` | kolor ikony | kolor ikon motywu |
 
-Kolory (`icon_color`, `unread_color`) wybierasz z palety Home Assistant: `primary`, `accent`, `red`, `pink`, `purple`, `deep-purple`, `indigo`, `blue`, `light-blue`, `cyan`, `teal`, `green`, `light-green`, `lime`, `yellow`, `amber`, `orange`, `deep-orange`, `brown`, `grey`, `blue-grey`, `black`, `white`. Działa też kolor szesnastkowy, np. `"#ff8800"`. Kolory z palety dopasowują się do motywu.
+Kolory (`icon_color`, `unread_color`, `color_bad`, `color_ok`, `color_excellent`) wybierasz z palety Home Assistant: `primary`, `accent`, `red`, `pink`, `purple`, `deep-purple`, `indigo`, `blue`, `light-blue`, `cyan`, `teal`, `green`, `light-green`, `lime`, `yellow`, `amber`, `orange`, `deep-orange`, `brown`, `grey`, `blue-grey`, `black`, `white`. Działa też kolor szesnastkowy, np. `"#ff8800"`. Kolory z palety dopasowują się do motywu.
 
 ## Terminarz — `custom:librus-schedule-card`
 
@@ -121,12 +125,66 @@ fields:
   - preview
 ```
 
+## Oceny — `custom:librus-grades-card`
+
+Oceny jednego ucznia: wiersz na przedmiot z ocenami bieżącego semestru i średnią, nad listą średnia ucznia. Ucznia wybierasz w edytorze karty (urządzenie integracji). Kliknięcie przedmiotu otwiera okno z tabelą wszystkich ocen obu semestrów, średnimi oraz ocenami śródrocznymi i rocznymi. Poprawa jest oznaczona („poprawa oceny 1”), a poprawiona ocena przekreślona.
+
+| Opcja | Opis | Domyślnie |
+|---|---|---|
+| `device` | uczeń: urządzenie integracji HALibrus (wybierz w edytorze) | — |
+| `exclude` | przedmioty do ukrycia, np. `[Zachowanie, Religia]` | żadne |
+| `show_average` | średnia przedmiotu w każdym wierszu | `true` |
+| `show_gpa` | średnia ucznia nad listą | `true` |
+| `popup_fields` | co pokazać w oknie: `averages` (średnie), `category`, `weight`, `date`, `teacher`, `counts` (czy liczy się do średniej), `comment`, `finals` (oceny śródroczne i roczne); ocena jest zawsze | wszystkie |
+| `level_bad`, `level_ok`, `level_excellent` | progi średniej (0–6); puste: bez kolorów | puste |
+| `color_bad`, `color_ok`, `color_excellent` | kolory progów | `red`, `amber`, `green` |
+
+Progi to dolne granice: średnia od `level_excellent` ma kolor `color_excellent`, od `level_ok` — `color_ok`, od `level_bad` — `color_bad`; niższa średnia (lub jej brak) nie ma koloru. Pusty próg jest pomijany. Przykład poniżej: 4,5 i więcej — zielony, od 3,5 — bursztynowy, od 2 — czerwony.
+
+```yaml
+type: custom:librus-grades-card
+device: 0123456789abcdef0123456789abcdef  # wybierz ucznia w edytorze
+exclude:
+  - Zachowanie
+level_bad: 2
+level_ok: 3.5
+level_excellent: 4.5
+popup_fields:
+  - averages
+  - category
+  - weight
+  - date
+  - comment
+```
+
+![Okno ocen przedmiotu](docs/grades-popup.png)
+
+## Oceny opisowe — `custom:librus-descriptive-grades-card`
+
+Oceny opisowe jednego ucznia: wiersz na przedmiot z kodami ocen, ostatnią oceną i liczbą ocen. Kliknięcie przedmiotu otwiera okno z pełną treścią każdej oceny, od najnowszej.
+
+| Opcja | Opis | Domyślnie |
+|---|---|---|
+| `device` | uczeń: urządzenie integracji HALibrus (wybierz w edytorze) | — |
+| `exclude` | przedmioty do ukrycia | żadne |
+| `popup_fields` | co pokazać w oknie: `date`, `teacher`, `semester`, `details` (inne pola z Librusa, np. obszar), `content` (treść oceny); kod oceny jest zawsze | wszystkie |
+
+```yaml
+type: custom:librus-descriptive-grades-card
+device: 0123456789abcdef0123456789abcdef  # wybierz ucznia w edytorze
+popup_fields:
+  - date
+  - content
+```
+
 ## Wygląd
 
 - Karty używają kolorów i czcionek motywu Home Assistant, także ciemnego.
 - Teksty są po polsku lub angielsku, według języka Home Assistant. Treści z Librusa zostają bez zmian.
 - Okno szczegółów zamyka **Esc**, przycisk ✕ lub kliknięcie obok okna. Na telefonie okno zajmuje cały ekran.
 - W widoku sekcji karta zajmuje całą szerokość sekcji, a jej wysokość zależy od liczby pozycji.
+- Na kartach ocen oceny przedmiotu są w jednej linii. Gdy jest ich więcej, linię przewijasz w bok; widać najnowsze oceny.
+- Długą listę ocen w oknie szczegółów przewijasz; nagłówek tabeli zostaje na górze.
 
 ## Licencja
 

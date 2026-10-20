@@ -3,6 +3,25 @@
 All notable changes of the `librus-apix-homeassistant-ui` dashboard cards.
 Versions follow [Semantic Versioning](https://semver.org/).
 
+## 1.1.0 — 2026-10-21
+
+The cards are now called **HALibrus Cards**. The card types (`custom:librus-*`) stay.
+
+### Added
+
+- `custom:librus-grades-card`: one row per subject with the grades of the current semester, the
+  subject average and the student's GPA; hidden subjects; three average levels with colours; a
+  pop-up per subject with all grades of both semesters, the averages and the semester and year
+  grades (corrections marked); `popup_fields` chooses what the pop-up shows.
+- `custom:librus-descriptive-grades-card`: one row per subject with the grade codes, the latest
+  grade and the count; a compact pop-up with the full text of every grade; `popup_fields`.
+- Both cards pick the student by device and offer the student's subjects in the editor.
+
+### Changed
+
+- Card picker names `HALibrus …`.
+- Requires the HALibrus integration 1.1.0 for the correction marks in the grades pop-up.
+
 ## 1.0.0 — 2026-10-19
 
 First release. Requires Home Assistant 2026.3 or newer and the
