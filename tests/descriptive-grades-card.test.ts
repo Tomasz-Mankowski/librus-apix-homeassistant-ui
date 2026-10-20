@@ -53,7 +53,8 @@ describe("descriptive grades card", () => {
     expect(text(el.shadowRoot!.querySelector(".card-header"))).toBe("Oceny opisowe");
     expect(rows(el).map((row) => text(row.querySelector(".title")))).toEqual(["Edukacja zdrowotna", "Język polski"]);
     const health = rows(el)[0];
-    expect([...health.querySelectorAll(".chip")].map(text)).toEqual(["OP", "WY"]);
+    // Newest first in the DOM (the reversed strip shows them oldest to newest).
+    expect([...health.querySelectorAll(".chip")].map(text)).toEqual(["WY", "OP"]);
     expect(text(health.querySelector(".meta"))).toBe("ostatnia 16.10.2026 · Wyróżniająca prezentacja. Brawo!");
     expect(text(health.querySelector(".count"))).toBe("2");
   });
@@ -64,32 +65,38 @@ describe("descriptive grades card", () => {
     expect(rows(el).map((row) => text(row.querySelector(".title")))).toEqual(["Język polski"]);
   });
 
-  it("opens every grade of the subject with all details, newest first", async () => {
+  it("opens every grade of the subject, newest first, one compact block each", async () => {
     const dialog = await open(await card(), 0);
 
     expect(dialog.open).toBe(true);
     expect(dialog.heading).toBe("Edukacja zdrowotna");
     const grades = [...dialog.querySelectorAll("ul.grades > li")];
-    expect(grades).toHaveLength(2);
-    const pairs = [...grades[0].querySelectorAll("dt")].map((dt) => [text(dt), text(dt.nextElementSibling)]);
-    expect(pairs).toEqual([
-      ["Ocena", "WY"],
-      ["Data", "16.10.2026"],
-      ["Nauczyciel", "Magdalena Przykładowa"],
-      ["Semestr", "1"],
+    expect(grades.map((li) => text(li.querySelector(".head")))).toEqual([
+      "WY 16.10.2026 · Magdalena Przykładowa · semestr 1",
+      "OP 24.09.2026 · Magdalena Przykładowa · semestr 1",
     ]);
-    // The full text keeps its line breaks.
+    // The full text keeps its line breaks; no label/value lists any more.
     expect(grades[0].querySelector(".content")!.textContent).toBe("Wyróżniająca prezentacja.\nBrawo!");
-    expect(text(grades[1].querySelector("dd"))).toBe("OP");
+    expect(dialog.querySelector("dl")).toBeNull();
   });
 
-  it("shows further Librus lines of a grade", async () => {
+  it("shows further Librus lines of a grade in one line", async () => {
     const dialog = await open(await card(), 1);
 
-    const pairs = [...dialog.querySelectorAll("dt")].map((dt) => [text(dt), text(dt.nextElementSibling)]);
-    expect(pairs).toContainEqual(["Obszar", "Czytanie"]);
-    expect(pairs).toContainEqual(["Semestr", "2"]);
+    expect(text(dialog.querySelector(".head"))).toBe("B 2.03.2027 · Magdalena Przykładowa · semestr 2");
+    expect(text(dialog.querySelector(".details"))).toBe("Obszar: Czytanie");
     expect(text(dialog.querySelector(".content"))).toBe("Czyta płynnie.");
+  });
+
+  it("shows only the chosen pop-up elements", async () => {
+    const dateOnly = await open(await card({ popup_fields: ["date"] }), 1);
+    expect(text(dateOnly.querySelector(".head"))).toBe("B 2.03.2027");
+    expect(dateOnly.querySelector(".details")).toBeNull();
+    expect(dateOnly.querySelector(".content")).toBeNull();
+
+    const bare = await open(await card({ popup_fields: [] }), 1);
+    expect(text(bare.querySelector(".head"))).toBe("B");
+    expect(bare.querySelector(".head .meta")).toBeNull();
   });
 
   it("says when a subject has no grades left", async () => {
@@ -163,7 +170,18 @@ describe("descriptive grades card editor", () => {
     const f = form(await editor());
 
     const names = f.schema.flatMap((field) => (field.schema ? field.schema.map((s) => s.name) : [field.name]));
-    expect(names).toEqual(["device", "title", "icon", "icon_color", "exclude"]);
+    expect(names).toEqual(["device", "title", "icon", "icon_color", "exclude", "popup_fields"]);
+    expect(f.data).toMatchObject({ popup_fields: ["date", "teacher", "semester", "details", "content"] });
+    const popup = f.schema.find((field) => field.name === "popup_fields")!.selector!.select as {
+      options: { label: string }[];
+    };
+    expect(popup.options.map((o) => o.label)).toEqual([
+      "Data",
+      "Nauczyciel",
+      "Semestr",
+      "Inne pola z Librusa (np. obszar)",
+      "Treść oceny",
+    ]);
     const exclude = f.schema.find((field) => field.name === "exclude")!.selector!.select as { options: { value: string }[] };
     expect(exclude.options.map((o) => o.value)).toEqual(["Edukacja zdrowotna", "Język polski"]);
   });
@@ -179,6 +197,7 @@ describe("descriptive grades card editor", () => {
       icon: "mdi:star",
       icon_color: "teal",
       exclude: ["Język polski"],
+      popup_fields: ["date", "content"],
     };
 
     form(el).dispatchEvent(new CustomEvent("value-changed", { detail: { value: config } }));

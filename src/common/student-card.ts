@@ -1,9 +1,40 @@
-import { html, nothing, type PropertyValues, type TemplateResult } from "lit";
+import { css, html, nothing, type PropertyValues, type TemplateResult } from "lit";
 
 import { LibrusCard, type BaseCardConfig } from "./base-card";
 import { DIALOG, type LibrusDialog } from "./dialog";
 import { deviceEntities, subjects, type Subject, type SubjectKind } from "./student";
 import type { HomeAssistant } from "../types";
+
+/**
+ * Grade chips of a list row: one line; more grades scroll sideways (CR-006). The
+ * chips come newest first in the DOM and the strip is reversed, so they read
+ * oldest to newest and a long strip opens at its newest end (no script needed).
+ */
+export const chipStyles = css`
+  .chips {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 4px;
+    margin-top: 4px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  /* A short strip starts at the left; a long one overflows to the left. */
+  .chips > :first-child {
+    margin-right: auto;
+  }
+  .chip {
+    flex: none;
+    display: inline-block;
+    min-width: 1.5em;
+    padding: 0 6px;
+    border: 1px solid var(--divider-color);
+    border-radius: 6px;
+    font-size: var(--ha-font-size-s, 12px);
+    line-height: 20px;
+    text-align: center;
+  }
+`;
 
 /** Options of the cards that show one student's subjects (D-115). */
 export interface StudentCardConfig extends BaseCardConfig {

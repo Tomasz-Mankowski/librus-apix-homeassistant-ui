@@ -2,16 +2,23 @@ import { css, html, nothing, type TemplateResult } from "lit";
 
 import { LibrusCardEditor, studentFields, type FormField } from "../common/editor";
 import { formatDate } from "../common/format";
-import { listStyles } from "../common/list";
+import { fieldsField, listStyles } from "../common/list";
 import { SUBJECT_DESCRIPTIVE, studentDevices, type Subject, type SubjectKind } from "../common/student";
-import { StudentCard, type StudentCardConfig } from "../common/student-card";
+import { StudentCard, chipStyles, type StudentCardConfig } from "../common/student-card";
 import { cardStyles } from "../common/styles";
 import type { HassEntity, HomeAssistant } from "../types";
 
 export const DESCRIPTIVE_CARD = "librus-descriptive-grades-card";
 export const DESCRIPTIVE_EDITOR = "librus-descriptive-grades-card-editor";
 
-export type DescriptiveGradesCardConfig = StudentCardConfig;
+/** Elements of the pop-up that can be switched off (the grade is always shown). */
+export const DESCRIPTIVE_POPUP_FIELDS = ["date", "teacher", "semester", "details", "content"] as const;
+export type DescriptivePopupField = (typeof DESCRIPTIVE_POPUP_FIELDS)[number];
+
+export interface DescriptiveGradesCardConfig extends StudentCardConfig {
+  /** Elements of the pop-up; default: all. */
+  popup_fields?: DescriptivePopupField[];
+}
 
 /** One grade of a descriptive-grade sensor's `grades` attribute (integration, D-073). */
 export interface DescriptiveGrade {
@@ -60,23 +67,8 @@ export class DescriptiveGradesCard extends StudentCard<DescriptiveGradesCardConf
   static override styles = [
     cardStyles,
     listStyles,
+    chipStyles,
     css`
-      .chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-        margin-top: 4px;
-      }
-      .chip {
-        display: inline-block;
-        min-width: 1.5em;
-        padding: 0 6px;
-        border: 1px solid var(--divider-color);
-        border-radius: 6px;
-        font-size: var(--ha-font-size-s, 12px);
-        line-height: 20px;
-        text-align: center;
-      }
       .count {
         flex: none;
         min-width: 2em;
@@ -89,13 +81,24 @@ export class DescriptiveGradesCard extends StudentCard<DescriptiveGradesCardConf
         padding: 0;
       }
       ul.grades > li {
-        padding: 12px 0;
+        padding: 8px 0;
       }
       ul.grades > li + li {
         border-top: 1px solid var(--divider-color);
       }
+      .head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 4px 8px;
+      }
+      .head .meta,
+      .details {
+        color: var(--secondary-text-color);
+        font-size: var(--ha-font-size-s, 12px);
+      }
       ul.grades .content {
-        margin-top: 8px;
+        margin-top: 2px;
       }
     `,
   ];
@@ -129,7 +132,9 @@ export class DescriptiveGradesCard extends StudentCard<DescriptiveGradesCardConf
           <span class="text">
             <div class="title">${subject.name}</div>
             ${grades.length
-              ? html`<div class="chips">${grades.map((grade) => html`<span class="chip" title=${grade.content}>${grade.grade}</span>`)}</div>`
+              ? html`<div class="chips">
+                  ${[...grades].reverse().map((grade) => html`<span class="chip" title=${grade.content}>${grade.grade}</span>`)}
+                </div>`
               : nothing}
             ${latest
               ? html`<div class="meta">
@@ -143,30 +148,33 @@ export class DescriptiveGradesCard extends StudentCard<DescriptiveGradesCardConf
     `;
   }
 
-  /** Pop-up: every descriptive grade of the subject with all its details. */
+  /** Pop-up: every descriptive grade of the subject, newest first, one compact block each. */
   protected renderDetails(subject: Subject): TemplateResult {
     const grades = descriptiveGrades(this.hass?.states[subject.entity_id]);
     if (!grades.length) {
       return html`<div class="empty">${this.t("descriptive.no_grades")}</div>`;
     }
+    const shown = new Set<string>(this._config?.popup_fields ?? DESCRIPTIVE_POPUP_FIELDS);
     return html`
       <ul class="grades">
-        ${[...grades].reverse().map(
-          (grade) => html`<li>
-            <dl>
-              <dt>${this.t("descriptive.grade")}</dt>
-              <dd><span class="chip">${grade.grade}</span></dd>
-              <dt>${this.t("descriptive.date")}</dt>
-              <dd>${formatDate(this.hass, grade.date)}</dd>
-              <dt>${this.t("descriptive.teacher")}</dt>
-              <dd>${grade.teacher}</dd>
-              <dt>${this.t("descriptive.semester")}</dt>
-              <dd>${grade.semester}</dd>
-              ${extraLines(grade).map(([label, value]) => html`<dt>${label}</dt><dd>${value}</dd>`)}
-            </dl>
-            <div class="content">${grade.content}</div>
-          </li>`,
-        )}
+        ${[...grades].reverse().map((grade) => {
+          const meta = [
+            shown.has("date") ? formatDate(this.hass, grade.date) : "",
+            shown.has("teacher") ? grade.teacher : "",
+            shown.has("semester") ? this.t("descriptive.semester_n", { n: grade.semester }) : "",
+          ].filter(Boolean);
+          const details = shown.has("details") ? extraLines(grade) : [];
+          return html`<li>
+            <div class="head">
+              <span class="chip">${grade.grade}</span>
+              ${meta.length ? html`<span class="meta">${meta.join(" · ")}</span>` : nothing}
+            </div>
+            ${details.length
+              ? html`<div class="details">${details.map(([label, value]) => `${label}: ${value}`).join(" · ")}</div>`
+              : nothing}
+            ${shown.has("content") ? html`<div class="content">${grade.content}</div>` : nothing}
+          </li>`;
+        })}
       </ul>
     `;
   }
@@ -193,6 +201,14 @@ export class DescriptiveGradesCard extends StudentCard<DescriptiveGradesCardConf
 
 export class DescriptiveGradesCardEditor extends LibrusCardEditor<DescriptiveGradesCardConfig> {
   protected get schema(): FormField[] {
-    return studentFields(this.hass, this._config, SUBJECT_DESCRIPTIVE);
+    return [
+      ...studentFields(this.hass, this._config, SUBJECT_DESCRIPTIVE),
+      fieldsField(this.hass, "descriptive", DESCRIPTIVE_POPUP_FIELDS, "popup"),
+    ];
+  }
+
+  override setConfig(config: DescriptiveGradesCardConfig): void {
+    // Show the defaults in the form (the first change writes them into the config).
+    super.setConfig({ popup_fields: [...DESCRIPTIVE_POPUP_FIELDS], ...config });
   }
 }

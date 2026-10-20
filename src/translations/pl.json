@@ -31,7 +31,8 @@
     "level_ok": "Średnia dobra od",
     "color_ok": "Kolor: dobra",
     "level_excellent": "Średnia bardzo dobra od",
-    "color_excellent": "Kolor: bardzo dobra"
+    "color_excellent": "Kolor: bardzo dobra",
+    "popup_fields": "Pokazywane w oknie szczegółów"
   },
   "messages": {
     "name": "Wiadomości",
@@ -110,7 +111,15 @@
     "correction_of": "poprawa oceny {grade}",
     "correction": "poprawa",
     "corrected": "poprawiona",
-    "finals": "Oceny śródroczne i roczne"
+    "finals": "Oceny śródroczne i roczne",
+    "popup_averages": "Średnie",
+    "popup_category": "Kategoria",
+    "popup_weight": "Waga",
+    "popup_date": "Data",
+    "popup_teacher": "Nauczyciel",
+    "popup_counts": "Czy liczy się do średniej",
+    "popup_comment": "Komentarz",
+    "popup_finals": "Oceny śródroczne i roczne"
   },
   "descriptive": {
     "name": "Oceny opisowe",
@@ -118,9 +127,11 @@
     "no_grades": "Brak ocen opisowych",
     "latest": "ostatnia {date}",
     "count": "Liczba ocen opisowych",
-    "grade": "Ocena",
-    "date": "Data",
-    "teacher": "Nauczyciel",
-    "semester": "Semestr"
+    "popup_date": "Data",
+    "popup_teacher": "Nauczyciel",
+    "popup_semester": "Semestr",
+    "popup_details": "Inne pola z Librusa (np. obszar)",
+    "popup_content": "Treść oceny",
+    "semester_n": "semestr {n}"
   }
 }

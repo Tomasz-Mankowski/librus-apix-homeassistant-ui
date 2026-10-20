@@ -45,8 +45,9 @@ describe("grades card", () => {
     expect(text(el.shadowRoot!.querySelector(".card-header"))).toBe("Oceny");
     expect(subjectsOf(el)).toEqual(["Język polski", "Matematyka", "Plastyka"]);
     const math = rows(el)[1];
-    // Oldest first: the correction (1104) is not last any more.
-    expect([...math.querySelectorAll(".chip")].map(text)).toEqual(["5", "3", "1", "4", "np"]);
+    // Newest first in the DOM; the reversed strip shows them oldest to newest, and the
+    // correction (1104) is in date order, not last.
+    expect([...math.querySelectorAll(".chip")].map(text)).toEqual(["np", "4", "1", "3", "5"]);
     expect(text(math.querySelector(".average"))).toBe("3,35");
     expect(text(rows(el)[2].querySelector(".meta"))).toBe("Brak ocen");
     expect(text(rows(el)[2].querySelector(".average"))).toBe("–");
@@ -55,9 +56,9 @@ describe("grades card", () => {
   it("marks grades that do not count and explains each chip", async () => {
     const chips = [...rows(await card())[1].querySelectorAll<HTMLElement>(".chip")];
 
-    expect(chips[4].classList.contains("not-counted")).toBe(true);
-    expect(chips[4].title).toBe("Nieprzygotowanie · 5.10.2026 · nie liczy się do średniej");
-    expect(chips[3].title).toBe("Sprawdzian · 30.09.2026 · waga 3");
+    expect(chips[0].classList.contains("not-counted")).toBe(true);
+    expect(chips[0].title).toBe("Nieprzygotowanie · 5.10.2026 · nie liczy się do średniej");
+    expect(chips[1].title).toBe("Sprawdzian · 30.09.2026 · waga 3");
   });
 
   it("hides excluded subjects", async () => {
@@ -287,6 +288,20 @@ describe("grades card pop-up", () => {
     expect(tableRows(dialog)[3][0]).toBe("4 correction of 1");
   });
 
+  it("shows only the chosen pop-up elements", async () => {
+    const some = await openSubject(await card({ popup_fields: ["date", "finals"] }), 1);
+    expect([...some.querySelectorAll("table.grades thead th")].map(text)).toEqual(["Ocena", "Data"]);
+    expect(tableRows(some)[0]).toEqual(["5", "10.09.2026"]);
+    // No averages: the only list is the semester grades.
+    expect([...some.querySelectorAll("dl")]).toHaveLength(1);
+    expect([...some.querySelectorAll("h3")].map(text)).toContain("Oceny śródroczne i roczne");
+
+    const bare = await openSubject(await card({ popup_fields: [] }), 1);
+    expect([...bare.querySelectorAll("table.grades thead th")].map(text)).toEqual(["Ocena"]);
+    expect(bare.querySelector("dl")).toBeNull();
+    expect([...bare.querySelectorAll("h3")].map(text)).toEqual(["Semestr 1", "Semestr 2"]);
+  });
+
   it("says when the subject sensor is gone", async () => {
     const el = await card();
     const dialog = await openSubject(el, 1);
@@ -329,6 +344,7 @@ describe("grades card editor", () => {
       "exclude",
       "show_average",
       "show_gpa",
+      "popup_fields",
       "level_bad",
       "color_bad",
       "level_ok",
@@ -336,7 +352,13 @@ describe("grades card editor", () => {
       "level_excellent",
       "color_excellent",
     ]);
-    expect(f.data).toMatchObject({ device: ZOFIA, show_average: true, show_gpa: true });
+    expect(f.data).toMatchObject({
+      device: ZOFIA,
+      show_average: true,
+      show_gpa: true,
+      popup_fields: ["averages", "category", "weight", "date", "teacher", "counts", "comment", "finals"],
+    });
+    expect(f.computeLabel({ name: "popup_fields" })).toBe("Pokazywane w oknie szczegółów");
     expect(f.computeLabel({ name: "level_excellent" })).toBe("Średnia bardzo dobra od");
     expect(f.computeLabel({ name: "exclude" })).toBe("Ukryte przedmioty");
     const level = f.schema.flatMap((field) => field.schema ?? []).find((s) => s.name === "level_ok");
@@ -365,6 +387,7 @@ describe("grades card editor", () => {
       exclude: ["Fizyka"],
       show_average: false,
       show_gpa: false,
+      popup_fields: ["averages", "comment"],
       level_bad: 2,
       color_bad: "deep-orange",
       level_ok: 3.5,

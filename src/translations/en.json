@@ -31,7 +31,8 @@
     "level_ok": "OK average from",
     "color_ok": "Colour: OK",
     "level_excellent": "Excellent average from",
-    "color_excellent": "Colour: excellent"
+    "color_excellent": "Colour: excellent",
+    "popup_fields": "Shown in the pop-up"
   },
   "messages": {
     "name": "Messages",
@@ -110,7 +111,15 @@
     "correction_of": "correction of {grade}",
     "correction": "correction",
     "corrected": "corrected",
-    "finals": "Semester and year grades"
+    "finals": "Semester and year grades",
+    "popup_averages": "Averages",
+    "popup_category": "Category",
+    "popup_weight": "Weight",
+    "popup_date": "Date",
+    "popup_teacher": "Teacher",
+    "popup_counts": "Counts to the average",
+    "popup_comment": "Comment",
+    "popup_finals": "Semester and year grades"
   },
   "descriptive": {
     "name": "Descriptive grades",
@@ -118,9 +127,11 @@
     "no_grades": "No descriptive grades",
     "latest": "latest {date}",
     "count": "Number of descriptive grades",
-    "grade": "Grade",
-    "date": "Date",
-    "teacher": "Teacher",
-    "semester": "Semester"
+    "popup_date": "Date",
+    "popup_teacher": "Teacher",
+    "popup_semester": "Semester",
+    "popup_details": "Other Librus fields (for example area)",
+    "popup_content": "Text of the grade",
+    "semester_n": "semester {n}"
   }
 }

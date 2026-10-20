@@ -5,20 +5,35 @@ import { styleMap } from "lit/directives/style-map.js";
 import { levelColor, type LevelOptions } from "../common/colors";
 import { LibrusCardEditor, studentFields, type FormField } from "../common/editor";
 import { formatAverage, formatDate } from "../common/format";
-import { listStyles } from "../common/list";
+import { fieldsField, listStyles } from "../common/list";
 import { SUBJECT_GRADES, gpaEntity, studentDevices, type Subject, type SubjectKind } from "../common/student";
-import { StudentCard, type StudentCardConfig } from "../common/student-card";
+import { StudentCard, chipStyles, type StudentCardConfig } from "../common/student-card";
 import { cardStyles } from "../common/styles";
 import type { HassEntity, HomeAssistant } from "../types";
 
 export const GRADES_CARD = "librus-grades-card";
 export const GRADES_EDITOR = "librus-grades-card-editor";
 
+/** Elements of the pop-up that can be switched off (the grade column is always shown). */
+export const GRADE_POPUP_FIELDS = [
+  "averages",
+  "category",
+  "weight",
+  "date",
+  "teacher",
+  "counts",
+  "comment",
+  "finals",
+] as const;
+export type GradePopupField = (typeof GRADE_POPUP_FIELDS)[number];
+
 export interface GradesCardConfig extends StudentCardConfig, LevelOptions {
   /** Show the subject average on each row; default: on. */
   show_average?: boolean;
   /** Show the student's GPA under the header; default: on. */
   show_gpa?: boolean;
+  /** Elements of the pop-up; default: all. */
+  popup_fields?: GradePopupField[];
 }
 
 /** One grade of a subject sensor's `grades` attribute (integration, D-071). */
@@ -50,8 +65,9 @@ export interface FinalGrade {
 /** Periods of the grades and averages attributes. */
 export const PERIODS = ["semester_1", "semester_2", "year"] as const;
 
-/** Columns of the grades table in the pop-up. */
+/** Columns of the grades table in the pop-up (all but the grade can be switched off). */
 const COLUMNS = ["grade", "category", "weight", "date", "teacher", "counts", "comment"] as const;
+type Column = (typeof COLUMNS)[number];
 
 /** Number of a sensor state ("3.35"), or null (unknown, unavailable). */
 export function numericState(state: HassEntity | undefined): number | null {
@@ -100,6 +116,7 @@ export class GradesCard extends StudentCard<GradesCardConfig> {
   static override styles = [
     cardStyles,
     listStyles,
+    chipStyles,
     css`
       .gpa {
         display: flex;
@@ -116,22 +133,6 @@ export class GradesCard extends StudentCard<GradesCardConfig> {
       li.level {
         box-shadow: inset 4px 0 0 var(--librus-level-color);
         background: color-mix(in srgb, var(--librus-level-color) 10%, transparent);
-      }
-      .chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-        margin-top: 4px;
-      }
-      .chip {
-        display: inline-block;
-        min-width: 1.5em;
-        padding: 0 6px;
-        border: 1px solid var(--divider-color);
-        border-radius: 6px;
-        font-size: var(--ha-font-size-s, 12px);
-        line-height: 20px;
-        text-align: center;
       }
       .chip.not-counted,
       .chip.proposed {
@@ -155,6 +156,13 @@ export class GradesCard extends StudentCard<GradesCardConfig> {
         color: var(--secondary-text-color);
         font-weight: var(--ha-font-weight-normal, 400);
         text-align: start;
+      }
+      /* Long lists scroll in the pop-up; the column names stay visible. */
+      table.grades thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: var(--ha-card-background, var(--card-background-color, #fff));
       }
       table.grades th,
       table.grades td {
@@ -279,7 +287,9 @@ export class GradesCard extends StudentCard<GradesCardConfig> {
           <span class="text">
             <div class="title">${subject.name}</div>
             ${grades.length
-              ? html`<div class="chips">${grades.map((grade) => this._chip(grade, corrected.has(grade.id)))}</div>`
+              ? html`<div class="chips">
+                  ${[...grades].reverse().map((grade) => this._chip(grade, corrected.has(grade.id)))}
+                </div>`
               : html`<div class="meta">${this.t("grades.no_grades")}</div>`}
           </span>
           ${this._config?.show_average === false
@@ -308,6 +318,11 @@ export class GradesCard extends StudentCard<GradesCardConfig> {
     `;
   }
 
+  /** Elements the pop-up shows. */
+  private get _popupFields(): Set<string> {
+    return new Set(this._config?.popup_fields ?? GRADE_POPUP_FIELDS);
+  }
+
   /** Table of the grades of one semester; corrections and corrected grades marked. */
   private _renderTable(grades: Grade[]): TemplateResult {
     if (!grades.length) {
@@ -315,12 +330,14 @@ export class GradesCard extends StudentCard<GradesCardConfig> {
     }
     const corrected = correctedIds(grades);
     const byId = new Map(grades.map((grade) => [grade.id, grade]));
+    const shown = this._popupFields;
+    const columns = COLUMNS.filter((column) => column === "grade" || shown.has(column));
     const label = (column: string): string => this.t(`grades.col_${column}`);
     return html`
       <table class="grades">
         <thead>
           <tr>
-            ${COLUMNS.map((column) => html`<th>${label(column)}</th>`)}
+            ${columns.map((column) => html`<th>${label(column)}</th>`)}
           </tr>
         </thead>
         <tbody>
@@ -335,16 +352,22 @@ export class GradesCard extends StudentCard<GradesCardConfig> {
             } else if (isCorrected) {
               note = this.t("grades.corrected");
             }
+            const cells: Record<Column, TemplateResult | string> = {
+              grade: html`<span>${this._chip(grade, isCorrected)} ${note ? html`<span class="note">${note}</span>` : nothing}</span>`,
+              category: grade.category,
+              weight: String(grade.weight ?? "–"),
+              date: formatDate(this.hass, grade.date),
+              teacher: grade.teacher,
+              counts: this.t(grade.counts ? "common.yes" : "common.no"),
+              comment: grade.comment,
+            };
             return html`<tr class=${classMap({ correction: Boolean(grade.corrects), corrected: isCorrected })}>
-              <td data-label=${label("grade")}>
-                <span>${this._chip(grade, isCorrected)} ${note ? html`<span class="note">${note}</span>` : nothing}</span>
-              </td>
-              <td data-label=${label("category")}>${grade.category}</td>
-              <td data-label=${label("weight")}>${grade.weight ?? "–"}</td>
-              <td data-label=${label("date")}>${formatDate(this.hass, grade.date)}</td>
-              <td data-label=${label("teacher")}>${grade.teacher}</td>
-              <td data-label=${label("counts")}>${this.t(grade.counts ? "common.yes" : "common.no")}</td>
-              <td data-label=${label("comment")} class=${grade.comment ? "" : "blank"}>${grade.comment}</td>
+              ${columns.map(
+                (column) =>
+                  html`<td data-label=${label(column)} class=${column === "comment" && !grade.comment ? "blank" : ""}>
+                    ${cells[column]}
+                  </td>`,
+              )}
             </tr>`;
           })}
         </tbody>
@@ -377,13 +400,14 @@ export class GradesCard extends StudentCard<GradesCardConfig> {
     if (!state) {
       return html`<div class="empty">${this.t("grades.no_grades")}</div>`;
     }
+    const shown = this._popupFields;
     return html`
-      ${this._renderAverages(state)}
+      ${shown.has("averages") ? this._renderAverages(state) : nothing}
       ${(["semester_1", "semester_2"] as const).map(
         (period) => html`<h3>${this.t(`grades.period_${period}`)}</h3>
           ${this._renderTable(gradesOf(state, period))}`,
       )}
-      ${this._renderFinals(finalGrades(state))}
+      ${shown.has("finals") ? this._renderFinals(finalGrades(state)) : nothing}
     `;
   }
 
@@ -432,12 +456,13 @@ export class GradesCardEditor extends LibrusCardEditor<GradesCardConfig> {
           { name: "show_gpa", selector: { boolean: {} } },
         ],
       },
+      fieldsField(this.hass, "grades", GRADE_POPUP_FIELDS, "popup"),
       levelFields(),
     ];
   }
 
   override setConfig(config: GradesCardConfig): void {
     // Show the defaults in the form (the first change writes them into the config).
-    super.setConfig({ show_average: true, show_gpa: true, ...config });
+    super.setConfig({ show_average: true, show_gpa: true, popup_fields: [...GRADE_POPUP_FIELDS], ...config });
   }
 }

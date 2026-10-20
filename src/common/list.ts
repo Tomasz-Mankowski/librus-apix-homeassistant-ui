@@ -23,21 +23,25 @@ export function countField(): FormField {
   return { name: "count", selector: { number: { min: 1, max: MAX_COUNT, mode: "box" } } };
 }
 
-/** Editor field: which elements a row shows; labels from "<prefix>.field_<name>". */
+/**
+ * Editor field: which elements a row shows ("fields", labels "<prefix>.field_<name>")
+ * or the pop-up shows ("popup_fields", labels "<prefix>.popup_<name>").
+ */
 export function fieldsField(
   hass: HomeAssistant | undefined,
   prefix: string,
   fields: readonly string[],
+  kind: "field" | "popup" = "field",
 ): FormField {
   return {
-    name: "fields",
+    name: kind === "field" ? "fields" : "popup_fields",
     selector: {
       select: {
         multiple: true,
         mode: "list",
         options: fields.map((field) => ({
           value: field,
-          label: localize(hass, `${prefix}.field_${field}`),
+          label: localize(hass, `${prefix}.${kind}_${field}`),
         })),
       },
     },
