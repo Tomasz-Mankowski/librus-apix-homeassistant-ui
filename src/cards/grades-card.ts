@@ -1,38 +1,20 @@
-import { css, html, nothing, type PropertyValues, type TemplateResult } from "lit";
+import { css, html, nothing, type TemplateResult } from "lit";
 import { classMap } from "lit/directives/class-map.js";
 import { styleMap } from "lit/directives/style-map.js";
 
-import { LibrusCard, type BaseCardConfig } from "../common/base-card";
 import { levelColor, type LevelOptions } from "../common/colors";
-import { DIALOG, type LibrusDialog } from "../common/dialog";
-import {
-  LibrusCardEditor,
-  deviceField,
-  headerFields,
-  subjectsField,
-  type FormField,
-} from "../common/editor";
+import { LibrusCardEditor, studentFields, type FormField } from "../common/editor";
 import { formatAverage, formatDate } from "../common/format";
 import { listStyles } from "../common/list";
-import {
-  SUBJECT_GRADES,
-  deviceEntities,
-  gpaEntity,
-  studentDevices,
-  subjects,
-  type Subject,
-} from "../common/student";
+import { SUBJECT_GRADES, gpaEntity, studentDevices, type Subject, type SubjectKind } from "../common/student";
+import { StudentCard, type StudentCardConfig } from "../common/student-card";
 import { cardStyles } from "../common/styles";
 import type { HassEntity, HomeAssistant } from "../types";
 
 export const GRADES_CARD = "librus-grades-card";
 export const GRADES_EDITOR = "librus-grades-card-editor";
 
-export interface GradesCardConfig extends BaseCardConfig, LevelOptions {
-  /** The student: a device of the Librus integration (D-115). */
-  device?: string;
-  /** Subject names that are not shown. */
-  exclude?: string[];
+export interface GradesCardConfig extends StudentCardConfig, LevelOptions {
   /** Show the subject average on each row; default: on. */
   show_average?: boolean;
   /** Show the student's GPA under the header; default: on. */
@@ -114,13 +96,7 @@ export function finalGrades(state: HassEntity | undefined): FinalGrade[] {
  * header. Averages can be coloured by three levels (lower bounds, D-116). A click
  * on a subject opens a pop-up with all its grades, averages and semester grades.
  */
-export class GradesCard extends LibrusCard<GradesCardConfig> {
-  static override properties = {
-    _selected: { state: true },
-  };
-
-  declare _selected?: Subject;
-
+export class GradesCard extends StudentCard<GradesCardConfig> {
   static override styles = [
     cardStyles,
     listStyles,
@@ -237,11 +213,8 @@ export class GradesCard extends LibrusCard<GradesCardConfig> {
     return { type: `custom:${GRADES_CARD}`, device: studentDevices(hass, SUBJECT_GRADES)[0] ?? "" };
   }
 
-  override setConfig(config: GradesCardConfig): void {
-    if (!config?.device) {
-      throw new Error("Device required (a Librus student)");
-    }
-    super.setConfig(config);
+  protected get subjectKind(): SubjectKind {
+    return SUBJECT_GRADES;
   }
 
   protected get defaultTitle(): string {
@@ -250,37 +223,6 @@ export class GradesCard extends LibrusCard<GradesCardConfig> {
 
   protected get defaultIcon(): string {
     return "mdi:school-outline";
-  }
-
-  /** Subjects to show: the student's subject sensors without the excluded ones. */
-  protected get shownSubjects(): Subject[] {
-    const exclude = new Set(this._config?.exclude ?? []);
-    return subjects(this.hass, this._config?.device, SUBJECT_GRADES).filter((s) => !exclude.has(s.name));
-  }
-
-  override getCardSize(): number {
-    return 1 + Math.max(1, this.shownSubjects.length);
-  }
-
-  /** Renders again when the registry, the language or a state of the student changes (N1). */
-  protected override shouldUpdate(changed: PropertyValues<this>): boolean {
-    if (changed.size !== 1 || !changed.has("hass")) {
-      return true;
-    }
-    const old = changed.get("hass") as HomeAssistant | undefined;
-    if (!old || !this.hass) {
-      return true;
-    }
-    if (
-      old.entities !== this.hass.entities ||
-      old.locale?.language !== this.hass.locale?.language ||
-      old.themes?.darkMode !== this.hass.themes?.darkMode
-    ) {
-      return true;
-    }
-    return deviceEntities(this.hass, this._config?.device).some(
-      (entry) => old.states[entry.entity_id] !== this.hass?.states[entry.entity_id],
-    );
   }
 
   private _level(average: number | null): string | undefined {
@@ -301,11 +243,6 @@ export class GradesCard extends LibrusCard<GradesCardConfig> {
         <span>${this.t("grades.semester", { n: semesterOf(state) })}</span>
       </div>
     `;
-  }
-
-  private _open(subject: Subject): void {
-    this._selected = subject;
-    void this.updateComplete.then(() => this.renderRoot.querySelector<LibrusDialog>(DIALOG)?.show());
   }
 
   private _gradeTitle(grade: Grade, corrected = false): string {
@@ -338,7 +275,7 @@ export class GradesCard extends LibrusCard<GradesCardConfig> {
     const corrected = correctedIds(grades);
     return html`
       <li class=${classMap({ level: Boolean(color) })} style=${styleMap({ "--librus-level-color": color })}>
-        <button class="row" @click=${() => this._open(subject)}>
+        <button class="row" @click=${() => this.openSubject(subject)}>
           <span class="text">
             <div class="title">${subject.name}</div>
             ${grades.length
@@ -454,13 +391,8 @@ export class GradesCard extends LibrusCard<GradesCardConfig> {
     if (!this._config || !this.hass) {
       return nothing;
     }
-    if (!deviceEntities(this.hass, this._config.device).length) {
-      return html`
-        <ha-card>
-          ${this.renderHeader()}
-          <div class="warning">${this.t("grades.no_student")}</div>
-        </ha-card>
-      `;
+    if (!this.hasStudent) {
+      return this.renderNoStudent();
     }
     const shown = this.shownSubjects;
     return html`
@@ -470,13 +402,7 @@ export class GradesCard extends LibrusCard<GradesCardConfig> {
           ? html`<ul class="items">${shown.map((subject) => this.renderRow(subject))}</ul>`
           : html`<div class="empty">${this.t("grades.empty")}</div>`}
       </ha-card>
-      <librus-apix-dialog
-        .heading=${this._selected?.name ?? ""}
-        .closeLabel=${this.t("common.close")}
-        @closed=${() => (this._selected = undefined)}
-      >
-        ${this._selected ? this.renderDetails(this._selected) : nothing}
-      </librus-apix-dialog>
+      ${this.renderDialog((subject) => this.renderDetails(subject))}
     `;
   }
 }
@@ -496,11 +422,8 @@ export function levelFields(): FormField {
 
 export class GradesCardEditor extends LibrusCardEditor<GradesCardConfig> {
   protected get schema(): FormField[] {
-    const found = subjects(this.hass, this._config?.device, SUBJECT_GRADES).map((s) => s.name);
     return [
-      deviceField(),
-      headerFields(),
-      subjectsField("exclude", found, this._config?.exclude),
+      ...studentFields(this.hass, this._config, SUBJECT_GRADES),
       {
         name: "",
         type: "grid",

@@ -6,7 +6,8 @@
     "loading": "Wczytywanie…",
     "error": "Coś poszło nie tak: {error}",
     "yes": "Tak",
-    "no": "Nie"
+    "no": "Nie",
+    "no_student": "Nie znaleziono ucznia Librus dla tego urządzenia."
   },
   "editor": {
     "entity": "Encja",
@@ -91,7 +92,6 @@
     "semester": "semestr {n}",
     "empty": "Brak przedmiotów z ocenami",
     "no_grades": "Brak ocen",
-    "no_student": "Nie znaleziono ucznia Librus dla tego urządzenia.",
     "weight_n": "waga {n}",
     "not_counted": "nie liczy się do średniej",
     "period_semester_1": "Semestr 1",
@@ -111,5 +111,16 @@
     "correction": "poprawa",
     "corrected": "poprawiona",
     "finals": "Oceny śródroczne i roczne"
+  },
+  "descriptive": {
+    "name": "Oceny opisowe",
+    "empty": "Brak przedmiotów z ocenami opisowymi",
+    "no_grades": "Brak ocen opisowych",
+    "latest": "ostatnia {date}",
+    "count": "Liczba ocen opisowych",
+    "grade": "Ocena",
+    "date": "Data",
+    "teacher": "Nauczyciel",
+    "semester": "Semestr"
   }
 }

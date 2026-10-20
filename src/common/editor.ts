@@ -1,7 +1,7 @@
 import { LitElement, html, nothing, type PropertyDeclarations } from "lit";
 
 import { localize } from "./localize";
-import { PLATFORM } from "./student";
+import { PLATFORM, subjects, type SubjectKind } from "./student";
 import type { HomeAssistant, LovelaceCardConfig } from "../types";
 
 /** One field of an `ha-form` schema (the parts the editors use). */
@@ -111,4 +111,14 @@ export function subjectsField(name: string, found: string[], configured: string[
       select: { multiple: true, custom_value: true, options: names.map((subject) => ({ value: subject, label: subject })) },
     },
   };
+}
+
+/** First fields of the student cards: device, header, hidden subjects of the student. */
+export function studentFields(
+  hass: HomeAssistant | undefined,
+  config: { device?: string; exclude?: string[] } | undefined,
+  kind: SubjectKind,
+): FormField[] {
+  const found = subjects(hass, config?.device, kind).map((subject) => subject.name);
+  return [deviceField(), headerFields(), subjectsField("exclude", found, config?.exclude)];
 }

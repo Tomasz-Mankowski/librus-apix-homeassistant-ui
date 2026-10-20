@@ -6,7 +6,8 @@
     "loading": "Loading…",
     "error": "Something went wrong: {error}",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "no_student": "No Librus student found for this device."
   },
   "editor": {
     "entity": "Entity",
@@ -91,7 +92,6 @@
     "semester": "semester {n}",
     "empty": "No subjects with grades",
     "no_grades": "No grades",
-    "no_student": "No Librus student found for this device.",
     "weight_n": "weight {n}",
     "not_counted": "does not count to the average",
     "period_semester_1": "Semester 1",
@@ -111,5 +111,16 @@
     "correction": "correction",
     "corrected": "corrected",
     "finals": "Semester and year grades"
+  },
+  "descriptive": {
+    "name": "Descriptive grades",
+    "empty": "No subjects with descriptive grades",
+    "no_grades": "No descriptive grades",
+    "latest": "latest {date}",
+    "count": "Number of descriptive grades",
+    "grade": "Grade",
+    "date": "Date",
+    "teacher": "Teacher",
+    "semester": "Semester"
   }
 }

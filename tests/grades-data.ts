@@ -10,6 +10,7 @@ export const MATH = "sensor.zofia_testowa_matematyka";
 export const POLISH = "sensor.zofia_testowa_jezyk_polski";
 export const ART = "sensor.zofia_testowa_plastyka";
 export const HEALTH = "sensor.zofia_testowa_edukacja_zdrowotna_oceny_opisowe";
+export const READING = "sensor.zofia_testowa_jezyk_polski_oceny_opisowe";
 export const GPA = "sensor.zofia_testowa_srednia_ocen";
 export const PHYSICS = "sensor.kacper_probny_fizyka";
 
@@ -94,10 +95,62 @@ export function gradesStates(): Record<string, Partial<HassEntity>> {
         friendly_name: "Zofia Testowa Plastyka",
       },
     },
-    [HEALTH]: { state: "2", attributes: { subject: "Edukacja zdrowotna", grades: {} } },
+    [HEALTH]: {
+      state: "2",
+      attributes: {
+        subject: "Edukacja zdrowotna",
+        grades: {
+          // Newest last on purpose: the card sorts by date.
+          semester_1: [
+            descriptive("d2", "Edukacja zdrowotna", 1, "WY", "2026-10-16", "Wyróżniająca prezentacja.\nBrawo!"),
+            descriptive("d1", "Edukacja zdrowotna", 1, "OP", "2026-09-24", "Zna zasady zdrowego odżywiania."),
+          ],
+          semester_2: [],
+        },
+      },
+    },
+    [READING]: {
+      state: "1",
+      attributes: {
+        subject: "Język polski",
+        grades: {
+          semester_1: [],
+          semester_2: [descriptive("d3", "Język polski", 2, "B", "2027-03-02", "Czyta płynnie.", "Obszar: Czytanie")],
+        },
+      },
+    },
     [GPA]: { state: "4.095", attributes: { semester: 1, average_source: "librus" } },
     [PHYSICS]: { state: "5.0", attributes: { subject: "Fizyka", semester: 2, grades: {} } },
     "sensor.other": { state: "1" },
+  };
+}
+
+function descriptive(
+  id: string,
+  subject: string,
+  semester: number,
+  value: string,
+  date: string,
+  content: string,
+  extra?: string,
+) {
+  const lines = [
+    `Ocena: ${value}`,
+    `Przedmiot: ${subject}`,
+    `Data: ${date} (pon.)`,
+    "Nauczyciel: Magdalena Przykładowa",
+    ...(extra ? [extra] : []),
+    `Treść oceny: ${content}`,
+  ];
+  return {
+    id,
+    subject,
+    semester,
+    grade: value,
+    date,
+    teacher: "Magdalena Przykładowa",
+    content,
+    description: lines.join("\n"),
   };
 }
 
@@ -114,6 +167,7 @@ export function gradesHass(language = "pl", states = gradesStates()): HomeAssist
       entry(POLISH, ZOFIA, "subject_grades"),
       entry(ART, ZOFIA, "subject_grades"),
       entry(HEALTH, ZOFIA, "subject_descriptive"),
+      entry(READING, ZOFIA, "subject_descriptive"),
       entry(GPA, ZOFIA, "gpa"),
       entry(PHYSICS, KACPER, "subject_grades"),
     ].map((e) => [e.entity_id, e]),
