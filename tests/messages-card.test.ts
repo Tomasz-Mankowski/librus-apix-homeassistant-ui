@@ -56,7 +56,7 @@ afterEach(() => {
 describe("messages card", () => {
   it("is defined and listed in the card picker", () => {
     expect(customElements.get(MESSAGES_CARD)).toBe(MessagesCard);
-    expect(window.customCards?.find((c) => c.type === MESSAGES_CARD)?.name).toBe("Librus messages");
+    expect(window.customCards?.find((c) => c.type === MESSAGES_CARD)?.name).toBe("HALibrus messages");
   });
 
   it("shows the last 5 messages by default, newest first", async () => {

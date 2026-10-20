@@ -2724,31 +2724,31 @@ var _n = [
 ], vn = [
 	{
 		type: Rt,
-		name: "Librus schedule",
+		name: "HALibrus schedule",
 		description: "Upcoming Librus schedule events (tests, trips, meetings) of a student.",
 		preview: !0
 	},
 	{
 		type: bt,
-		name: "Librus messages",
+		name: "HALibrus messages",
 		description: "Last Librus messages of a student with read and attachment marks.",
 		preview: !0
 	},
 	{
 		type: ut,
-		name: "Librus announcements",
+		name: "HALibrus announcements",
 		description: "Last Librus announcements of a student's school with the full text in a pop-up.",
 		preview: !0
 	},
 	{
 		type: rn,
-		name: "Librus grades",
+		name: "HALibrus grades",
 		description: "Grades of a student by subject with averages, the GPA and colour levels.",
 		preview: !0
 	},
 	{
 		type: Yt,
-		name: "Librus descriptive grades",
+		name: "HALibrus descriptive grades",
 		description: "Descriptive grades of a student by subject with the full texts in a pop-up.",
 		preview: !0
 	}

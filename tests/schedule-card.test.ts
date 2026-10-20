@@ -65,7 +65,7 @@ afterEach(() => {
 describe("schedule card", () => {
   it("is defined and listed in the card picker", () => {
     expect(customElements.get(SCHEDULE_CARD)).toBe(ScheduleCard);
-    expect(window.customCards?.find((c) => c.type === SCHEDULE_CARD)?.name).toBe("Librus schedule");
+    expect(window.customCards?.find((c) => c.type === SCHEDULE_CARD)?.name).toBe("HALibrus schedule");
   });
 
   it("asks for the next 14 days by default", async () => {

@@ -2,7 +2,7 @@
   "name": "librus-apix-homeassistant-ui",
   "version": "1.0.0",
   "private": true,
-  "description": "Lovelace cards for the Librus APIX Home Assistant integration.",
+  "description": "Lovelace cards for the HALibrus Home Assistant integration (Librus Synergia).",
   "license": "MIT",
   "type": "module",
   "scripts": {

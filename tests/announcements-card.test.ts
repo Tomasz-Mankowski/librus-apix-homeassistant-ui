@@ -46,7 +46,7 @@ describe("announcements card", () => {
   it("is defined and listed in the card picker", () => {
     expect(customElements.get(ANNOUNCEMENTS_CARD)).toBe(AnnouncementsCard);
     expect(window.customCards?.find((c) => c.type === ANNOUNCEMENTS_CARD)?.name).toBe(
-      "Librus announcements",
+      "HALibrus announcements",
     );
   });
 

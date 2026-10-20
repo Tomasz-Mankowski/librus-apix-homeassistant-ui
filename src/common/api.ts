@@ -1,4 +1,4 @@
-// Calls of the Librus APIX integration from the cards (WebSocket API).
+// Calls of the HALibrus integration from the cards (WebSocket API).
 
 import type { HomeAssistant } from "../types";
 

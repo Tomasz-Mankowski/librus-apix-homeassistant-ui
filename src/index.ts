@@ -45,31 +45,31 @@ const ELEMENTS: [string, CustomElementConstructor][] = [
 const CARDS: CustomCardEntry[] = [
   {
     type: SCHEDULE_CARD,
-    name: "Librus schedule",
+    name: "HALibrus schedule",
     description: "Upcoming Librus schedule events (tests, trips, meetings) of a student.",
     preview: true,
   },
   {
     type: MESSAGES_CARD,
-    name: "Librus messages",
+    name: "HALibrus messages",
     description: "Last Librus messages of a student with read and attachment marks.",
     preview: true,
   },
   {
     type: ANNOUNCEMENTS_CARD,
-    name: "Librus announcements",
+    name: "HALibrus announcements",
     description: "Last Librus announcements of a student's school with the full text in a pop-up.",
     preview: true,
   },
   {
     type: GRADES_CARD,
-    name: "Librus grades",
+    name: "HALibrus grades",
     description: "Grades of a student by subject with averages, the GPA and colour levels.",
     preview: true,
   },
   {
     type: DESCRIPTIVE_CARD,
-    name: "Librus descriptive grades",
+    name: "HALibrus descriptive grades",
     description: "Descriptive grades of a student by subject with the full texts in a pop-up.",
     preview: true,
   },
