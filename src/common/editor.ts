@@ -1,6 +1,7 @@
 import { LitElement, html, nothing, type PropertyDeclarations } from "lit";
 
 import { localize } from "./localize";
+import { PLATFORM } from "./student";
 import type { HomeAssistant, LovelaceCardConfig } from "../types";
 
 /** One field of an `ha-form` schema (the parts the editors use). */
@@ -68,22 +69,46 @@ export abstract class LibrusCardEditor<C extends LovelaceCardConfig = LovelaceCa
   }
 }
 
+/** Title, icon and icon colour of the card header. */
+export function headerFields(): FormField {
+  return {
+    name: "",
+    type: "grid",
+    schema: [
+      { name: "title", selector: { text: {} } },
+      { name: "icon", selector: { icon: {} } },
+      { name: "icon_color", selector: { ui_color: {} } },
+    ],
+  };
+}
+
 /** Fields every card editor starts with. */
-export function baseFields(entityDomain: string, entityIntegration = "librus_apix"): FormField[] {
+export function baseFields(entityDomain: string, entityIntegration = PLATFORM): FormField[] {
   return [
     {
       name: "entity",
       required: true,
       selector: { entity: { filter: [{ domain: entityDomain, integration: entityIntegration }] } },
     },
-    {
-      name: "",
-      type: "grid",
-      schema: [
-        { name: "title", selector: { text: {} } },
-        { name: "icon", selector: { icon: {} } },
-        { name: "icon_color", selector: { ui_color: {} } },
-      ],
-    },
+    headerFields(),
   ];
+}
+
+/** The student: a device of the Librus integration (grades cards, D-115). */
+export function deviceField(): FormField {
+  return { name: "device", required: true, selector: { device: { filter: [{ integration: PLATFORM }] } } };
+}
+
+/**
+ * Multi-select of subject names: the subjects found for the student, then
+ * configured names that are not (or no longer) found, so none is lost.
+ */
+export function subjectsField(name: string, found: string[], configured: string[] = []): FormField {
+  const names = [...found, ...configured.filter((subject) => !found.includes(subject))];
+  return {
+    name,
+    selector: {
+      select: { multiple: true, custom_value: true, options: names.map((subject) => ({ value: subject, label: subject })) },
+    },
+  };
 }

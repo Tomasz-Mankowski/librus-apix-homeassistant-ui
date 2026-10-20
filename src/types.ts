@@ -8,8 +8,19 @@ export interface HassEntity {
   last_updated: string;
 }
 
+/** Entity registry entry the frontend keeps in `hass.entities` (HA frontend EntityRegistryDisplayEntry). */
+export interface EntityRegistryDisplayEntry {
+  entity_id: string;
+  name?: string | null;
+  device_id?: string | null;
+  platform?: string;
+  translation_key?: string;
+  hidden?: boolean;
+}
+
 export interface HomeAssistant {
   states: Record<string, HassEntity>;
+  entities?: Record<string, EntityRegistryDisplayEntry>;
   language: string;
   // time_zone "server" = show times in the HA time zone (config.time_zone).
   locale: { language: string; time_zone?: "local" | "server" };

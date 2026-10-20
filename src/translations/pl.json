@@ -20,7 +20,9 @@
     "unread_color": "Kolor nieprzeczytanych wiadomości",
     "highlight_unread": "Wyróżnij nieprzeczytane wiadomości",
     "highlight_next": "Wyróżnij najbliższe wydarzenie",
-    "show_next_label": "Pokaż etykietę „Najbliższe”"
+    "show_next_label": "Pokaż etykietę „Najbliższe”",
+    "device": "Uczeń",
+    "exclude": "Ukryte przedmioty"
   },
   "messages": {
     "name": "Wiadomości",
