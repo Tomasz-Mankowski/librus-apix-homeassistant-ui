@@ -22,7 +22,15 @@
     "highlight_next": "Highlight the nearest event",
     "show_next_label": "Show the “Next” label",
     "device": "Student",
-    "exclude": "Hidden subjects"
+    "exclude": "Hidden subjects",
+    "show_average": "Show subject averages",
+    "show_gpa": "Show the GPA",
+    "level_bad": "Bad average from",
+    "color_bad": "Colour: bad",
+    "level_ok": "OK average from",
+    "color_ok": "Colour: OK",
+    "level_excellent": "Excellent average from",
+    "color_excellent": "Colour: excellent"
   },
   "messages": {
     "name": "Messages",
@@ -76,5 +84,15 @@
     "group_days_off": "Days off",
     "group_contests": "Contests",
     "group_changes": "Timetable changes"
+  },
+  "grades": {
+    "name": "Grades",
+    "gpa": "GPA",
+    "semester": "semester {n}",
+    "empty": "No subjects with grades",
+    "no_grades": "No grades",
+    "no_student": "No Librus student found for this device.",
+    "weight_n": "weight {n}",
+    "not_counted": "does not count to the average"
   }
 }

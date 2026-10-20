@@ -74,3 +74,14 @@ export function formatDate(hass: HomeAssistant | undefined, value: string): stri
     timeZone: dateOnly ? "UTC" : timeZone(hass),
   }).format(date);
 }
+
+/** An average with two decimals in the HA language ("3,35" in Polish); "" for none. */
+export function formatAverage(hass: HomeAssistant | undefined, value: number | null | undefined): string {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return "";
+  }
+  return new Intl.NumberFormat(language(hass), {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}

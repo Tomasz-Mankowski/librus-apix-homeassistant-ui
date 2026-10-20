@@ -22,7 +22,15 @@
     "highlight_next": "Wyróżnij najbliższe wydarzenie",
     "show_next_label": "Pokaż etykietę „Najbliższe”",
     "device": "Uczeń",
-    "exclude": "Ukryte przedmioty"
+    "exclude": "Ukryte przedmioty",
+    "show_average": "Pokaż średnie przedmiotów",
+    "show_gpa": "Pokaż średnią ucznia",
+    "level_bad": "Średnia słaba od",
+    "color_bad": "Kolor: słaba",
+    "level_ok": "Średnia dobra od",
+    "color_ok": "Kolor: dobra",
+    "level_excellent": "Średnia bardzo dobra od",
+    "color_excellent": "Kolor: bardzo dobra"
   },
   "messages": {
     "name": "Wiadomości",
@@ -76,5 +84,15 @@
     "group_days_off": "Dni wolne",
     "group_contests": "Konkursy",
     "group_changes": "Zmiany w planie"
+  },
+  "grades": {
+    "name": "Oceny",
+    "gpa": "Średnia ocen",
+    "semester": "semestr {n}",
+    "empty": "Brak przedmiotów z ocenami",
+    "no_grades": "Brak ocen",
+    "no_student": "Nie znaleziono ucznia Librus dla tego urządzenia.",
+    "weight_n": "waga {n}",
+    "not_counted": "nie liczy się do średniej"
   }
 }

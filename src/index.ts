@@ -18,6 +18,7 @@ import {
   ScheduleCard,
   ScheduleCardEditor,
 } from "./cards/schedule-card";
+import { GRADES_CARD, GRADES_EDITOR, GradesCard, GradesCardEditor } from "./cards/grades-card";
 import { DIALOG, LibrusDialog } from "./common/dialog";
 import type { CustomCardEntry } from "./types";
 
@@ -29,6 +30,8 @@ const ELEMENTS: [string, CustomElementConstructor][] = [
   [ANNOUNCEMENTS_EDITOR, AnnouncementsCardEditor],
   [SCHEDULE_CARD, ScheduleCard],
   [SCHEDULE_EDITOR, ScheduleCardEditor],
+  [GRADES_CARD, GradesCard],
+  [GRADES_EDITOR, GradesCardEditor],
 ];
 
 const CARDS: CustomCardEntry[] = [
@@ -48,6 +51,12 @@ const CARDS: CustomCardEntry[] = [
     type: ANNOUNCEMENTS_CARD,
     name: "Librus announcements",
     description: "Last Librus announcements of a student's school with the full text in a pop-up.",
+    preview: true,
+  },
+  {
+    type: GRADES_CARD,
+    name: "Librus grades",
+    description: "Grades of a student by subject with averages, the GPA and colour levels.",
     preview: true,
   },
 ];
