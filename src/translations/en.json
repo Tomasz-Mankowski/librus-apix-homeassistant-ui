@@ -93,6 +93,23 @@
     "no_grades": "No grades",
     "no_student": "No Librus student found for this device.",
     "weight_n": "weight {n}",
-    "not_counted": "does not count to the average"
+    "not_counted": "does not count to the average",
+    "period_semester_1": "Semester 1",
+    "period_semester_2": "Semester 2",
+    "period_year": "School year",
+    "source": "Average",
+    "source_librus": "from Librus",
+    "source_calculated": "calculated",
+    "col_grade": "Grade",
+    "col_category": "Category",
+    "col_weight": "Weight",
+    "col_date": "Date",
+    "col_teacher": "Teacher",
+    "col_counts": "Counts",
+    "col_comment": "Comment",
+    "correction_of": "correction of {grade}",
+    "correction": "correction",
+    "corrected": "corrected",
+    "finals": "Semester and year grades"
   }
 }

@@ -8,10 +8,11 @@ import {
   type GradesCardConfig,
   currentGrades,
 } from "../src/cards/grades-card";
+import type { LibrusDialog } from "../src/common/dialog";
 import type { FormField } from "../src/common/editor";
 import type { HomeAssistant } from "../src/types";
 import { mockHass, mount } from "./helpers";
-import { GPA, KACPER, MATH, ZOFIA, gradesHass, gradesStates } from "./grades-data";
+import { GPA, KACPER, MATH, POLISH, ZOFIA, gradesHass, gradesStates } from "./grades-data";
 
 async function card(config: Partial<GradesCardConfig> = {}, hass: HomeAssistant = gradesHass()): Promise<GradesCard> {
   return mount<GradesCard>(GRADES_CARD, (c) => {
@@ -153,6 +154,148 @@ describe("grades card", () => {
 
   it("shows another student's subjects for another device", async () => {
     expect(subjectsOf(await card({ device: KACPER }))).toEqual(["Fizyka"]);
+  });
+});
+
+async function openSubject(el: GradesCard, index: number): Promise<LibrusDialog> {
+  rows(el)[index].querySelector("button")!.click();
+  await el.updateComplete;
+  const dialog = el.shadowRoot!.querySelector<LibrusDialog>("librus-apix-dialog")!;
+  await dialog.updateComplete;
+  return dialog;
+}
+
+function tableRows(dialog: LibrusDialog, table = 0): string[][] {
+  const element = dialog.querySelectorAll("table.grades")[table];
+  return [...element.querySelectorAll("tbody tr")].map((tr) => [...tr.querySelectorAll("td")].map((td) => text(td)));
+}
+
+describe("grades card pop-up", () => {
+  it("opens a subject with all grades of both semesters", async () => {
+    const dialog = await openSubject(await card(), 1);
+
+    expect(dialog.open).toBe(true);
+    expect(dialog.heading).toBe("Matematyka");
+    expect([...dialog.querySelectorAll("table.grades thead th")].map(text)).toEqual([
+      "Ocena",
+      "Kategoria",
+      "Waga",
+      "Data",
+      "Nauczyciel",
+      "Do średniej",
+      "Komentarz",
+    ]);
+    expect(tableRows(dialog)).toEqual([
+      ["5", "Kartkówka", "2", "10.09.2026", "Adam Rachunek", "Tak", ""],
+      ["3", "Odpowiedź ustna", "1", "17.09.2026", "Adam Rachunek", "Tak", ""],
+      ["1 poprawiona", "Sprawdzian", "3", "20.09.2026", "Adam Rachunek", "Tak", "Działania"],
+      ["4 poprawa oceny 1", "Sprawdzian", "3", "30.09.2026", "Adam Rachunek", "Tak", ""],
+      ["np", "Nieprzygotowanie", "0", "5.10.2026", "Adam Rachunek", "Nie", ""],
+    ]);
+    expect([...dialog.querySelectorAll("h3")].map(text)).toEqual([
+      "Semestr 1",
+      "Semestr 2",
+      "Oceny śródroczne i roczne",
+    ]);
+    expect(text(dialog.querySelector("h3 + .empty"))).toBe("Brak ocen");
+  });
+
+  it("marks the correction and the corrected grade, also on the list", async () => {
+    const el = await card();
+    const listChips = [...rows(el)[1].querySelectorAll<HTMLElement>(".chip")];
+    expect(listChips.map((chip) => chip.classList.contains("corrected"))).toEqual([false, false, true, false, false]);
+    expect(listChips[2].title).toBe("Sprawdzian · 20.09.2026 · waga 3 · poprawiona");
+
+    const dialog = await openSubject(el, 1);
+    const [, , corrected, correction] = [...dialog.querySelectorAll("tbody tr")];
+    expect(corrected.classList.contains("corrected")).toBe(true);
+    expect(correction.classList.contains("correction")).toBe(true);
+    expect(text(correction.querySelector(".note"))).toBe("poprawa oceny 1");
+  });
+
+  it("labels each cell for the phone layout and hides empty comments there", async () => {
+    const dialog = await openSubject(await card(), 1);
+    const cells = [...dialog.querySelectorAll("tbody tr")][2].querySelectorAll("td");
+
+    expect([...cells].map((td) => td.dataset.label)).toEqual([
+      "Ocena",
+      "Kategoria",
+      "Waga",
+      "Data",
+      "Nauczyciel",
+      "Do średniej",
+      "Komentarz",
+    ]);
+    expect(cells[6].classList.contains("blank")).toBe(false);
+    expect([...dialog.querySelectorAll("tbody tr")][0].querySelectorAll("td")[6].classList.contains("blank")).toBe(true);
+  });
+
+  it("shows the averages and the semester and year grades", async () => {
+    const dialog = await openSubject(await card(), 1);
+    const [averages, finals] = [...dialog.querySelectorAll("dl")];
+
+    const pairs = (dl: Element) => [...dl.querySelectorAll("dt")].map((dt) => [text(dt), text(dt.nextElementSibling)]);
+    expect(pairs(averages)).toEqual([
+      ["Semestr 1", "3,35"],
+      ["Semestr 2", "–"],
+      ["Rok szkolny", "3,35"],
+      ["Średnia", "z Librusa"],
+    ]);
+    expect(pairs(finals)).toEqual([["Semestr 1", "4 Proponowana (śródroczna) · 19.10.2026 · Adam Rachunek"]]);
+    expect(finals.querySelector(".chip.proposed")).not.toBeNull();
+  });
+
+  it("follows the sensor and closes", async () => {
+    const el = await card();
+    const dialog = await openSubject(el, 0);
+    expect(tableRows(dialog)).toEqual([["5-", "Dyktando", "2", "1.10.2026", "Adam Rachunek", "Tak", ""]]);
+    // No averages attribute: dashes; no semester grades, so only one list.
+    const [averages, ...others] = [...dialog.querySelectorAll("dl")];
+    expect([...averages.querySelectorAll("dd")].map(text)).toEqual(["–", "–", "–", "z Librusa"]);
+    expect(others).toEqual([]);
+
+    const states = gradesStates();
+    const polish = states[POLISH]!;
+    const grades = (polish.attributes as { grades: { semester_1: object[] } }).grades;
+    el.hass = gradesHass("pl", {
+      ...states,
+      [POLISH]: {
+        ...polish,
+        attributes: {
+          ...polish.attributes,
+          grades: { ...grades, semester_1: [...grades.semester_1, { id: "1202", grade: "6", category: "Wypracowanie", date: "2026-10-10", weight: 3, counts: true, teacher: "Ewa Ortografia", comment: "", corrects: null }] },
+        },
+      },
+    });
+    await el.updateComplete;
+    expect(tableRows(dialog).map((row) => row[0])).toEqual(["5-", "6"]);
+
+    dialog.close();
+    await dialog.updateComplete;
+    await el.updateComplete;
+    expect(dialog.querySelector("table")).toBeNull();
+  });
+
+  it("uses English texts and shows the calculated source", async () => {
+    const states = gradesStates();
+    const math = states[MATH]!;
+    const hass = gradesHass("en", { ...states, [MATH]: { ...math, attributes: { ...math.attributes, average_source: "calculated" } } });
+    const dialog = await openSubject(await card({}, hass), 1);
+
+    expect([...dialog.querySelectorAll("table.grades thead th")].map(text)[5]).toBe("Counts");
+    expect(text([...dialog.querySelectorAll("dl")][0].querySelectorAll("dd")[3])).toBe("calculated");
+    expect(tableRows(dialog)[3][0]).toBe("4 correction of 1");
+  });
+
+  it("says when the subject sensor is gone", async () => {
+    const el = await card();
+    const dialog = await openSubject(el, 1);
+    const states = gradesStates();
+    delete states[MATH];
+    el.hass = gradesHass("pl", states);
+    await el.updateComplete;
+
+    expect(text(dialog.querySelector(".empty"))).toBe("Brak ocen");
   });
 });
 

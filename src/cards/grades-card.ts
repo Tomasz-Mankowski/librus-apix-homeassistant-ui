@@ -4,6 +4,7 @@ import { styleMap } from "lit/directives/style-map.js";
 
 import { LibrusCard, type BaseCardConfig } from "../common/base-card";
 import { levelColor, type LevelOptions } from "../common/colors";
+import { DIALOG, type LibrusDialog } from "../common/dialog";
 import {
   LibrusCardEditor,
   deviceField,
@@ -49,7 +50,26 @@ export interface Grade {
   counts: boolean;
   teacher: string;
   comment: string;
+  /** Id of the grade this one corrects (D-125); null for other grades. */
+  corrects?: string | null;
 }
+
+/** A semester or year grade (final or proposed) of `final_grades`. */
+export interface FinalGrade {
+  id: string;
+  period: string;
+  grade: string;
+  proposed: boolean;
+  category: string;
+  date: string;
+  teacher: string;
+}
+
+/** Periods of the grades and averages attributes. */
+export const PERIODS = ["semester_1", "semester_2", "year"] as const;
+
+/** Columns of the grades table in the pop-up. */
+const COLUMNS = ["grade", "category", "weight", "date", "teacher", "counts", "comment"] as const;
 
 /** Number of a sensor state ("3.35"), or null (unknown, unavailable). */
 export function numericState(state: HassEntity | undefined): number | null {
@@ -62,22 +82,45 @@ export function semesterOf(state: HassEntity | undefined): number {
   return state?.attributes.semester === 2 ? 2 : 1;
 }
 
-/** Grades of the current semester, oldest first (Librus lists corrections last). */
-export function currentGrades(state: HassEntity | undefined): Grade[] {
+/** Grades of a semester ("semester_1"), oldest first (Librus lists corrections last). */
+export function gradesOf(state: HassEntity | undefined, period: string): Grade[] {
   const grades = state?.attributes.grades as Record<string, Grade[] | undefined> | undefined;
-  const list = grades?.[`semester_${semesterOf(state)}`];
+  const list = grades?.[period];
   if (!Array.isArray(list)) {
     return [];
   }
   return [...list].sort((a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id, "en", { numeric: true }));
 }
 
+/** Grades of the current semester, oldest first. */
+export function currentGrades(state: HassEntity | undefined): Grade[] {
+  return gradesOf(state, `semester_${semesterOf(state)}`);
+}
+
+/** Ids of the grades that a later grade corrects. */
+export function correctedIds(grades: Grade[]): Set<string> {
+  return new Set(grades.map((grade) => grade.corrects).filter((id): id is string => Boolean(id)));
+}
+
+/** Semester and year grades of a subject sensor. */
+export function finalGrades(state: HassEntity | undefined): FinalGrade[] {
+  const finals = state?.attributes.final_grades;
+  return Array.isArray(finals) ? (finals as FinalGrade[]) : [];
+}
+
 /**
  * Grades of one student (F1): a row per subject with the grades of the current
  * semester and, optionally, the subject average; the student's GPA under the
- * header. Averages can be coloured by three levels (lower bounds, D-116).
+ * header. Averages can be coloured by three levels (lower bounds, D-116). A click
+ * on a subject opens a pop-up with all its grades, averages and semester grades.
  */
 export class GradesCard extends LibrusCard<GradesCardConfig> {
+  static override properties = {
+    _selected: { state: true },
+  };
+
+  declare _selected?: Subject;
+
   static override styles = [
     cardStyles,
     listStyles,
@@ -94,12 +137,6 @@ export class GradesCard extends LibrusCard<GradesCardConfig> {
         font-size: var(--ha-font-size-l, 16px);
         font-weight: var(--ha-font-weight-bold, 700);
       }
-      .row {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 8px 16px;
-      }
       li.level {
         box-shadow: inset 4px 0 0 var(--librus-level-color);
         background: color-mix(in srgb, var(--librus-level-color) 10%, transparent);
@@ -111,6 +148,7 @@ export class GradesCard extends LibrusCard<GradesCardConfig> {
         margin-top: 4px;
       }
       .chip {
+        display: inline-block;
         min-width: 1.5em;
         padding: 0 6px;
         border: 1px solid var(--divider-color);
@@ -119,9 +157,67 @@ export class GradesCard extends LibrusCard<GradesCardConfig> {
         line-height: 20px;
         text-align: center;
       }
-      .chip.not-counted {
+      .chip.not-counted,
+      .chip.proposed {
         color: var(--secondary-text-color);
         border-style: dashed;
+      }
+      .chip.corrected {
+        color: var(--secondary-text-color);
+        text-decoration: line-through;
+      }
+      h3 {
+        margin: 16px 0 8px;
+        font-size: var(--ha-font-size-m, 14px);
+        font-weight: var(--ha-font-weight-medium, 500);
+      }
+      table.grades {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      table.grades th {
+        color: var(--secondary-text-color);
+        font-weight: var(--ha-font-weight-normal, 400);
+        text-align: start;
+      }
+      table.grades th,
+      table.grades td {
+        padding: 4px 8px 4px 0;
+        border-bottom: 1px solid var(--divider-color);
+        vertical-align: top;
+      }
+      .note {
+        display: block;
+        color: var(--secondary-text-color);
+        font-size: var(--ha-font-size-s, 12px);
+      }
+      tr.correction .note {
+        color: var(--primary-color);
+      }
+      /* Phones (the pop-up is full screen): one block per grade, labels in front. */
+      @media (max-width: 600px) {
+        table.grades thead {
+          display: none;
+        }
+        table.grades tr {
+          display: block;
+          padding: 8px 0;
+          border-bottom: 1px solid var(--divider-color);
+        }
+        table.grades td {
+          display: flex;
+          gap: 12px;
+          padding: 2px 0;
+          border: none;
+        }
+        table.grades td::before {
+          content: attr(data-label);
+          flex: 0 0 7.5em;
+          color: var(--secondary-text-color);
+        }
+        table.grades td.blank {
+          display: none;
+        }
       }
       .average {
         flex: none;
@@ -207,7 +303,12 @@ export class GradesCard extends LibrusCard<GradesCardConfig> {
     `;
   }
 
-  private _gradeTitle(grade: Grade): string {
+  private _open(subject: Subject): void {
+    this._selected = subject;
+    void this.updateComplete.then(() => this.renderRoot.querySelector<LibrusDialog>(DIALOG)?.show());
+  }
+
+  private _gradeTitle(grade: Grade, corrected = false): string {
     const parts = [grade.category, formatDate(this.hass, grade.date)];
     if (grade.weight) {
       parts.push(this.t("grades.weight_n", { n: grade.weight }));
@@ -215,7 +316,18 @@ export class GradesCard extends LibrusCard<GradesCardConfig> {
     if (!grade.counts) {
       parts.push(this.t("grades.not_counted"));
     }
+    if (corrected) {
+      parts.push(this.t("grades.corrected"));
+    }
     return parts.filter(Boolean).join(" · ");
+  }
+
+  private _chip(grade: Grade, corrected: boolean): TemplateResult {
+    return html`<span
+      class=${classMap({ chip: true, "not-counted": !grade.counts, corrected })}
+      title=${this._gradeTitle(grade, corrected)}
+      >${grade.grade}</span
+    >`;
   }
 
   protected renderRow(subject: Subject): TemplateResult {
@@ -223,27 +335,118 @@ export class GradesCard extends LibrusCard<GradesCardConfig> {
     const average = numericState(state);
     const color = this._level(average);
     const grades = currentGrades(state);
+    const corrected = correctedIds(grades);
     return html`
       <li class=${classMap({ level: Boolean(color) })} style=${styleMap({ "--librus-level-color": color })}>
-        <div class="row">
+        <button class="row" @click=${() => this._open(subject)}>
           <span class="text">
             <div class="title">${subject.name}</div>
             ${grades.length
-              ? html`<div class="chips">
-                  ${grades.map(
-                    (grade) =>
-                      html`<span class=${classMap({ chip: true, "not-counted": !grade.counts })} title=${this._gradeTitle(grade)}
-                        >${grade.grade}</span
-                      >`,
-                  )}
-                </div>`
+              ? html`<div class="chips">${grades.map((grade) => this._chip(grade, corrected.has(grade.id)))}</div>`
               : html`<div class="meta">${this.t("grades.no_grades")}</div>`}
           </span>
           ${this._config?.show_average === false
             ? nothing
             : html`<span class="average">${formatAverage(this.hass, average) || "–"}</span>`}
-        </div>
+        </button>
       </li>
+    `;
+  }
+
+  /** Averages of both semesters and the year, with their source. */
+  private _renderAverages(state: HassEntity): TemplateResult {
+    const averages = (state.attributes.averages ?? {}) as Record<string, number | null>;
+    const source = state.attributes.average_source;
+    return html`
+      <dl>
+        ${PERIODS.map(
+          (period) => html`<dt>${this.t(`grades.period_${period}`)}</dt>
+            <dd>${formatAverage(this.hass, averages[period]) || "–"}</dd>`,
+        )}
+        ${source === "librus" || source === "calculated"
+          ? html`<dt>${this.t("grades.source")}</dt>
+              <dd>${this.t(`grades.source_${source}`)}</dd>`
+          : nothing}
+      </dl>
+    `;
+  }
+
+  /** Table of the grades of one semester; corrections and corrected grades marked. */
+  private _renderTable(grades: Grade[]): TemplateResult {
+    if (!grades.length) {
+      return html`<div class="empty">${this.t("grades.no_grades")}</div>`;
+    }
+    const corrected = correctedIds(grades);
+    const byId = new Map(grades.map((grade) => [grade.id, grade]));
+    const label = (column: string): string => this.t(`grades.col_${column}`);
+    return html`
+      <table class="grades">
+        <thead>
+          <tr>
+            ${COLUMNS.map((column) => html`<th>${label(column)}</th>`)}
+          </tr>
+        </thead>
+        <tbody>
+          ${grades.map((grade) => {
+            const original = grade.corrects ? byId.get(grade.corrects) : undefined;
+            const isCorrected = corrected.has(grade.id);
+            let note: string | undefined;
+            if (grade.corrects) {
+              note = original
+                ? this.t("grades.correction_of", { grade: original.grade })
+                : this.t("grades.correction");
+            } else if (isCorrected) {
+              note = this.t("grades.corrected");
+            }
+            return html`<tr class=${classMap({ correction: Boolean(grade.corrects), corrected: isCorrected })}>
+              <td data-label=${label("grade")}>
+                <span>${this._chip(grade, isCorrected)} ${note ? html`<span class="note">${note}</span>` : nothing}</span>
+              </td>
+              <td data-label=${label("category")}>${grade.category}</td>
+              <td data-label=${label("weight")}>${grade.weight ?? "–"}</td>
+              <td data-label=${label("date")}>${formatDate(this.hass, grade.date)}</td>
+              <td data-label=${label("teacher")}>${grade.teacher}</td>
+              <td data-label=${label("counts")}>${this.t(grade.counts ? "common.yes" : "common.no")}</td>
+              <td data-label=${label("comment")} class=${grade.comment ? "" : "blank"}>${grade.comment}</td>
+            </tr>`;
+          })}
+        </tbody>
+      </table>
+    `;
+  }
+
+  /** Semester and year grades (final and proposed). */
+  private _renderFinals(finals: FinalGrade[]): TemplateResult | typeof nothing {
+    if (!finals.length) {
+      return nothing;
+    }
+    return html`
+      <h3>${this.t("grades.finals")}</h3>
+      <dl>
+        ${finals.map(
+          (final) => html`<dt>${this.t(`grades.period_${final.period}`)}</dt>
+            <dd>
+              <span class=${classMap({ chip: true, proposed: final.proposed })}>${final.grade}</span>
+              ${final.category} · ${formatDate(this.hass, final.date)}${final.teacher ? ` · ${final.teacher}` : ""}
+            </dd>`,
+        )}
+      </dl>
+    `;
+  }
+
+  /** Pop-up content: averages, the grades of both semesters, the semester and year grades. */
+  protected renderDetails(subject: Subject): TemplateResult {
+    const state = this.hass?.states[subject.entity_id];
+    if (!state) {
+      return html`<div class="empty">${this.t("grades.no_grades")}</div>`;
+    }
+    return html`
+      ${this._renderAverages(state)}
+      ${(["semester_1", "semester_2"] as const).map(
+        (period) => html`<h3>${this.t(`grades.period_${period}`)}</h3>
+          ${this._renderTable(gradesOf(state, period))}`,
+      )}
+      ${this._renderFinals(finalGrades(state))}
     `;
   }
 
@@ -267,6 +470,13 @@ export class GradesCard extends LibrusCard<GradesCardConfig> {
           ? html`<ul class="items">${shown.map((subject) => this.renderRow(subject))}</ul>`
           : html`<div class="empty">${this.t("grades.empty")}</div>`}
       </ha-card>
+      <librus-apix-dialog
+        .heading=${this._selected?.name ?? ""}
+        .closeLabel=${this.t("common.close")}
+        @closed=${() => (this._selected = undefined)}
+      >
+        ${this._selected ? this.renderDetails(this._selected) : nothing}
+      </librus-apix-dialog>
     `;
   }
 }

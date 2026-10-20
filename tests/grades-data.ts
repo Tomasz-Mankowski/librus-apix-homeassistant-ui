@@ -13,7 +13,16 @@ export const HEALTH = "sensor.zofia_testowa_edukacja_zdrowotna_oceny_opisowe";
 export const GPA = "sensor.zofia_testowa_srednia_ocen";
 export const PHYSICS = "sensor.kacper_probny_fizyka";
 
-function grade(id: string, value: string, category: string, date: string, weight = 1, counts = true) {
+function grade(
+  id: string,
+  value: string,
+  category: string,
+  date: string,
+  weight = 1,
+  counts = true,
+  corrects: string | null = null,
+  comment = "",
+) {
   const numeric = Number.parseFloat(value);
   return {
     id,
@@ -24,7 +33,8 @@ function grade(id: string, value: string, category: string, date: string, weight
     weight,
     counts,
     teacher: "Adam Rachunek",
-    comment: "",
+    comment,
+    corrects,
   };
 }
 
@@ -44,8 +54,8 @@ export function gradesStates(): Record<string, Partial<HassEntity>> {
             grade("1102", "3", "Odpowiedź ustna", "2026-09-17"),
             grade("1105", "np", "Nieprzygotowanie", "2026-10-05", 0, false),
             grade("1101", "5", "Kartkówka", "2026-09-10", 2),
-            grade("1103", "1", "Sprawdzian", "2026-09-20", 3),
-            grade("1104", "4", "Sprawdzian", "2026-09-30", 3),
+            grade("1103", "1", "Sprawdzian", "2026-09-20", 3, true, null, "Działania"),
+            grade("1104", "4", "Sprawdzian", "2026-09-30", 3, true, "1103"),
           ],
           semester_2: [],
         },
