@@ -617,6 +617,8 @@ var Ve = {
 			exclude: "Hidden subjects",
 			show_average: "Show subject averages",
 			show_gpa: "Show the GPA",
+			show_count: "Show the number of grades",
+			show_latest: "Show the latest grade",
 			level_bad: "Bad average from",
 			color_bad: "Colour: bad",
 			level_ok: "OK average from",
@@ -754,6 +756,8 @@ var Ve = {
 			exclude: "Ukryte przedmioty",
 			show_average: "Pokaż średnie przedmiotów",
 			show_gpa: "Pokaż średnią ucznia",
+			show_count: "Pokaż liczbę ocen",
+			show_latest: "Pokaż ostatnią ocenę",
 			level_bad: "Średnia słaba od",
 			color_bad: "Kolor: słaba",
 			level_ok: "Średnia dobra od",
@@ -2276,7 +2280,7 @@ var tn = class extends Jt {
 		return "mdi:text-box-outline";
 	}
 	renderRow(e) {
-		let t = $t(this.hass?.states[e.entity_id]), n = t[t.length - 1];
+		let t = $t(this.hass?.states[e.entity_id]), n = t[t.length - 1], r = this._config?.show_latest !== !1;
 		return E`
       <li>
         <button class="row" @click=${() => this.openSubject(e)}>
@@ -2285,11 +2289,11 @@ var tn = class extends Jt {
             ${t.length ? E`<div class="chips">
                   ${[...t].reverse().map((e) => E`<span class="chip" title=${e.content}>${e.grade}</span>`)}
                 </div>` : O}
-            ${n ? E`<div class="meta">
-                  ${this.t("descriptive.latest", { date: Y(this.hass, n.date) })} · ${n.content}
-                </div>` : E`<div class="meta">${this.t("descriptive.no_grades")}</div>`}
+            ${n ? r ? E`<div class="meta">
+                    ${this.t("descriptive.latest", { date: Y(this.hass, n.date) })} · ${n.content}
+                  </div>` : O : E`<div class="meta">${this.t("descriptive.no_grades")}</div>`}
           </span>
-          <span class="count" title=${this.t("descriptive.count")}>${t.length}</span>
+          ${this._config?.show_count === !1 ? O : E`<span class="count" title=${this.t("descriptive.count")}>${t.length}</span>`}
         </button>
       </li>
     `;
@@ -2332,10 +2336,26 @@ var tn = class extends Jt {
 	}
 }, nn = class extends G {
 	get schema() {
-		return [...nt(this.hass, this._config, Je), X(this.hass, "descriptive", Zt, "popup")];
+		return [
+			...nt(this.hass, this._config, Je),
+			{
+				name: "",
+				type: "grid",
+				schema: [{
+					name: "show_count",
+					selector: { boolean: {} }
+				}, {
+					name: "show_latest",
+					selector: { boolean: {} }
+				}]
+			},
+			X(this.hass, "descriptive", Zt, "popup")
+		];
 	}
 	setConfig(e) {
 		super.setConfig({
+			show_count: !0,
+			show_latest: !0,
 			popup_fields: [...Zt],
 			...e
 		});

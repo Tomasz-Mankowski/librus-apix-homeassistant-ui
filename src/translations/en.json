@@ -26,6 +26,8 @@
     "exclude": "Hidden subjects",
     "show_average": "Show subject averages",
     "show_gpa": "Show the GPA",
+    "show_count": "Show the number of grades",
+    "show_latest": "Show the latest grade",
     "level_bad": "Bad average from",
     "color_bad": "Colour: bad",
     "level_ok": "OK average from",

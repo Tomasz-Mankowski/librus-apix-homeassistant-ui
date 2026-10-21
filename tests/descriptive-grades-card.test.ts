@@ -59,6 +59,30 @@ describe("descriptive grades card", () => {
     expect(text(health.querySelector(".count"))).toBe("2");
   });
 
+  it("hides the count and the latest grade when switched off", async () => {
+    const noCount = rows(await card({ show_count: false }))[0];
+    expect(noCount.querySelector(".count")).toBeNull();
+    expect(text(noCount.querySelector(".meta"))).toBe("ostatnia 16.10.2026 · Wyróżniająca prezentacja. Brawo!");
+
+    const noLatest = rows(await card({ show_latest: false }))[0];
+    expect(noLatest.querySelector(".meta")).toBeNull();
+    expect(text(noLatest.querySelector(".count"))).toBe("2");
+
+    const bare = rows(await card({ show_count: false, show_latest: false }))[0];
+    expect(text(bare.querySelector(".title"))).toBe("Edukacja zdrowotna");
+    expect([...bare.querySelectorAll(".chip")].map(text)).toEqual(["WY", "OP"]);
+    expect(bare.querySelector(".meta")).toBeNull();
+    expect(bare.querySelector(".count")).toBeNull();
+    expect([...bare.querySelector(".text")!.children].map((child) => child.className)).toEqual(["title", "chips"]);
+  });
+
+  it("shows the count and the latest grade when switched on explicitly", async () => {
+    const health = rows(await card({ show_count: true, show_latest: true }))[0];
+
+    expect(text(health.querySelector(".meta"))).toBe("ostatnia 16.10.2026 · Wyróżniająca prezentacja. Brawo!");
+    expect(text(health.querySelector(".count"))).toBe("2");
+  });
+
   it("hides excluded subjects", async () => {
     const el = await card({ exclude: ["Edukacja zdrowotna"] });
 
@@ -106,6 +130,14 @@ describe("descriptive grades card", () => {
     expect(text(rows(el)[0].querySelector(".meta"))).toBe("Brak ocen opisowych");
     const dialog = await open(el, 0);
     expect(text(dialog.querySelector(".empty"))).toBe("Brak ocen opisowych");
+
+    // The empty text is not the latest grade: it stays without the latest-grade line.
+    const noLatest = await card(
+      { show_latest: false },
+      gradesHass("pl", { ...states, [HEALTH]: { state: "0", attributes: { subject: "Edukacja zdrowotna", grades: {} } } }),
+    );
+    expect(text(rows(noLatest)[0].querySelector(".meta"))).toBe("Brak ocen opisowych");
+    expect(text(rows(noLatest)[0].querySelector(".count"))).toBe("0");
   });
 
   it("uses English texts", async () => {
@@ -155,23 +187,35 @@ describe("descriptive grades card", () => {
 type Editor = HTMLElement & { updateComplete: Promise<unknown>; hass: unknown; setConfig(c: object): void };
 
 describe("descriptive grades card editor", () => {
-  async function editor(config: Partial<DescriptiveGradesCardConfig> = {}): Promise<Editor> {
+  async function editor(config: Partial<DescriptiveGradesCardConfig> = {}, language = "pl"): Promise<Editor> {
     return mount<Editor>(DESCRIPTIVE_EDITOR, (el) => {
-      el.hass = gradesHass();
+      el.hass = gradesHass(language);
       el.setConfig({ type: `custom:${DESCRIPTIVE_CARD}`, device: ZOFIA, ...config });
     });
   }
 
   function form(el: Editor) {
-    return el.shadowRoot!.querySelector("ha-form") as HTMLElement & { data: object; schema: FormField[] };
+    return el.shadowRoot!.querySelector("ha-form") as HTMLElement & {
+      data: object;
+      schema: FormField[];
+      computeLabel(field: FormField): string;
+    };
   }
 
   it("offers device, header fields and the student's descriptive subjects", async () => {
     const f = form(await editor());
 
     const names = f.schema.flatMap((field) => (field.schema ? field.schema.map((s) => s.name) : [field.name]));
-    expect(names).toEqual(["device", "title", "icon", "icon_color", "exclude", "popup_fields"]);
-    expect(f.data).toMatchObject({ popup_fields: ["date", "teacher", "semester", "details", "content"] });
+    expect(names).toEqual(["device", "title", "icon", "icon_color", "exclude", "show_count", "show_latest", "popup_fields"]);
+    expect(f.data).toMatchObject({
+      show_count: true,
+      show_latest: true,
+      popup_fields: ["date", "teacher", "semester", "details", "content"],
+    });
+    const switches = f.schema.flatMap((field) => field.schema ?? []).filter((s) => s.name.startsWith("show_"));
+    expect(switches.map((s) => s.selector)).toEqual([{ boolean: {} }, { boolean: {} }]);
+    expect(f.computeLabel({ name: "show_count" })).toBe("Pokaż liczbę ocen");
+    expect(f.computeLabel({ name: "show_latest" })).toBe("Pokaż ostatnią ocenę");
     const popup = f.schema.find((field) => field.name === "popup_fields")!.selector!.select as {
       options: { label: string }[];
     };
@@ -186,6 +230,29 @@ describe("descriptive grades card editor", () => {
     expect(exclude.options.map((o) => o.value)).toEqual(["Edukacja zdrowotna", "Język polski"]);
   });
 
+  it("keeps switches that are off and has English labels", async () => {
+    const f = form(await editor({ show_count: false, show_latest: false }, "en"));
+
+    expect(f.data).toMatchObject({ show_count: false, show_latest: false });
+    expect(f.computeLabel({ name: "show_count" })).toBe("Show the number of grades");
+    expect(f.computeLabel({ name: "show_latest" })).toBe("Show the latest grade");
+  });
+
+  it("sends a change of each switch", async () => {
+    const el = await editor();
+    const changes: DescriptiveGradesCardConfig[] = [];
+    el.addEventListener("config-changed", (e) => changes.push((e as CustomEvent).detail.config));
+
+    form(el).dispatchEvent(new CustomEvent("value-changed", { detail: { value: { ...form(el).data, show_count: false } } }));
+    await el.updateComplete;
+    form(el).dispatchEvent(new CustomEvent("value-changed", { detail: { value: { ...form(el).data, show_latest: false } } }));
+
+    expect(changes.map((c) => [c.show_count, c.show_latest])).toEqual([
+      [false, true],
+      [false, false],
+    ]);
+  });
+
   it("sets every option", async () => {
     const el = await editor();
     const changes: DescriptiveGradesCardConfig[] = [];
@@ -197,6 +264,8 @@ describe("descriptive grades card editor", () => {
       icon: "mdi:star",
       icon_color: "teal",
       exclude: ["Język polski"],
+      show_count: false,
+      show_latest: false,
       popup_fields: ["date", "content"],
     };
 

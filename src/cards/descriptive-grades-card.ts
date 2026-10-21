@@ -16,6 +16,10 @@ export const DESCRIPTIVE_POPUP_FIELDS = ["date", "teacher", "semester", "details
 export type DescriptivePopupField = (typeof DESCRIPTIVE_POPUP_FIELDS)[number];
 
 export interface DescriptiveGradesCardConfig extends StudentCardConfig {
+  /** Count of grades on the right of each row; default on. */
+  show_count?: boolean;
+  /** Line with the latest grade under the grade codes; default on. */
+  show_latest?: boolean;
   /** Elements of the pop-up; default: all. */
   popup_fields?: DescriptivePopupField[];
 }
@@ -126,6 +130,7 @@ export class DescriptiveGradesCard extends StudentCard<DescriptiveGradesCardConf
   protected renderRow(subject: Subject): TemplateResult {
     const grades = descriptiveGrades(this.hass?.states[subject.entity_id]);
     const latest = grades[grades.length - 1];
+    const showLatest = this._config?.show_latest !== false;
     return html`
       <li>
         <button class="row" @click=${() => this.openSubject(subject)}>
@@ -136,13 +141,17 @@ export class DescriptiveGradesCard extends StudentCard<DescriptiveGradesCardConf
                   ${[...grades].reverse().map((grade) => html`<span class="chip" title=${grade.content}>${grade.grade}</span>`)}
                 </div>`
               : nothing}
-            ${latest
-              ? html`<div class="meta">
-                  ${this.t("descriptive.latest", { date: formatDate(this.hass, latest.date) })} · ${latest.content}
-                </div>`
-              : html`<div class="meta">${this.t("descriptive.no_grades")}</div>`}
+            ${!latest
+              ? html`<div class="meta">${this.t("descriptive.no_grades")}</div>`
+              : showLatest
+                ? html`<div class="meta">
+                    ${this.t("descriptive.latest", { date: formatDate(this.hass, latest.date) })} · ${latest.content}
+                  </div>`
+                : nothing}
           </span>
-          <span class="count" title=${this.t("descriptive.count")}>${grades.length}</span>
+          ${this._config?.show_count === false
+            ? nothing
+            : html`<span class="count" title=${this.t("descriptive.count")}>${grades.length}</span>`}
         </button>
       </li>
     `;
@@ -203,12 +212,20 @@ export class DescriptiveGradesCardEditor extends LibrusCardEditor<DescriptiveGra
   protected get schema(): FormField[] {
     return [
       ...studentFields(this.hass, this._config, SUBJECT_DESCRIPTIVE),
+      {
+        name: "",
+        type: "grid",
+        schema: [
+          { name: "show_count", selector: { boolean: {} } },
+          { name: "show_latest", selector: { boolean: {} } },
+        ],
+      },
       fieldsField(this.hass, "descriptive", DESCRIPTIVE_POPUP_FIELDS, "popup"),
     ];
   }
 
   override setConfig(config: DescriptiveGradesCardConfig): void {
     // Show the defaults in the form (the first change writes them into the config).
-    super.setConfig({ popup_fields: [...DESCRIPTIVE_POPUP_FIELDS], ...config });
+    super.setConfig({ show_count: true, show_latest: true, popup_fields: [...DESCRIPTIVE_POPUP_FIELDS], ...config });
   }
 }

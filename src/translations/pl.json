@@ -26,6 +26,8 @@
     "exclude": "Ukryte przedmioty",
     "show_average": "Pokaż średnie przedmiotów",
     "show_gpa": "Pokaż średnią ucznia",
+    "show_count": "Pokaż liczbę ocen",
+    "show_latest": "Pokaż ostatnią ocenę",
     "level_bad": "Średnia słaba od",
     "color_bad": "Kolor: słaba",
     "level_ok": "Średnia dobra od",
