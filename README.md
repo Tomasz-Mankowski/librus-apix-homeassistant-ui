@@ -161,17 +161,20 @@ popup_fields:
 
 ## Oceny opisowe — `custom:librus-descriptive-grades-card`
 
-Oceny opisowe jednego ucznia: wiersz na przedmiot z kodami ocen, ostatnią oceną i liczbą ocen. Kliknięcie przedmiotu otwiera okno z pełną treścią każdej oceny, od najnowszej.
+Oceny opisowe jednego ucznia: wiersz na przedmiot z kodami ocen, ostatnią oceną i liczbą ocen. Liczbę ocen i ostatnią ocenę można ukryć; kody ocen są zawsze. Kliknięcie przedmiotu otwiera okno z pełną treścią każdej oceny, od najnowszej.
 
 | Opcja | Opis | Domyślnie |
 |---|---|---|
 | `device` | uczeń: urządzenie integracji HALibrus (wybierz w edytorze) | — |
 | `exclude` | przedmioty do ukrycia | żadne |
+| `show_count` | liczba ocen po prawej stronie wiersza | `true` |
+| `show_latest` | linia z ostatnią oceną pod kodami ocen, np. „ostatnia 16.10.2026 · Wyróżniająca prezentacja.” | `true` |
 | `popup_fields` | co pokazać w oknie: `date`, `teacher`, `semester`, `details` (inne pola z Librusa, np. obszar), `content` (treść oceny); kod oceny jest zawsze | wszystkie |
 
 ```yaml
 type: custom:librus-descriptive-grades-card
 device: 0123456789abcdef0123456789abcdef  # wybierz ucznia w edytorze
+show_count: false
 popup_fields:
   - date
   - content

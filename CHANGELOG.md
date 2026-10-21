@@ -3,6 +3,13 @@
 All notable changes of the `librus-apix-homeassistant-ui` dashboard cards.
 Versions follow [Semantic Versioning](https://semver.org/).
 
+## 1.1.1 — 2026-10-21
+
+- `custom:librus-descriptive-grades-card`: option `show_count` shows or hides the count of grades on
+  the right of each row; option `show_latest` shows or hides the line with the latest grade under
+  the grade codes. Both are `true` by default and have a switch in the card editor, so dashboards
+  made with 1.1.0 keep their look.
+
 ## 1.1.0 — 2026-10-21
 
 The cards are now called **HALibrus Cards**. The card types (`custom:librus-*`) stay.
