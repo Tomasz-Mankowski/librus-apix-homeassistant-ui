@@ -1,5 +1,6 @@
 // Schedule event types (F6): each school names its own; preset groups collect the
-// usual Librus names. A filter is a list of groups ("group:tests") and types.
+// usual Librus names. A filter list holds groups ("group:tests") and types; the card
+// has two of them, a whitelist (`types`) and a blacklist (`exclude_types`).
 
 import type { ScheduleEvent } from "./schedule";
 
@@ -42,7 +43,7 @@ export function typesIn(events: ScheduleEvent[]): string[] {
   return [...seen.values()].sort((a, b) => a.localeCompare(b, "pl"));
 }
 
-/** Normalized type names a filter selects (groups expanded). */
+/** Normalized type names a filter list selects (groups expanded; an unknown group adds none). */
 function selectedTypes(filter: string[]): Set<string> {
   const types = new Set<string>();
   for (const item of filter) {
@@ -56,11 +57,23 @@ function selectedTypes(filter: string[]): Set<string> {
   return types;
 }
 
-/** Events whose type the filter selects; an empty or missing filter keeps all. */
-export function filterByType(events: ScheduleEvent[], filter: string[] | undefined): ScheduleEvent[] {
-  if (!filter?.length) {
+/**
+ * Events that pass both lists (D-141): the whitelist first (an empty or missing list
+ * keeps all), then the blacklist removes from the result, so it wins on overlap.
+ * The order of the events is kept.
+ */
+export function filterByType(
+  events: ScheduleEvent[],
+  include: string[] | undefined,
+  exclude?: string[],
+): ScheduleEvent[] {
+  const wanted = include?.length ? selectedTypes(include) : undefined;
+  const unwanted = exclude?.length ? selectedTypes(exclude) : undefined;
+  if (!wanted && !unwanted) {
     return events;
   }
-  const types = selectedTypes(filter);
-  return events.filter((event) => types.has(normalize(eventType(event))));
+  return events.filter((event) => {
+    const type = normalize(eventType(event));
+    return (!wanted || wanted.has(type)) && !unwanted?.has(type);
+  });
 }

@@ -93,6 +93,68 @@ describe("event types", () => {
   });
 });
 
+describe("type blacklist", () => {
+  // EVENTS: Sprawdzian, Wycieczka, Zebranie z rodzicami, kartkówka, Apel; plus a "Test" (also of group:tests).
+  const PLAIN_TEST = toScheduleEvent({
+    ...TEST,
+    summary: "Test: Biologia",
+    uid: "szczegoly/3014",
+    description: description({ id: "szczegoly/3014", type: "Test", subject: "Biologia" }),
+  });
+  const ALL = [...EVENTS, PLAIN_TEST];
+
+  it("keeps every event when the blacklist is missing or empty", () => {
+    expect(filterByType(EVENTS, undefined, undefined)).toBe(EVENTS);
+    expect(filterByType(EVENTS, [], [])).toBe(EVENTS);
+    expect(filterByType(EVENTS, undefined, [])).toBe(EVENTS);
+    // The whitelist alone behaves as before.
+    expect(summaries(filterByType(EVENTS, ["group:tests"], []))).toEqual(summaries(filterByType(EVENTS, ["group:tests"])));
+  });
+
+  it("removes the events of a preset group, keeping the order of the others", () => {
+    expect(summaries(filterByType(ALL, undefined, ["group:tests"]))).toEqual([
+      "Wycieczka: Muzeum Techniki",
+      "Zebranie z rodzicami",
+      "Apel: Święto szkoły",
+    ]);
+  });
+
+  it("removes types by name, ignoring case and spaces", () => {
+    expect(summaries(filterByType(EVENTS, undefined, ["KARTKÓWKA", "  apel "]))).toEqual([
+      "Sprawdzian: Matematyka",
+      "Wycieczka: Muzeum Techniki",
+      "Zebranie z rodzicami",
+    ]);
+  });
+
+  it("applies the whitelist first, then removes the blacklist from the result", () => {
+    // All tests except "Test".
+    expect(summaries(filterByType(ALL, ["group:tests"], ["Test"]))).toEqual([
+      "Sprawdzian: Matematyka",
+      "kartkówka: Przyroda",
+    ]);
+    // Several groups in, one type out.
+    expect(summaries(filterByType(ALL, ["group:tests", "group:trips"], ["Sprawdzian"]))).toEqual([
+      "Wycieczka: Muzeum Techniki",
+      "kartkówka: Przyroda",
+      "Test: Biologia",
+    ]);
+  });
+
+  it("hides a type that is in both lists", () => {
+    expect(summaries(filterByType(EVENTS, ["Wycieczka", "Sprawdzian"], ["sprawdzian"]))).toEqual([
+      "Wycieczka: Muzeum Techniki",
+    ]);
+    expect(filterByType(ALL, ["group:tests"], ["group:tests"])).toEqual([]);
+  });
+
+  it("an unknown group removes nothing from the blacklist but still selects nothing in the whitelist", () => {
+    expect(filterByType(EVENTS, undefined, ["group:unknown"])).toHaveLength(5);
+    expect(filterByType(EVENTS, ["group:unknown"], [])).toEqual([]);
+    expect(summaries(filterByType(EVENTS, ["Apel"], ["group:unknown"]))).toEqual(["Apel: Święto szkoły"]);
+  });
+});
+
 describe("schedule card type filter", () => {
   beforeEach(() => {
     vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
