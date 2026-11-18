@@ -43,7 +43,7 @@ Kolory (`icon_color`, `unread_color`, `color_bad`, `color_ok`, `color_excellent`
 
 ## Terminarz — `custom:librus-schedule-card`
 
-Najbliższe wydarzenia z kalendarza ucznia. Najbliższe jest wyróżnione. Kliknięcie otwiera okno ze wszystkimi szczegółami.
+Najbliższe wydarzenia z kalendarza ucznia. Najbliższe jest wyróżnione. Kliknięcie otwiera okno ze wszystkimi szczegółami. Rodzaje wydarzeń możesz wybrać (`types`) albo wykluczyć (`exclude_types`).
 
 | Opcja | Opis | Domyślnie |
 |---|---|---|
@@ -51,10 +51,11 @@ Najbliższe wydarzenia z kalendarza ucznia. Najbliższe jest wyróżnione. Klikn
 | `days` | ile dni do przodu pokazać (1–200) | `14` |
 | `fields` | co pokazać pod tytułem: `date` (data z lewej), `time` (godziny i numer lekcji), `description` (opis), `teacher` (nauczyciel) | `[date, time, description]` |
 | `types` | tylko wybrane rodzaje wydarzeń (lista grup i nazw, patrz niżej); puste: wszystkie | wszystkie |
+| `exclude_types` | wykluczone rodzaje wydarzeń (lista grup i nazw, jak w `types`); puste: żadne | żadne |
 | `highlight_next` | wyróżnienie najbliższego wydarzenia (pasek i tło) | `true` |
 | `show_next_label` | etykieta „Najbliższe” przy najbliższym wydarzeniu | `true` |
 
-Grupy rodzajów dla `types`:
+Grupy rodzajów dla `types` i `exclude_types`:
 
 | Grupa | Rodzaje |
 |---|---|
@@ -67,6 +68,14 @@ Grupy rodzajów dla `types`:
 
 Każda szkoła może mieć własne rodzaje. Edytor pokazuje grupy i rodzaje znalezione w terminarzu ucznia; inny rodzaj możesz wpisać ręcznie.
 
+Obie listy działają razem: najpierw `types` wybiera wydarzenia (pusta lista: wszystkie), potem `exclude_types` usuwa z wyniku wydarzenia wskazanych rodzajów. Rodzaj z obu list jest ukryty. Wielkość liter i spacje w nazwach rodzajów nie mają znaczenia.
+
+| Chcesz zobaczyć | `types` | `exclude_types` |
+|---|---|---|
+| tylko sprawdziany | `group:tests` | — |
+| wszystko oprócz sprawdzianów | — | `group:tests` |
+| sprawdziany bez kartkówek | `group:tests` | `Kartkówka` |
+
 ```yaml
 type: custom:librus-schedule-card
 entity: calendar.zofia_testowa_terminarz
@@ -76,6 +85,19 @@ icon_color: deep-orange
 days: 30
 types:
   - group:tests
+```
+
+Sprawdziany bez kartkówek:
+
+```yaml
+type: custom:librus-schedule-card
+entity: calendar.zofia_testowa_terminarz
+title: Sprawdziany bez kartkówek
+days: 30
+types:
+  - group:tests
+exclude_types:
+  - Kartkówka
 ```
 
 Karta w ciemnym motywie:

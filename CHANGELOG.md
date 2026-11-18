@@ -3,6 +3,18 @@
 All notable changes of the `librus-apix-homeassistant-ui` dashboard cards.
 Versions follow [Semantic Versioning](https://semver.org/).
 
+## 1.1.2 — 2026-11-18
+
+- `custom:librus-schedule-card`: new option `exclude_types` hides the events of the listed types
+  (preset groups such as `group:tests` and type names, the same format as `types`). It is applied
+  after `types`, so a type in both lists is hidden: `types: [group:tests]` with
+  `exclude_types: [Kartkówka]` shows the tests except the quizzes. The card editor has a field for
+  it. Dashboards made with 1.1.1 keep their look.
+- The text shown when the type filters leave no event now reads "Brak wydarzeń spełniających filtr
+  rodzajów w ciągu najbliższych N dni" ("No events match the type filter in the next N days"),
+  because it also covers the blacklist.
+- The card editor no longer writes an empty `types` list into the configuration.
+
 ## 1.1.1 — 2026-10-21
 
 - `custom:librus-descriptive-grades-card`: option `show_count` shows or hides the count of grades on
