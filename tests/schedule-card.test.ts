@@ -237,10 +237,14 @@ describe("schedule card editor", () => {
       "days",
       "fields",
       "types",
+      "exclude_types",
       "highlight_next",
       "show_next_label",
     ]);
     expect(form.data).toMatchObject({ highlight_next: true, show_next_label: true });
+    // Both type lists start empty and are not written until the user fills them.
+    expect(form.data).not.toHaveProperty("types");
+    expect(form.data).not.toHaveProperty("exclude_types");
     expect(form.schema[0].selector).toEqual({ entity: { filter: [{ domain: "calendar", integration: "librus_apix" }] } });
     expect(form.computeLabel({ name: "days" })).toBe("Liczba dni do przodu");
   });

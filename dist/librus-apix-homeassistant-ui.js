@@ -608,6 +608,7 @@ var Ve = {
 			fields: "Shown on the list",
 			days: "Days ahead",
 			types: "Event types (empty: all)",
+			exclude_types: "Excluded event types (empty: none)",
 			icon_color: "Icon colour",
 			unread_color: "Colour of unread messages",
 			highlight_unread: "Highlight unread messages",
@@ -672,7 +673,7 @@ var Ve = {
 			field_time: "Time and lesson",
 			field_description: "Description",
 			field_teacher: "Teacher",
-			empty_filtered: "No events of the selected types in the next {days} days",
+			empty_filtered: "No events match the type filter in the next {days} days",
 			group_tests: "Tests",
 			group_trips: "Trips",
 			group_meetings: "Meetings",
@@ -747,6 +748,7 @@ var Ve = {
 			fields: "Pokazywane na liście",
 			days: "Liczba dni do przodu",
 			types: "Rodzaje wydarzeń (puste: wszystkie)",
+			exclude_types: "Wykluczone rodzaje wydarzeń (puste: żadne)",
 			icon_color: "Kolor ikony",
 			unread_color: "Kolor nieprzeczytanych wiadomości",
 			highlight_unread: "Wyróżnij nieprzeczytane wiadomości",
@@ -811,7 +813,7 @@ var Ve = {
 			field_time: "Godzina i lekcja",
 			field_description: "Opis",
 			field_teacher: "Nauczyciel",
-			empty_filtered: "Brak wydarzeń wybranych rodzajów w ciągu najbliższych {days} dni",
+			empty_filtered: "Brak wydarzeń spełniających filtr rodzajów w ciągu najbliższych {days} dni",
 			group_tests: "Sprawdziany",
 			group_trips: "Wycieczki",
 			group_meetings: "Zebrania",
@@ -1182,14 +1184,20 @@ var G = class extends F {
 		hass: { attribute: !1 },
 		_config: { state: !0 }
 	};
+	get dropWhenEmpty() {
+		return [];
+	}
 	setConfig(e) {
 		this._config = e;
 	}
 	_label = (e) => e.name ? z(this.hass, `editor.${e.name}`) : "";
 	_valueChanged(e) {
 		e.stopPropagation();
-		let t = { ...e.detail.value };
-		for (let [e, n] of Object.entries(t)) (n === "" || n == null) && delete t[e];
+		let t = { ...e.detail.value }, n = this.dropWhenEmpty;
+		for (let [e, r] of Object.entries(t)) {
+			let i = Array.isArray(r) && r.length === 0 && n.includes(e);
+			(r === "" || r == null || i) && delete t[e];
+		}
 		this._config = t, this.dispatchEvent(new CustomEvent("config-changed", {
 			detail: { config: t },
 			bubbles: !0,
@@ -1812,10 +1820,12 @@ function jt(e) {
 	for (let n of e) n.startsWith("group:") ? Dt.find((e) => e.id === n.slice(6))?.types.forEach((e) => t.add(Q(e))) : t.add(Q(n));
 	return t;
 }
-function Mt(e, t) {
-	if (!t?.length) return e;
-	let n = jt(t);
-	return e.filter((e) => n.has(Q(kt(e))));
+function Mt(e, t, n) {
+	let r = t?.length ? jt(t) : void 0, i = n?.length ? jt(n) : void 0;
+	return !r && !i ? e : e.filter((e) => {
+		let t = Q(kt(e));
+		return (!r || r.has(t)) && !i?.has(t);
+	});
 }
 //#endregion
 //#region src/common/schedule.ts
@@ -1974,7 +1984,7 @@ var Gt = class extends V {
 		}), this._fetching;
 	}
 	get _shown() {
-		return this._events && Mt(this._events, this._config?.types);
+		return this._events && Mt(this._events, this._config?.types, this._config?.exclude_types);
 	}
 	getCardSize() {
 		return 1 + Math.max(1, this._shown?.length ?? 1);
@@ -2073,18 +2083,22 @@ var Gt = class extends V {
 			}).catch(() => void 0);
 		}
 	}
+	get dropWhenEmpty() {
+		return ["types", "exclude_types"];
+	}
 	_typeOptions() {
 		let e = Dt.map((e) => ({
 			value: `${Ot}${e.id}`,
 			label: `${z(this.hass, `schedule.group_${e.id}`)} (${e.types.join(", ")})`
 		})), t = [...this._found ?? []];
-		for (let e of this._config?.types ?? []) !e.startsWith("group:") && !t.includes(e) && t.push(e);
+		for (let e of [...this._config?.types ?? [], ...this._config?.exclude_types ?? []]) !e.startsWith("group:") && !t.includes(e) && t.push(e);
 		return [...e, ...t.map((e) => ({
 			value: e,
 			label: e
 		}))];
 	}
 	get schema() {
+		let e = this._typeOptions();
 		return [
 			...K("calendar"),
 			{
@@ -2102,7 +2116,15 @@ var Gt = class extends V {
 				selector: { select: {
 					multiple: !0,
 					custom_value: !0,
-					options: this._typeOptions()
+					options: e
+				} }
+			},
+			{
+				name: "exclude_types",
+				selector: { select: {
+					multiple: !0,
+					custom_value: !0,
+					options: e
 				} }
 			},
 			{

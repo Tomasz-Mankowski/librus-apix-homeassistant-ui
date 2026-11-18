@@ -30,8 +30,10 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 export interface ScheduleCardConfig extends BaseCardConfig {
   days?: number;
   fields?: ScheduleField[];
-  /** Event types to show: preset groups ("group:tests") and type names; empty = all. */
+  /** Event types to show (whitelist): preset groups ("group:tests") and type names; empty = all. */
   types?: string[];
+  /** Event types to hide (blacklist), same format; applied after `types`, so it wins (D-141). */
+  exclude_types?: string[];
   /** Highlight the nearest event (bar and tint); default: on. */
   highlight_next?: boolean;
   /** Show the "Next" label on the nearest event; default: on. */
@@ -194,9 +196,9 @@ export class ScheduleCard extends LibrusCard<ScheduleCardConfig> {
     return this._fetching;
   }
 
-  /** Events of the timeframe that the type filter selects (undefined while loading). */
+  /** Events of the timeframe that pass the type lists (undefined while loading). */
   private get _shown(): ScheduleEvent[] | undefined {
-    return this._events && filterByType(this._events, this._config?.types);
+    return this._events && filterByType(this._events, this._config?.types, this._config?.exclude_types);
   }
 
   override getCardSize(): number {
@@ -338,14 +340,18 @@ export class ScheduleCardEditor extends LibrusCardEditor<ScheduleCardConfig> {
     }
   }
 
-  /** Options of the type filter: groups first, then the types in the data and the config. */
+  protected override get dropWhenEmpty(): readonly string[] {
+    return ["types", "exclude_types"];
+  }
+
+  /** Options of both type lists: groups first, then the types in the data and in either list. */
   private _typeOptions(): { value: string; label: string }[] {
     const groups = TYPE_GROUPS.map((group) => ({
       value: `${GROUP_PREFIX}${group.id}`,
       label: `${localize(this.hass, `schedule.group_${group.id}`)} (${group.types.join(", ")})`,
     }));
     const types = [...(this._found ?? [])];
-    for (const item of this._config?.types ?? []) {
+    for (const item of [...(this._config?.types ?? []), ...(this._config?.exclude_types ?? [])]) {
       if (!item.startsWith(GROUP_PREFIX) && !types.includes(item)) {
         types.push(item);
       }
@@ -354,14 +360,13 @@ export class ScheduleCardEditor extends LibrusCardEditor<ScheduleCardConfig> {
   }
 
   protected get schema(): FormField[] {
+    const options = this._typeOptions();
     return [
       ...baseFields("calendar"),
       { name: "days", selector: { number: { min: 1, max: MAX_DAYS, mode: "box", unit_of_measurement: "d" } } },
       fieldsField(this.hass, "schedule", SCHEDULE_FIELDS),
-      {
-        name: "types",
-        selector: { select: { multiple: true, custom_value: true, options: this._typeOptions() } },
-      },
+      { name: "types", selector: { select: { multiple: true, custom_value: true, options } } },
+      { name: "exclude_types", selector: { select: { multiple: true, custom_value: true, options } } },
       {
         name: "",
         type: "grid",

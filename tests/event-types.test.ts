@@ -4,6 +4,7 @@ import "../src/index";
 import { SCHEDULE_CARD, SCHEDULE_EDITOR, type ScheduleCard, type ScheduleCardConfig } from "../src/cards/schedule-card";
 import type { FormField } from "../src/common/editor";
 import { TYPE_GROUPS, eventType, filterByType, typesIn } from "../src/common/event-types";
+import { localize } from "../src/common/localize";
 import { toScheduleEvent, type CalendarApiEvent } from "../src/common/schedule";
 import type { HomeAssistant } from "../src/types";
 import { mockHass, mount } from "./helpers";
@@ -165,8 +166,8 @@ describe("schedule card type filter", () => {
     vi.useRealTimers();
   });
 
-  function hassWith(events: CalendarApiEvent[]): HomeAssistant {
-    const hass = mockHass({ [ENTITY]: { state: "off" } }, "pl");
+  function hassWith(events: CalendarApiEvent[], language = "pl"): HomeAssistant {
+    const hass = mockHass({ [ENTITY]: { state: "off" } }, language);
     hass.callApi = vi.fn(async () => events) as unknown as HomeAssistant["callApi"];
     return hass;
   }
@@ -178,13 +179,20 @@ describe("schedule card type filter", () => {
     }
   }
 
-  async function card(types: string[]): Promise<ScheduleCard> {
+  async function cardWith(config: Partial<ScheduleCardConfig>, language = "pl"): Promise<ScheduleCard> {
     const el = await mount<ScheduleCard>(SCHEDULE_CARD, (c) => {
-      c.setConfig({ type: `custom:${SCHEDULE_CARD}`, entity: ENTITY, types });
-      c.hass = hassWith([TEST, TRIP, MEETING, QUIZ, PLAIN]);
+      c.setConfig({ type: `custom:${SCHEDULE_CARD}`, entity: ENTITY, ...config });
+      c.hass = hassWith([TEST, TRIP, MEETING, QUIZ, PLAIN], language);
     });
     await settle(el);
     return el;
+  }
+
+  const card = (types: string[]): Promise<ScheduleCard> => cardWith({ types });
+
+  /** Titles of the rows, in order. */
+  function titles(el: ScheduleCard): (string | null)[] {
+    return [...el.shadowRoot!.querySelectorAll("ul.items > li")].map((r) => r.querySelector(".title")!.textContent);
   }
 
   it("lists only the selected types; the nearest of them is highlighted", async () => {
@@ -201,7 +209,50 @@ describe("schedule card type filter", () => {
   it("says so when the filter leaves nothing", async () => {
     const el = await card(["Olimpiada"]);
     expect(el.shadowRoot!.querySelector(".empty")!.textContent).toBe(
-      "Brak wydarzeń wybranych rodzajów w ciągu najbliższych 14 dni",
+      "Brak wydarzeń spełniających filtr rodzajów w ciągu najbliższych 14 dni",
+    );
+  });
+
+  it("lists every event for a config without exclude_types, as in 1.1.1", async () => {
+    const el = await cardWith({});
+
+    // By start; the meeting and the assembly start together, then by title.
+    expect(titles(el)).toEqual([
+      "Sprawdzian: Matematyka",
+      "kartkówka: Przyroda",
+      "Wycieczka: Muzeum Techniki",
+      "Apel: Święto szkoły",
+      "Zebranie z rodzicami",
+    ]);
+    expect((await cardWith({ exclude_types: [] })).shadowRoot!.querySelectorAll("ul.items > li")).toHaveLength(5);
+  });
+
+  it("hides the events of a blacklisted group; the nearest remaining event is highlighted", async () => {
+    const el = await cardWith({ exclude_types: ["group:tests"] });
+    const rows = [...el.shadowRoot!.querySelectorAll("ul.items > li")];
+
+    expect(titles(el)).toEqual(["Wycieczka: Muzeum Techniki", "Apel: Święto szkoły", "Zebranie z rodzicami"]);
+    expect(rows.map((r) => r.className)).toEqual(["next", "", ""]);
+    expect(el.shadowRoot!.querySelectorAll(".next-label")).toHaveLength(1);
+    expect(rows[0].querySelector(".next-label")!.textContent).toBe("Najbliższe");
+  });
+
+  it("applies the whitelist first and the blacklist to its result", async () => {
+    const el = await cardWith({ types: ["group:tests", "group:trips"], exclude_types: ["Sprawdzian"] });
+    const rows = [...el.shadowRoot!.querySelectorAll("ul.items > li")];
+
+    expect(titles(el)).toEqual(["kartkówka: Przyroda", "Wycieczka: Muzeum Techniki"]);
+    expect(rows[0].className).toBe("next");
+  });
+
+  it("says so when the blacklist removes every event, in both languages", async () => {
+    const config = { exclude_types: ["group:tests", "Wycieczka", "Zebranie z rodzicami", "apel"] };
+
+    expect((await cardWith(config)).shadowRoot!.querySelector(".empty")!.textContent).toBe(
+      "Brak wydarzeń spełniających filtr rodzajów w ciągu najbliższych 14 dni",
+    );
+    expect((await cardWith(config, "en")).shadowRoot!.querySelector(".empty")!.textContent).toBe(
+      "No events match the type filter in the next 14 days",
     );
   });
 
@@ -268,5 +319,60 @@ describe("schedule card type filter", () => {
       "Contests",
       "Timetable changes",
     ]);
+  });
+
+  type Editor = HTMLElement & { updateComplete: Promise<unknown>; hass: HomeAssistant; setConfig(c: object): void };
+  type EditorForm = HTMLElement & { data: ScheduleCardConfig; schema: FormField[] };
+  type SelectConfig = { multiple: boolean; custom_value: boolean; options: { value: string; label: string }[] };
+
+  async function editorWith(config: Partial<ScheduleCardConfig>): Promise<Editor> {
+    const editor = await mount<Editor>(SCHEDULE_EDITOR, (el) => {
+      el.hass = hassWith([TEST, TRIP, MEETING, QUIZ, PLAIN]);
+      el.setConfig({ type: `custom:${SCHEDULE_CARD}`, entity: ENTITY, ...config });
+    });
+    await settle(editor);
+    return editor;
+  }
+
+  it("editor offers the same options for the blacklist, with the types of both lists", async () => {
+    const editor = await editorWith({ types: ["group:tests"], exclude_types: ["Projekt", "Apel"] });
+    const form = editor.shadowRoot!.querySelector("ha-form") as EditorForm;
+    const select = (name: string) => form.schema.find((f) => f.name === name)!.selector!.select as SelectConfig;
+
+    const order = form.schema.map((f) => f.name);
+    expect(order.indexOf("exclude_types")).toBe(order.indexOf("types") + 1);
+    expect(select("exclude_types").multiple && select("exclude_types").custom_value).toBe(true);
+    expect(select("exclude_types").options).toEqual(select("types").options);
+    // "Projekt" (only in the blacklist) is offered once; "Apel" is in the data already.
+    const values = select("types").options.map((o) => o.value);
+    expect(values.filter((v) => v === "Projekt")).toHaveLength(1);
+    expect(values.filter((v) => v === "Apel")).toHaveLength(1);
+    expect(form.data.exclude_types).toEqual(["Projekt", "Apel"]);
+    expect(form.data.types).toEqual(["group:tests"]);
+  });
+
+  it("editor labels the blacklist in Polish and English", () => {
+    expect(localize(mockHass({}, "pl"), "editor.exclude_types")).toBe("Wykluczone rodzaje wydarzeń (puste: żadne)");
+    expect(localize(mockHass({}, "en"), "editor.exclude_types")).toBe("Excluded event types (empty: none)");
+  });
+
+  it("editor sends exclude_types and does not write an empty type list", async () => {
+    const editor = await editorWith({});
+    const form = editor.shadowRoot!.querySelector("ha-form") as EditorForm;
+    const changes: ScheduleCardConfig[] = [];
+    editor.addEventListener("config-changed", (e) => changes.push((e as CustomEvent).detail.config));
+    expect(form.data).not.toHaveProperty("exclude_types");
+
+    form.dispatchEvent(new CustomEvent("value-changed", { detail: { value: { ...form.data, exclude_types: ["group:tests"] } } }));
+    await editor.updateComplete;
+    // The lists are cleared again; `fields: []` ("title only") is not an unset list and stays.
+    form.dispatchEvent(
+      new CustomEvent("value-changed", { detail: { value: { ...form.data, types: [], exclude_types: [], fields: [] } } }),
+    );
+
+    expect(changes[0].exclude_types).toEqual(["group:tests"]);
+    expect(changes[1]).not.toHaveProperty("types");
+    expect(changes[1]).not.toHaveProperty("exclude_types");
+    expect(changes[1].fields).toEqual([]);
   });
 });

@@ -31,6 +31,14 @@ export abstract class LibrusCardEditor<C extends LovelaceCardConfig = LovelaceCa
 
   protected abstract get schema(): FormField[];
 
+  /**
+   * Fields whose empty list is removed from the config (an empty list means the same
+   * as no list). Other lists keep `[]`: `fields: []` means "title only".
+   */
+  protected get dropWhenEmpty(): readonly string[] {
+    return [];
+  }
+
   setConfig(config: C): void {
     this._config = config;
   }
@@ -42,8 +50,10 @@ export abstract class LibrusCardEditor<C extends LovelaceCardConfig = LovelaceCa
     event.stopPropagation();
     const config = { ...event.detail.value };
     // Empty optional fields are removed, so the YAML stays short.
+    const dropEmptyList = this.dropWhenEmpty;
     for (const [key, value] of Object.entries(config)) {
-      if (value === "" || value === undefined || value === null) {
+      const emptyList = Array.isArray(value) && value.length === 0 && dropEmptyList.includes(key);
+      if (value === "" || value === undefined || value === null || emptyList) {
         delete (config as Record<string, unknown>)[key];
       }
     }
